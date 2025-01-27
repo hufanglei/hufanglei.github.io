@@ -1,0 +1,552 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="JDBC 编程步骤要使用 JDBC 连接和操作数据库，有一套固定的步骤。依照这些步骤，可以保证你正确的连 接到数据库并且操作它。 第一步是注册驱动，Class.forName()方法将驱动程序类加载到虚拟机的内存中。 第二步是获得数据库的连接，是使用DriverManager 类的getConnection()方法来获得的， 同时需要在参数中给出连接数据库的URL 和用户名、密码。这一步将得到">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="JDBC 编程步骤">
+<meta property="og:url" content="https://hufanglei.github.io/2014/09/28/JDBC%20%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="JDBC 编程步骤要使用 JDBC 连接和操作数据库，有一套固定的步骤。依照这些步骤，可以保证你正确的连 接到数据库并且操作它。 第一步是注册驱动，Class.forName()方法将驱动程序类加载到虚拟机的内存中。 第二步是获得数据库的连接，是使用DriverManager 类的getConnection()方法来获得的， 同时需要在参数中给出连接数据库的URL 和用户名、密码。这一步将得到">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-09-28T06:12:09.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="jdbc oracle 数据库">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2014/09/28/JDBC%20%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2014/09/28/JDBC%20%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4/","path":"2014/09/28/JDBC 编程步骤/","title":"JDBC 编程步骤"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>JDBC 编程步骤 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2014/09/28/JDBC%20%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="JDBC 编程步骤 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          JDBC 编程步骤
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2014-09-28 14:12:09" itemprop="dateCreated datePublished" datetime="2014-09-28T14:12:09+08:00">2014-09-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p><span style="color:#ff0000;"><span style="color:#ff0000;">JDBC 编程步骤<br /><span style="color:#000000;">要使用 JDBC 连接和操作数据库，有一套固定的步骤。依照这些步骤，可以保证你正确的连<br />
+接到数据库并且操作它。</span><br />
+第一步<span style="color:#000000;">是注册驱动，Class.forName()方法将驱动程序类加载到虚拟机的内存中。</span><br />
+第二步<span style="color:#000000;">是获得数据库的连接，是使用DriverManager 类的getConnection()方法来获得的，<br />
+同时需要在参数中给出连接数据库的URL 和用户名、密码。这一步将得到一个数据库连接对象，<br />
+是Connection 类型的。</span><br />
+第三步<span style="color:#000000;">是用数据库连接对象获得一个Statement 对象，这个对象可以用来执行SQL 语句。<br />
+第四步就是用Statement 对象执行SQL 语句了。其实，说是用Statement 对象来执行SQL<br />
+还不够准确，因为SQL 语句只能被数据库来执行，Statement 只是负责发送SQL 和接收结果。<br />
+但是不管是谁在执行，这一步都将执行SQL 语句。</span><br />
+第五步<span style="color:#000000;">是处理执行结果，如果是更新的操作，可能是判断一下是否更新成功，如果是查询<br />
+的操作，可能就是输出查询结果等等。</span><br />
+最后，一定要记得释放数据库的连接。<span style="color:#000000;"><span style="background-color:#ffffff;">因为数据库的连接是一个重量级的对象。如果是多<br />
+用户并发访问的应用程序，比如B/S 应用程序，每个用户都是只连接但不释放，将不断耗费服<br />
+务器的资源直至服务器down 机。</span></span></span></span></p>
+
+<p></p>
+
+<p></p>
+
+<p><span style="color:#ff0000;">JDBC 概述</span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">现在我们开发的应用程序，越来越多的要跟数据库打交道了。尤其是 B/S 应用程序，因为现在<br />
+的网页基本上都是动态网页，动态网页就意味着，页面的信息是要经常发生变化的。而存储这<br />
+些数据的载体，主要就是数据库。那我们就势必要掌握用应用程序操作数据库和其中的数据的<br />
+方法。在Java 中，我们是使用JDBC 技术来实现应用程序操作数据库的。JDBC 是 Java Data Base<br />
+Connectivity 的简称，意思是Java 数据库连接。它是用来连接数据库和操作数据库的一组API。<br />
+无论是C/S 应用程序还是B/S 应用程序，我们都可以使用JDBC 来操作数据库。</span></span></p>
+
+<p><span style="color:#ff0000;">JDBC 原理以及驱动程序的分类</span></p>
+
+<p><span style="color:#ff0000;">（1）JDBC 原理<br /><span style="color:#000000;">原来的 SUN 公司（现在是Oracle 公司）在开发JDBC API 时，将这些接口和类放在了两个<br />
+包中，java.sql 包和javax.sql 包中。而主要的接口和类都是在java.sql 包中，javax 包叫做<br />
+扩展包，javax.sql 包中有一些关于数据源、连接池和其他的一些扩展的接口和类。<br />
+JDBC 中最常用的几个接口和类是 DriverManager 类、Connection 接口、Statement 接口、<br />
+ResultSet 接口，DriverManager 这个类是管理驱动程序的，可以获得数据库连接对象。JDBC<br />
+的驱动程序是实现了JDBC API 接口的类，由数据库厂商来提供，所以我们在使用JDBC 连接数<br />
+据库的时候，需要导入数据库的驱动包，连接不同的数据库，需要导入不同的包。<br />
+而我们在编写Java 应用程序时，基本上不用太关心这些包中的类。我们只需要用JDBC 的<br />
+接口进行编程就可以了，也就是java.sql 包和javax.sql 包中的接口。这些接口的对象都是通过<br />
+其他对象来获得的，我们不需要通过new 来创建它们。而这些对象的具体实现都是在驱动程序<br />
+中实现的，是驱动程序类的对象。<br />
+（2）驱动程序分类<br />
+JDBC 驱动有四种，常用的JDBC 驱动有两种。在个人开发与测试中，可以使用JDBC-ODBC<br />
+桥连方式，在生产型开发中，推荐使用纯Java 驱动方式。<br />
+通过JDBC-ODBC 桥，开发者可以使用JDBC 来访问一个ODBC 数据源。JDBC-ODBC 桥驱动程<br />
+序为Java 应用程序提供了一种把JDBC 调用映射为ODBC 调用的方法。只要本地机装有相关的<br />
+ODBC 驱动，那么采用JDBC-ODBC 桥几乎可以访问所有的数据库。但是，由于JDBC-ODBC 先调用<br />
+ODBC 再由ODBC 去调用本地数据库接口来访问数据库。所以，执行效率比较低，对于那些大数<br />
+据量存取的应用是不适合的。而且，这种方法要求客户端必须安装ODBC 驱动，所以对于基于<br />
+internet 和intranet 的应用也是不合适的。因为，你不可能要求所有客户都能找到ODBC 驱动。</span></span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">使用JDBC-ODBC 进行桥连步骤如下：<br />
+1、配置数据源：控制面板→管理工具→ODBC 数据源→系统DSN<br />
+2、编程，通过桥连方式与数据库建立连接</span></span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">纯Java 驱动是我们以后用的最多的一种方式。纯Java 驱动直接把JDBC 调用转换为符合相</span></span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">关数据库系统规范的请求。用这种驱动编写的应用程序可以直接和数据库服务器通讯。这种类<br />
+型的驱动完全由Java 实现，因此实现了平台独立性。<br />
+由于纯Java 驱动不需要先把JDBC 的调用传给ODBC 或本地数据库接口或者是中间层服务<br />
+器，而是将JDBC 调用直接转换为DBMS 所使用的网络协议，所以它的执行效率是非常高的。这<br />
+种驱动程序可以动态的被下载。但是它有一个缺点，就是对于不同的数据库，需要下载不同的<br />
+驱动程序</span>。<br /><span style="color:#000000;">使用纯Java 驱动方式进行直连的步骤：<br />
+1、下载数据库厂商提供的驱动程序包<br />
+2、将驱动程序包引入工程中<br />
+3、编程，通过纯Java 驱动方式与数据库建立连接</span></span></p>
+
+<p></p>
+
+<p></p>
+
+<p>JDBC API 介绍<br />
+JDBC 的API 中主要定义了一些连接和操作数据库的接口，而具体的类却很少。这是因为，<br />
+在开发Java 的API 的时候，不可能让JDBC 连接某个具体的数据库，而只能确定一组规范。而<br />
+连接具体数据库的实现，应该由数据库的厂商来做。通过统一的JDBC 规范，使得我们在连接各<br />
+种数据库的时候，编码的方式是一样的，这样更利于代码的复用和移植。<br />
+从上面JDBC 编程步骤中可以看出，使用JDBC 操作数据库需要依赖几个主要的JDBC API，<br />
+接下来介绍这几个JDBC API 的使用（大家也可以结合帮助文档查看）：<br />
+（1）DriverManager 类是用来管理数据库驱动的，java.sql 包中大多数都是接口，这是为</p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">数不多的类之一。它是非常常用的一个类，最主要的功能就是获得数据库的连接，它定义了三<br />
+个连接数据库的方法，差别在参数的数量上。三个参数的getConnection()方法是最常用的。<br />
+三个参数分别是数据库的URL、用户名和密码。</span></span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">（2）java.sql.Connection 接口表示应用程序与数据库的连接对象。由数据库厂商来实现，<br />
+获得Connection 对象的方法是通过DriverManager 类的getConnection()方法。通过<br />
+Connection 对象， 我们可以获得操作数据库的Statement 、PreparedStatement ，<br />
+CallableStatement 等对象。这些对象是用来执行SQL 和存储过程的，我们会在后面讲解到。<br />
+（3）Statement 接口的对象是用来执行SQL 语句的，而且是执行静态的SQL 语句。所谓的<br />
+静态SQL 语句，是指SQL 语句由一个固定的SQL 字符串确定，运行期不能修改参数。</span></span></p>
+
+<p><span style="color:#ff0000;"><span style="color:#000000;">（4）ResultSet 接口用来表示查询结果集。当我们调用Statement 的executeQuery()方法<br />
+时，就会得到一个ResultSet 的对象。ResultSet 对象中包含根据查询语句查询出来的一个结<br />
+果集，但是，实际上这些内容还是在数据库当中，还并没有真正的取出到虚拟机的内存中。<br />
+ResultSet 其实是保存了一个指向其当前数据行的游标，我们需要使用ResultSet 的方法让游<br />
+标一行一行的向下移动，然后获取每一行的数据，所以在操作ResultSet 对象期间，数据库连<br />
+接不能关闭.</span></span></p>
+
+<p></p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2014/09/28/JDBC%20%E7%BC%96%E7%A8%8B%E6%AD%A5%E9%AA%A4/" title="JDBC 编程步骤">https://hufanglei.github.io/2014/09/28/JDBC 编程步骤/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/jdbc-oracle-%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># jdbc oracle 数据库</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2014/09/28/%E6%95%B0%E6%8D%AE%E6%BA%90%E5%92%8C%E8%BF%9E%E6%8E%A5%E6%B1%A0%E5%AE%9E%E7%8E%B0%E6%AD%A5%E9%AA%A4/" rel="prev" title="数据源和连接池实现步骤">
+                  <i class="fa fa-angle-left"></i> 数据源和连接池实现步骤
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2015/09/29/Oracle%E4%BF%AE%E6%94%B9%E5%88%97%20%E5%B0%8F%E6%8A%80%E5%B7%A7/" rel="next" title="Oracle修改列 小技巧">
+                  Oracle修改列 小技巧 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

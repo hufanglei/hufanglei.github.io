@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="&lt;&#x2F;pre&gt;&lt;img src&#x3D;&quot;https:&#x2F;&#x2F;img-blog.csdn.net&#x2F;20140927221248484?watermark&#x2F;2&#x2F;text&#x2F;aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYmFpZHVfMjEzNDk2MzU&#x3D;&#x2F;font&#x2F;5a6L5L2T&#x2F;fontsize&#x2F;400&#x2F;fill&#x2F;I0JBQkFCMA&#x3D;&#x3D;&#x2F;dissolve&#x2F;70">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="cookie的使用">
+<meta property="og:url" content="https://hufanglei.github.io/2014/09/27/cookie%E7%9A%84%E4%BD%BF%E7%94%A8/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="&lt;&#x2F;pre&gt;&lt;img src&#x3D;&quot;https:&#x2F;&#x2F;img-blog.csdn.net&#x2F;20140927221248484?watermark&#x2F;2&#x2F;text&#x2F;aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYmFpZHVfMjEzNDk2MzU&#x3D;&#x2F;font&#x2F;5a6L5L2T&#x2F;fontsize&#x2F;400&#x2F;fill&#x2F;I0JBQkFCMA&#x3D;&#x3D;&#x2F;dissolve&#x2F;70">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2014-09-27T09:17:21.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="cookie">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2014/09/27/cookie%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2014/09/27/cookie%E7%9A%84%E4%BD%BF%E7%94%A8/","path":"2014/09/27/cookie的使用/","title":"cookie的使用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>cookie的使用 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-overview-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2014/09/27/cookie%E7%9A%84%E4%BD%BF%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="cookie的使用 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          cookie的使用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2014-09-27 17:17:21" itemprop="dateCreated datePublished" datetime="2014-09-27T17:17:21+08:00">2014-09-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/jsp-serlvet/" itemprop="url" rel="index"><span itemprop="name">jsp+serlvet</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>13k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+
+<p></p>
+<pre name="code" class="html">&lt;/pre&gt;&lt;img src=&quot;https://img-blog.csdn.net/20140927221248484?watermark/2/text/aHR0cDovL2Jsb2cuY3Nkbi5uZXQvYmFpZHVfMjEzNDk2MzU=/font/5a6L5L2T/fontsize/400/fill/I0JBQkFCMA==/dissolve/70/gravity/SouthEast&quot; alt=&quot;&quot; /&gt;&lt;p&gt;&lt;/p&gt;&lt;p&gt;小练习：(红色为关键代码)&lt;/p&gt;&lt;p&gt;do.jsp页面：&lt;/p&gt;&lt;p&gt;--------------------&lt;/p&gt;&lt;p&gt;&lt;/p&gt;&lt;pre name=&quot;code&quot; class=&quot;html&quot;&gt;&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot;
+    pageEncoding=&quot;UTF-8&quot;%&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot; &quot;http://www.w3.org/TR/html4/loose.dtd&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
+&lt;title&gt;Insert title here&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+        &lt;%
+        //设置编码格式
+        request.setCharacterEncoding(&quot;UTF-8&quot;);    
+        response.setCharacterEncoding(&quot;UTF-8&quot;);
+            String username=request.getParameter(&quot;username&quot;);
+            String pw=request.getParameter(&quot;password&quot;);
+            if(username.equals(&quot;admin&quot;)){
+                  //注册失败，请从新登陆 
+                 request.setAttribute(&quot;mess&quot;,&quot;注册失败，请更换用户名 &quot;);
+                 request.getRequestDispatcher(&quot;index.jsp&quot;).forward(request,response);
+            }else{
+               //允许注册，注册成功，保存数据，实现跳转
+               //保存在cookie中
+               Cookie     cookie=new Cookie(&quot;user&quot;,username);
+               //设置有效期
+               cookie.setMaxAge(60*60);//设置cookie有效期，单位秒
+               //添加到响应对象中
+                response.addCookie(cookie);
+                session.setAttribute(&quot;username&quot;,username);
+               // session.setMaxInactiveInterval(5);
+                response.sendRedirect(&quot;success.jsp&quot;);  
+             }        
+          %&gt;
+           
+            
+           
+<p>&lt;&#x2F;body&gt;<br>&lt;&#x2F;html&gt;</pre><br></p>
+<p></p>
+<p>---------------------------------------------------</p>
+<p>index页面</p>
+<p></p>
+<pre name="code" class="html">&lt;%@ page language=&quot;java&quot; import=&quot;java.util.Date,java.text.SimpleDateFormat&quot; contentType=&quot;text/html; charset=UTF-8&quot;
+    pageEncoding=&quot;UTF-8&quot;%&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;&lt;head&gt;
+&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
+&lt;title&gt;无标题文档&lt;/title&gt;
+&lt;link type=&quot;text/css&quot; rel=&quot;stylesheet&quot; href=&quot;css/common.css&quot; /&gt;
+&lt;style type=&quot;text/css&quot;&gt;
+&lt;!--
+--&gt;
+&lt;/style&gt;
+        
+<p>  &lt;body&gt;<br>   &lt;form action&#x3D;&quot;do.jsp&quot; method&#x3D;&quot;post&quot;&gt;<br>                              用户名&lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;username&quot;&gt;&#160;<br>                               密码&lt;input type&#x3D;&quot;password&quot; name&#x3D;&quot;password&quot;&gt;<br>          &lt;button&gt;登录&lt;&#x2F;button&gt;<br>        &lt;&#x2F;form&gt;</p>
+<pre><code>      &amp;lt;%Object oMess=request.getAttribute(&amp;quot;mess&amp;quot;);
+       if(oMess!=null)&#123;
+            out.print(oMess.toString());
+       &#125;            
+       %&amp;gt;
+</code></pre>
+<p>  &lt;&#x2F;body&gt;<br>&lt;&#x2F;html&gt;</pre><br></p>
+<br>
+-----------------------------------------------------------
+<p></p>
+<p>success.jsp页面</p>
+<p><pre name="code" class="html">&lt;%@ page language=&quot;java&quot; import=&quot;java.util.Date,java.text.SimpleDateFormat&quot; contentType=&quot;text/html; charset=UTF-8&quot;
+    pageEncoding=&quot;UTF-8&quot;%&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD XHTML 1.0 Transitional//EN&quot; &quot;http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd&quot;&gt;
+&lt;html xmlns=&quot;http://www.w3.org/1999/xhtml&quot;&gt;&lt;head&gt;
+&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
+&lt;title&gt;无标题文档&lt;/title&gt;
+&lt;link type=&quot;text/css&quot; rel=&quot;stylesheet&quot; href=&quot;css/common.css&quot; /&gt;
+&lt;style type=&quot;text/css&quot;&gt;
+&lt;!--
+--&gt;
+&lt;/style&gt;
+&lt;/head&gt;
+
+<p>&lt;body&gt;<br>&lt;!–页面的头部–&gt;<br>&lt;div id&#x3D;&quot;header&quot;&gt;<br>    &lt;!–页面顶部–&gt;<br>    &lt;div class&#x3D;&quot;main-top&quot;&gt;<br>        &lt;div class&#x3D;&quot;logo&quot;&gt;&lt;a href&#x3D;&quot;&quot;&gt;&lt;span&gt;新闻大视野&lt;&#x2F;span&gt;&lt;&#x2F;a&gt;&lt;&#x2F;div&gt;<br>        &lt;div class&#x3D;&quot;login-box&quot;&gt;<br>            &lt;%<br>            Cookie[] cookies&#x3D;request.getCookies();<br>            String     user&#x3D;&quot;&quot;;<br>            for(int i&#x3D;0;i&lt;cookies.length;i++){<br>                if(cookies[i].getName().equals(&quot;user&quot;)){<br>                    user&#x3D;cookies[i].getValue();<br>                }<br>            }<br>            Object o&#x3D;session.getAttribute(&quot;username&quot;);<br>            if(o&#x3D;&#x3D;null){<br>                &#x2F;&#x2F;显示登录密码，可以在此登录<br>             %&gt;<br>             &lt;label&gt;用户名&lt;&#x2F;label&gt;&lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;uname&quot; value&#x3D;&quot;&lt;%&#x3D;user %&gt;&quot; &#x2F;&gt;&lt;label&gt;密码&lt;&#x2F;label&gt;&lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;upassword&quot; &#x2F;&gt;&lt;button&gt;登录&lt;&#x2F;button&gt;<br>          &lt;%<br>           }else{<br>              out.print(&quot;欢迎你, &quot;+o.toString());<br>              %&gt;<br>                 &#160;&lt;a href&#x3D;&quot;userLogout.jsp&quot;&gt;注销&lt;&#x2F;a&gt;<br>              &lt;%<br>          }<br>           %&gt;<br>        &lt;&#x2F;div&gt;<br>         &lt;!–导航–&gt;<br>        &lt;div class&#x3D;&quot;nav&quot;&gt;<br>            &lt;ul class&#x3D;&quot;clearfix&quot;&gt;<br>                &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;首页&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;国内&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;国际&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;娱乐&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;军事&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>            &lt;&#x2F;ul&gt;<br>        &lt;&#x2F;div&gt;<br>    &lt;&#x2F;div&gt;<br>    &lt;!–banner–&gt;<br>    &lt;div class&#x3D;&quot;main-banner&quot;&gt;&lt;img src&#x3D;&quot;images&#x2F;banner.png&quot; &#x2F;&gt;&lt;&#x2F;div&gt;<br>    &lt;!–搜索横框–&gt;<br>    &lt;div class&#x3D;&quot;search-box&quot;&gt;<br>        &lt;div class&#x3D;&quot;sl&quot;&gt;<br>            &lt;div class&#x3D;&quot;sr clearfix&quot;&gt;<br>                &lt;span class&#x3D;&quot;left-search clearfix&quot;&gt;<br>                    &lt;label&gt;站内搜索&lt;&#x2F;label&gt;&lt;input type&#x3D;&quot;text&quot; name&#x3D;&quot;keyword&quot; value&#x3D;&quot;关键词&quot; &#x2F;&gt;&lt;button class&#x3D;&quot;go-btn&quot;&gt;&lt;&#x2F;button&gt;<br>                &lt;&#x2F;span&gt;<br>                &lt;span class&#x3D;&quot;right-link&quot;&gt;<br>                    &lt;label&gt;快速链接&lt;&#x2F;label&gt;&lt;select&gt;&lt;option&gt;—–专题选择—–&lt;&#x2F;option&gt;&lt;&#x2F;select&gt;&lt;button class&#x3D;&quot;go-btn&quot;&gt;&lt;&#x2F;button&gt;<br>                &lt;&#x2F;span&gt;<br>            &lt;&#x2F;div&gt;<br>        &lt;&#x2F;div&gt;<br>    &lt;&#x2F;div&gt;<br>&lt;&#x2F;div&gt;<br>&lt;!–页面的主体–&gt;<br>&lt;div id&#x3D;&quot;content&quot; class&#x3D;&quot;main-content clearfix&quot;&gt;<br>    &lt;!–主体的的左边部分–&gt;<br>    &lt;div class&#x3D;&quot;main-content-left&quot;&gt;<br>        &lt;!–新闻专题分类–&gt;<br>        &lt;div class&#x3D;&quot;class-box&quot;&gt;<br>            &lt;div class&#x3D;&quot;class-box-header&quot;&gt;<br>                &lt;span class&#x3D;&quot;fr&quot;&gt;&lt;a href&#x3D;&quot;#&quot;&gt;更多…&lt;&#x2F;a&gt;&lt;&#x2F;span&gt;<br>                &lt;h3&gt;新闻专题&lt;&#x2F;h3&gt;<br>            &lt;&#x2F;div&gt;<br>            &lt;div class&#x3D;&quot;class-box-content&quot;&gt;<br>                &lt;ul&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;国内&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;国际&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;娱乐&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;军事&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;财经&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;天气&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                    &lt;li class&#x3D;&quot;clear-bottom-line&quot;&gt;&lt;a href&#x3D;&quot;#&quot;&gt;科技&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                &lt;&#x2F;ul&gt;<br>            &lt;&#x2F;div&gt;<br>        &lt;&#x2F;div&gt;<br>        &lt;!–最新新闻–&gt;<br>        &lt;div class&#x3D;&quot;left-box&quot;&gt;<br>            &lt;div class&#x3D;&quot;left-box-tbg&quot;&gt;<br>                &lt;div class&#x3D;&quot;left-box-bbg&quot;&gt;<br>                    &lt;div class&#x3D;&quot;left-box-header&quot;&gt;&lt;h3&gt;最新新闻&lt;&#x2F;h3&gt;&lt;&#x2F;div&gt;<br>                    &lt;div class&#x3D;&quot;left-box-content&quot;&gt;<br>                        &lt;ul&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                        &lt;&#x2F;ul&gt;<br>                    &lt;&#x2F;div&gt;<br>                &lt;&#x2F;div&gt;<br>            &lt;&#x2F;div&gt;<br>        &lt;&#x2F;div&gt;<br>        &lt;!–最新评论–&gt;<br>        &lt;div class&#x3D;&quot;left-box&quot;&gt;<br>            &lt;div class&#x3D;&quot;left-box-tbg&quot;&gt;<br>                &lt;div class&#x3D;&quot;left-box-bbg&quot;&gt;<br>                    &lt;div class&#x3D;&quot;left-box-header&quot;&gt;&lt;h3&gt;最新评论&lt;&#x2F;h3&gt;&lt;&#x2F;div&gt;<br>                    &lt;div class&#x3D;&quot;left-box-content&quot;&gt;<br>                        &lt;ul&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                            &lt;li&gt;&lt;a href&#x3D;&quot;#&quot;&gt;詹姆斯26+9+7热火2-1雷霆 詹姆斯快速实战迷踪步2+1&lt;&#x2F;a&gt;&lt;&#x2F;li&gt;<br>                        &lt;&#x2F;ul&gt;<br>                    &lt;&#x2F;div&gt;<br>                &lt;&#x2F;div&gt;<br>            &lt;&#x2F;div&gt;<br>        &lt;&#x2F;div&gt;<br>    &lt;&#x2F;div&gt;<br>    &lt;!–页面主体的右部，包括新闻的列表和评论内容 –&gt;<br>    &lt;div class&#x3D;&quot;main-content-right&quot;&gt;<br>        &lt;!–各专题的新闻列表–&gt;<br>        &lt;div class&#x3D;&quot;main-text-box&quot;&gt;<br>            &lt;div class&#x3D;&quot;article-place&quot;&gt;&lt;a href&#x3D;&quot;#&quot;&gt;新闻中心&lt;&#x2F;a&gt; &gt; &lt;a href&#x3D;&quot;#&quot;&gt;国内&lt;&#x2F;a&gt;&lt;&#x2F;div&gt;<br>              &lt;div class&#x3D;&quot;main-text-box-tbg&quot;&gt;<br>                &lt;div class&#x3D;&quot;main-text-box-bbg&quot;&gt;<br>                    &lt;div class&#x3D;&quot;article-box&quot;&gt;<br>                        &lt;!–新闻的标题–&gt;<br>                        &lt;%<br>                         &#x2F;<em>新闻更新时间</em>&#x2F;<br>                         Date today&#x3D;new Date();<br>                         SimpleDateFormat simpleDateFormat&#x3D;new SimpleDateFormat(&quot;yyyy-MM-dd&quot;);<br>                         String str_today&#x3D;simpleDateFormat.format(today);<br>                         String title&#x3D;&quot;&amp;quot;谈北京精神&amp;quot;&quot;;&#x2F;&#x2F;新闻标题<br>                          String author&#x3D;&quot;Bdqn&quot;;&#x2F;&#x2F;新闻发布者<br>                          String category&#x3D;&quot;新闻信息&quot;;&#x2F;&#x2F;新闻分类<br>                          &#x2F;&#x2F;新闻摘要<br>                          String summary&#x3D;&quot;北京是一座拥有灿烂文明的古城，厚重的历史积淀，涵育了辉煌的北京文化。而这种融贯北京万众情怀、铸造北京城市特质、传沿北京文化基因、孕育北京创新灵魂的文化精髓，就是北京精神。&quot;;<br>                          &#x2F;&#x2F;新闻内容<br>                          String content&#x3D;&quot;&lt;p&gt;侯仁之先生在谈到北京的城市建设时曾经提到过3个里程碑：紫禁城，天安门广场和国家奥林匹克体育中心、亚运村。侯先生认为，紫禁城是封建社会宫殿建筑中最有代表性的一组建筑群，是历史上封建皇权统治的中心，无论在文化上还是古迹上都举世闻名。新中国把天安门广场这样一个旧时代的宫廷广场，改造成人民的广场，给北京带来了一个全新的景象，这在北京城市建设发展史上具有重要意义。&lt;&#x2F;p&gt;&lt;p&gt;国家奥林匹克体育中心和亚运村的建设是对北京城传统中轴线的延伸，代表着北京走向国际、走向世界。北京的城市建设和建筑是与民族的兴衰联系在一起的，就像北京的中轴线，从北京厚重的历史中出发，奔向充满光明、充满希望的未来，奔向广阔的世界、无垠的宇宙。北京有着3000多年的建城史，800多年的建都史。从西周时期到辽金时期，北京作为地方首府，城市的中心点和中轴线不断改变。直到元代，蒙古铁骑扫荡了华夏四方，北京才真正成为全国的政治中心，中轴线也确定下来。中轴线在北京城市规划上具有重要意义，它就像一条奔涌着民族血液的动脉，为我们的民族、我们的国家、我们的北京时刻输送着营养和活力。中轴线凝聚了北京人民的爱国情怀，显示了北京的宽容、厚重与博大，也体现了北京的吸纳与创新。纵观世界，多少历史古城在浩瀚的风云中固守而亡，而北京几经磨难，依然能迈着豪迈的步伐，坚定自信地向充满希望的未来走去，我们不能不为北京的吸纳与创新而自豪！&lt;&#x2F;P&gt;&quot;;<br>                        %&gt;<br>                        &lt;h1&gt;&lt;%&#x3D;title %&gt;&lt;&#x2F;h1&gt;<br>                        &lt;div class&#x3D;&quot;source-bar&quot;&gt;发布者：&lt;%&#x3D;author %&gt; 分类：&lt;%&#x3D;category%&gt;  更新时间：&lt;%&#x3D;str_today %&gt;&lt;&#x2F;div&gt;<br>                        &lt;div class&#x3D;&quot;article-content&quot;&gt;<br>                            &lt;span class&#x3D;&quot;article-summary&quot;&gt;&lt;b&gt;摘要：&lt;&#x2F;b&gt;&lt;%&#x3D;summary%&gt;&lt;&#x2F;span&gt;<br>                            &lt;%&#x3D;content%&gt;<br>                        &lt;&#x2F;div&gt;<br>                        &lt;div class&#x3D;&quot;comment&quot;&gt;<br>                            &lt;dl&gt;<br>                                &lt;dt class&#x3D;&quot;comment-top&quot;&gt;<br>                                    &lt;span class&#x3D;&quot;fr&quot;&gt;2011-09-25 13:33:55&lt;&#x2F;span&gt;<br>                                    &lt;b&gt;1楼&lt;&#x2F;b&gt; &lt;b&gt;水上漂&lt;&#x2F;b&gt;<br>                                &lt;&#x2F;dt&gt;<br>                                &lt;dd class&#x3D;&quot;comment-body&quot;&gt;<br>                                    爱北京，爱中国！<br>                                &lt;&#x2F;dd&gt;<br>                            &lt;&#x2F;dl&gt;<br>                            &lt;dl&gt;<br>                                &lt;dt class&#x3D;&quot;comment-top&quot;&gt;<br>                                    &lt;span class&#x3D;&quot;fr&quot;&gt;2011-09-25 13:33:55&lt;&#x2F;span&gt;<br>                                    &lt;b&gt;2楼&lt;&#x2F;b&gt; &lt;b&gt;拉娜&lt;&#x2F;b&gt;<br>                                &lt;&#x2F;dt&gt;<br>                               &lt;dd class&#x3D;&quot;comment-body&quot;&gt;<br>                                    中国人雄起！<br>                                &lt;&#x2F;dd&gt;<br>                            &lt;&#x2F;dl&gt;<br>                        &lt;&#x2F;div&gt;<br>                        &lt;div class&#x3D;&quot;comment-form&quot;&gt;<br>                            &lt;div class&#x3D;&quot;comment-form-header&quot;&gt;<br>                                &lt;span&gt;用户：Landodo&lt;&#x2F;span&gt;<br>                                &lt;h3&gt;发表评论：&lt;&#x2F;h3&gt;<br>                            &lt;&#x2F;div&gt;<br>                            &lt;div class&#x3D;&quot;comment-form-content&quot;&gt;<br>                                &lt;textarea class&#x3D;&quot;comment-textarea&quot;&gt;&lt;&#x2F;textarea&gt;<br>                                &lt;button type&#x3D;&quot;submit&quot; class&#x3D;&quot;comment-btn&quot;&gt;评论&lt;&#x2F;button&gt;<br>                            &lt;&#x2F;div&gt;<br>                        &lt;&#x2F;div&gt;<br>                    &lt;&#x2F;div&gt;<br>                &lt;&#x2F;div&gt;<br>            &lt;&#x2F;div&gt;<br>        &lt;&#x2F;div&gt;<br>        &lt;!–&#x2F;&#x2F;–&gt;</p>
+<pre><code>&amp;lt;/div&amp;gt;
+</code></pre>
+<p>&lt;&#x2F;div&gt;<br>&lt;!–页面底部–&gt;<br>&lt;div class&#x3D;&quot;main-footer-box&quot;&gt;<br>    24小时客户服务热线：010-68988888 常见问题解答 新闻热线：010-627488888&lt;br &#x2F;&gt;<br>    文明办网文明上网举报电话：010-627488888 举报邮箱：<a href="mailto:&#106;&#x75;&#98;&#97;&#111;&#x40;&#x62;&#x6a;&#x2d;&#97;&#x70;&#x74;&#101;&#x63;&#x68;&#x2e;&#x63;&#111;&#x6d;&#46;&#x63;&#x6e;">jubao@bj-aptech.com.cn</a>&lt;br &#x2F;&gt;<br>    Coyright&amp;copy;1999-2007 News China gov,All Right Reserved.&lt;br &#x2F;&gt;<br>    新闻中心版权所有<br>&lt;&#x2F;div&gt;</p>
+<p>&lt;!– 统计页面被访问次数 –&gt;<br>&lt;%                                                 </p>
+<pre><code>  Object count=application.getAttribute(&amp;quot;count&amp;quot;);
+  if(count==null)&#123;
+      application.setAttribute(&amp;quot;count&amp;quot;,new Integer(1));
+   &#125;else&#123;
+      Integer i=(Integer)count;
+      application.setAttribute(&amp;quot;count&amp;quot;,i.intValue()+1);
+   &#125;   
+    Integer icount=(Integer)application.getAttribute(&amp;quot;count&amp;quot;);
+    out.print(&amp;quot;页面被访问了 &amp;quot;+icount.intValue()+&amp;quot;次&amp;quot;); 
+  
+</code></pre>
+<p> %&gt;<br>&lt;&#x2F;body&gt;</p>
+<p>&lt;&#x2F;html&gt;</pre><br><br><br></p>
+</p>
+<p>-----------------------------------</p>
+<p>userLogout.jsp页面</p>
+<p><br>
+</p>
+<p><pre name="code" class="html">&lt;%@ page language=&quot;java&quot; contentType=&quot;text/html; charset=UTF-8&quot;
+    pageEncoding=&quot;UTF-8&quot;%&gt;
+&lt;!DOCTYPE html PUBLIC &quot;-//W3C//DTD HTML 4.01 Transitional//EN&quot; &quot;http://www.w3.org/TR/html4/loose.dtd&quot;&gt;
+&lt;html&gt;
+&lt;head&gt;
+&lt;meta http-equiv=&quot;Content-Type&quot; content=&quot;text/html; charset=UTF-8&quot;&gt;
+&lt;title&gt;Insert title here&lt;/title&gt;
+&lt;/head&gt;
+&lt;body&gt;
+&lt;%//实现注销                
+  //session.removeAttribute(&quot;username&quot;);
+  session.invalidate(); 
+  response.sendRedirect(&quot;success.jsp&quot;);
+ %&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre><br>
+<br>
+</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2014/09/27/cookie%E7%9A%84%E4%BD%BF%E7%94%A8/" title="cookie的使用">https://hufanglei.github.io/2014/09/27/cookie的使用/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/cookie/" rel="tag"># cookie</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2014/09/27/request%EF%BC%8Csession%EF%BC%8Capplication%20%E7%9A%84%E5%8C%BA%E5%88%AB/" rel="prev" title="request，session，application 的区别">
+                  <i class="fa fa-angle-left"></i> request，session，application 的区别
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2014/09/27/%E5%AE%A2%E6%88%B7%E7%AB%AF%E8%AF%B7%E6%B1%82%E6%96%B0%E9%A1%B5%E9%9D%A2%E7%9A%8414%E7%A7%8D%E6%96%B9%E6%B3%95/" rel="next" title="客户端请求新页面的14种方法">
+                  客户端请求新页面的14种方法 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

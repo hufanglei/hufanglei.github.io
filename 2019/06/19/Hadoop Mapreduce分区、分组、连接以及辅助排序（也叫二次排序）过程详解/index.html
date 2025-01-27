@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@TOC转载自 ;https:&#x2F;&#x2F;blog.csdn.net&#x2F;xiaocaidexuexibiji&#x2F;article&#x2F;details&#x2F;12125699 1、MapReduce中数据流动   （1）最简单的过程：  map - reduce   （2）定制了partitioner以将map的结果送往指定reducer的过程：　map - partition - reduce   （3）增加了在本地">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解">
+<meta property="og:url" content="https://hufanglei.github.io/2019/06/19/Hadoop%20Mapreduce%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E8%BF%9E%E6%8E%A5%E4%BB%A5%E5%8F%8A%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%EF%BC%88%E4%B9%9F%E5%8F%AB%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%EF%BC%89%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@TOC转载自 ;https:&#x2F;&#x2F;blog.csdn.net&#x2F;xiaocaidexuexibiji&#x2F;article&#x2F;details&#x2F;12125699 1、MapReduce中数据流动   （1）最简单的过程：  map - reduce   （2）定制了partitioner以将map的结果送往指定reducer的过程：　map - partition - reduce   （3）增加了在本地">
+<meta property="og:locale" content="zh_CN">
+<meta property="article:published_time" content="2019-06-18T22:30:14.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="hadoop mapreduce">
+<meta name="twitter:card" content="summary">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/06/19/Hadoop%20Mapreduce%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E8%BF%9E%E6%8E%A5%E4%BB%A5%E5%8F%8A%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%EF%BC%88%E4%B9%9F%E5%8F%AB%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%EF%BC%89%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/06/19/Hadoop%20Mapreduce%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E8%BF%9E%E6%8E%A5%E4%BB%A5%E5%8F%8A%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%EF%BC%88%E4%B9%9F%E5%8F%AB%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%EF%BC%89%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3/","path":"2019/06/19/Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解/","title":"Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1%E3%80%81MapReduce%E4%B8%AD%E6%95%B0%E6%8D%AE%E6%B5%81%E5%8A%A8"><span class="nav-text">1、MapReduce中数据流动</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#2%E3%80%81Mapreduce%E4%B8%ADPartition%E7%9A%84%E6%A6%82%E5%BF%B5%E4%BB%A5%E5%8F%8A%E4%BD%BF%E7%94%A8%E3%80%82"><span class="nav-text">2、Mapreduce中Partition的概念以及使用。</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1%EF%BC%89Partition%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E4%BD%9C%E7%94%A8"><span class="nav-text">1）Partition的原理和作用</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%EF%BC%89Partition%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">2）Partition的使用</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#3%E3%80%81MapReduce%E4%B8%ADCombiner%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">3、MapReduce中Combiner的使用</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#4%E3%80%81Shuffle%E9%98%B6%E6%AE%B5%E6%8E%92%E5%BA%8F%E6%B5%81%E7%A8%8B%E8%AF%A6%E8%A7%A3"><span class="nav-text">4、Shuffle阶段排序流程详解</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#5%E3%80%81MapReduce%E4%B8%AD%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%E7%9A%84%E5%8E%9F%E7%90%86%E4%B8%8E%E5%AE%9E%E7%8E%B0"><span class="nav-text">5、MapReduce中辅助排序的原理与实现</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E4%BB%BB%E5%8A%A1"><span class="nav-text">（1）任务</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2%EF%BC%89%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="nav-text">2）工作原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3%EF%BC%89%E5%AE%9E%E7%8E%B0%E4%BB%A3%E7%A0%81"><span class="nav-text">3）实现代码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E9%A6%96%E5%85%88%E8%AF%B4%E4%B8%80%E4%B8%8B%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86%EF%BC%9A"><span class="nav-text">1 首先说一下工作原理：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%E5%B0%B1%E6%98%AF%E9%A6%96%E5%85%88%E6%8C%89%E7%85%A7%E7%AC%AC%E4%B8%80%E5%AD%97%E6%AE%B5%E6%8E%92%E5%BA%8F%EF%BC%8C%E7%84%B6%E5%90%8E%E5%86%8D%E5%AF%B9%E7%AC%AC%E4%B8%80%E5%AD%97%E6%AE%B5%E7%9B%B8%E5%90%8C%E7%9A%84%E8%A1%8C%E6%8C%89%E7%85%A7%E7%AC%AC%E4%BA%8C%E5%AD%97%E6%AE%B5%E6%8E%92%E5%BA%8F%EF%BC%8C%E6%B3%A8%E6%84%8F%E4%B8%8D%E8%83%BD%E7%A0%B4%E5%9D%8F%E7%AC%AC%E4%B8%80%E6%AC%A1%E6%8E%92%E5%BA%8F%E7%9A%84%E7%BB%93%E6%9E%9C-%E3%80%82%E4%BE%8B%E5%A6%82"><span class="nav-text">2  二次排序就是首先按照第一字段排序，然后再对第一字段相同的行按照第二字段排序，注意不能破坏第一次排序的结果 。例如</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BE%93%E5%87%BA%EF%BC%9A%EF%BC%88%E6%B3%A8%E6%84%8F%E9%9C%80%E8%A6%81%E5%88%86%E5%89%B2%E7%BA%BF%EF%BC%89"><span class="nav-text">输出：（注意需要分割线）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%85%B7%E4%BD%93%E6%AD%A5%E9%AA%A4%EF%BC%9A"><span class="nav-text">3  具体步骤：</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%881%EF%BC%89%E8%87%AA%E5%AE%9A%E4%B9%89key"><span class="nav-text">（1）自定义key</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882%EF%BC%89%E7%94%B1%E4%BA%8Ekey%E6%98%AF%E8%87%AA%E5%AE%9A%E4%B9%89%E7%9A%84%EF%BC%8C%E6%89%80%E4%BB%A5%E8%BF%98%E9%9C%80%E8%A6%81%E8%87%AA%E5%AE%9A%E4%B9%89%E4%B8%80%E4%B8%8B%E7%B1%BB%EF%BC%9A"><span class="nav-text">（2）由于key是自定义的，所以还需要自定义一下类：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%EF%BC%882-3%EF%BC%89%E5%88%86%E7%BB%84%E5%87%BD%E6%95%B0%E7%B1%BB%E3%80%82"><span class="nav-text">（2.3）分组函数类。</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/06/19/Hadoop%20Mapreduce%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E8%BF%9E%E6%8E%A5%E4%BB%A5%E5%8F%8A%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%EF%BC%88%E4%B9%9F%E5%8F%AB%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%EF%BC%89%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-06-19 06:30:14" itemprop="dateCreated datePublished" datetime="2019-06-19T06:30:14+08:00">2019-06-19</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>14k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@<a href="%E7%9B%AE%E5%BD%95">TOC</a><br>转载自 ;<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaocaidexuexibiji/article/details/12125699">https://blog.csdn.net/xiaocaidexuexibiji/article/details/12125699</a></p>
+<h1 id="1、MapReduce中数据流动"><a href="#1、MapReduce中数据流动" class="headerlink" title="1、MapReduce中数据流动"></a>1、MapReduce中数据流动</h1><p>   （1）最简单的过程：  map - reduce<br>   （2）定制了partitioner以将map的结果送往指定reducer的过程：　map - partition - reduce<br>   （3）增加了在本地先进性一次reduce（优化）过程：　map - combin(本地reduce) - partition -reduce</p>
+<h1 id="2、Mapreduce中Partition的概念以及使用。"><a href="#2、Mapreduce中Partition的概念以及使用。" class="headerlink" title="2、Mapreduce中Partition的概念以及使用。"></a>2、Mapreduce中Partition的概念以及使用。</h1><h2 id="1）Partition的原理和作用"><a href="#1）Partition的原理和作用" class="headerlink" title="1）Partition的原理和作用"></a>1）Partition的原理和作用</h2><pre><code>    得到map给的记录后，他们该分配给哪些reducer来处理呢？hadoop采用的默认的派发方式是根据散列值来派发的，但是实际中，这并不能很高效或者按照我们要求的去执行任务。例如，经过partition处理后，一个节点的reducer分配到了20条记录，另一个却分配道了10W万条，试想，这种情况效率如何。又或者，我们想要处理后得到的文件按照一定的规律进行输出，假设有两个reducer，我们想要最终结果中part-00000中存储的是&quot;h&quot;开头的记录的结果,part-00001中存储其他开头的结果，这些默认的partitioner是做不到的。所以需要我们自己定制partition来根据自己的要求，选择记录的reducer。自定义partitioner很简单，只要自定义一个类，并且继承Partitioner类，重写其getPartition方法就好了，在使用的时候通过调用Job的setPartitionerClass指定一下即可
+
+    Map的结果，会通过partition分发到Reducer上。Mapper的结果，可能送到Combiner做合并，Combiner在系统中并没有自己的基类，而是用Reducer作为Combiner的基类，他们对外的功能是一样的，只是使用的位置和使用时的上下文不太一样而已。Mapper最终处理的键值对&lt;key, value&gt;，是需要送到Reducer去合并的，合并的时候，有相同key的键/值对会送到同一个Reducer那。哪个key到哪个Reducer的分配过程，是由Partitioner规定的。它只有一个方法，
+
+    getPartition(Text key, Text value, int numPartitions) 
+</code></pre>
+<p>输入是Map的结果对&lt;key, value&gt;和Reducer的数目，输出则是分配的Reducer（整数编号）。就是指定Mappr输出的键值对到哪一个reducer上去。系统缺省的Partitioner是HashPartitioner，它以key的Hash值对Reducer的数目取模，得到对应的Reducer。这样保证如果有相同的key值，肯定被分配到同一个reducre上。如果有N个reducer，编号就为0,1,2,3……(N-1)。</p>
+<h2 id="2）Partition的使用"><a href="#2）Partition的使用" class="headerlink" title="2）Partition的使用"></a>2）Partition的使用</h2><pre><code>    分区出现的必要性，如何使用Hadoop产生一个全局排序的文件？最简单的方法就是使用一个分区，但是该方法在处理大型文件时效率极低，因为一台机器必须处理所有输出文件，从而完全丧失了MapReduce所提供的并行架构的优势。事实上我们可以这样做，首先创建一系列排好序的文件；其次，串联这些文件（类似于归并排序）；最后得到一个全局有序的文件。主要的思路是使用一个partitioner来描述全局排序的输出。比方说我们有1000个1-10000的数据，跑10个ruduce任务， 如果我们运行进行partition的时候，能够将在1-1000中数据的分配到第一个reduce中，1001-2000的数据分配到第二个reduce中，以此类推。即第n个reduce所分配到的数据全部大于第n-1个reduce中的数据。这样，每个reduce出来之后都是有序的了，我们只要cat所有的输出文件，变成一个大的文件，就都是有序的了
+</code></pre>
+<p>基本思路就是这样，但是现在有一个问题，就是数据的区间如何划分，在数据量大，还有我们并不清楚数据分布的情况下。一个比较简单的方法就是采样，假如有一亿的数据，我们可以对数据进行采样，如取10000个数据采样，然后对采样数据分区间。在Hadoop中，patition我们可以用TotalOrderPartitioner替换默认的分区。然后将采样的结果传给他，就可以实现我们想要的分区。在采样时，我们可以使用hadoop的几种采样工具，RandomSampler,InputSampler,IntervalSampler。</p>
+<pre><code>   这样，我们就可以对利用分布式文件系统进行大数据量的排序了，我们也可以重写Partitioner类中的compare函数，来定义比较的规则，从而可以实现字符串或其他非数字类型的排序，也可以实现二次排序乃至多次排序。
+</code></pre>
+<p>2、MapReduce中分组的概念和使用<br>    分区的目的是根据Key值决定Mapper的输出记录被送到哪一个Reducer上去处理。而分组的就比较好理解了。笔者认为，分组就是与记录的Key相关。在同一个分区里面，具有相同Key值的记录是属于同一个分组的。</p>
+<h1 id="3、MapReduce中Combiner的使用"><a href="#3、MapReduce中Combiner的使用" class="headerlink" title="3、MapReduce中Combiner的使用"></a>3、MapReduce中Combiner的使用</h1><pre><code>    很多MapReduce程序受限于集群上可用的带宽，所以它会尽力最小化需要在map和reduce任务之间传输的中间数据。Hadoop允许用户声明一个combiner function来处理map的输出，同时把自己对map的处理结果作为reduce的输入。因为combiner function本身只是一种优化，hadoop并不保证对于某个map输出，这个方法会被调用多少次。换句话说，不管combiner function被调用多少次，对应的reduce输出结果都应该是一样的。
+</code></pre>
+<p>　　下面我们以《权威指南》的例子来加以说明，假设1950年的天气数据读取是由两个map完成的，其中第一个map的输出如下：　<br>　　(1950, 0)<br>　　(1950, 20)<br>　　(1950, 10)</p>
+<p>第二个map的输出为：<br>       (1950, 25)<br>       (1950, 15)</p>
+<p>而reduce得到的输入为：(1950, [0, 20, 10, 25, 15])， 输出为：(1950, 25)</p>
+<p>　　由于25是集合中的最大值，我们可以使用一个类似于reduce function的combiner function来找出每个map输出中的最大值，这样的话，reduce的输入就变成了：<br>　　(1950, [20, 25])</p>
+<p>　　各个funciton 对温度值的处理过程可以表示如下：max(0, 20, 10, 25, 15) &#x3D;max(max(0, 20, 10), max(25, 15)) &#x3D; max(20, 25) &#x3D; 25</p>
+<p>　　注意：并不是所有的函数都拥有这个属性的（有这个属性的函数我们称之为commutative和associative），例如，如果我们要计算平均温度，就不能这样使用combiner function，因为mean(0, 20, 10, 25, 15) &#x3D;14，而mean(mean(0, 20, 10),mean(25, 15)) &#x3D; mean(10, 20) &#x3D; 15</p>
+<p>　　combiner function并不能取代reduce function（因为仍然需要reduce function处理来自不同map的带有相同key的记录）。但是他可以帮助减少需要在map和reduce之间传输的数据，就为这一点combiner function就值得考虑使用。</p>
+<p>注意：如果MapOutputKey和MapOuputValue和outputkey和outputvalue不一致的时候，不能使用combiner。</p>
+<h1 id="4、Shuffle阶段排序流程详解"><a href="#4、Shuffle阶段排序流程详解" class="headerlink" title="4、Shuffle阶段排序流程详解"></a>4、Shuffle阶段排序流程详解</h1><pre><code>    我们首先看一下MapReduce中的排序的总体流程。
+</code></pre>
+<blockquote>
+<p>MapReduce框架会确保每一个Reducer的输入都是按Key进行排序的。一般，将排序以及Map的输出传输到Reduce的过程称为混洗（shuffle)。每一个Map都包含一个环形的缓存，默认100M，Map首先将输出写到缓存当中。当缓存的内容达到“阈值”时（阈值默认的大小是缓存的80%），一个后台线程负责将结果写到硬盘，这个过程称为“spill”。Spill过程中，Map仍可以向缓存写入结果，如果缓存已经写满，那么Map进行等待。</p>
+</blockquote>
+<p>Spill的具体过程如下：首先，后台线程根据Reducer的个数将输出结果进行分组，每一个分组对应一个Reducer。其次，对于每一个分组后台线程对输出结果的Key进行排序。在排序过程中，如果有Combiner函数，则对排序结果进行Combiner函数进行调用。每一次spill都会在硬盘产生一个spill文件。因此，一个Map task有可能会产生多个spill文件，当Map写出最后一个输出时，会将所有的spill文件进行合并与排序，输出最终的结果文件。在这个过程中Combiner函数仍然会被调用。从整个过程来看，Combiner函数的调用次数是不确定的。下面我们重点分析下Shuffle阶段的排序过程：</p>
+<blockquote>
+<p> Shuffle阶段的排序可以理解成两部分，一个是对spill进行分区时，由于一个分区包含多个key值，所以要对分区内的&lt;key,value&gt;按照key进行排序，即key值相同的一串&lt;key,value&gt;存放在一起，这样一个partition内按照key值整体有序了。</p>
+</blockquote>
+<blockquote>
+<p>第二部分并不是排序，而是进行merge，merge有两次，一次是map端将多个spill 按照分区和分区内的key进行merge，形成一个大的文件。第二次merge是在reduce端，进入同一个reduce的多个map的输出 merge在一起，该merge理解起来有点复杂，最终不是形成一个大文件，而且期间数据在内存和磁盘上都有。所以shuffle阶段的merge并不是严格的排序意义，只是将多个整体有序的文件merge成一个大的文件，由于不同的task执行map的输出会有所不同，所以merge后的结果不是每次都相同，不过还是严格要求按照分区划分，同时每个分区内的具有相同key的&lt;key,value&gt;对挨在一起。</p>
+</blockquote>
+<blockquote>
+<p>Shuffle排序综述：如果只定义了map函数，没有定义reduce函数，那么输入数据经过shuffle的排序后，结果为key值相同的输出挨在一起，且key值小的一定在前面，这样整体来看key值有序（宏观意义的，不一定是按从大到小，因为如果采用默认的HashPartitioner，则key 的hash值相等的在一个分区，如果key为IntWritable的话，每个分区内的key会排序好的），而每个key对应的value不是有序的。</p>
+</blockquote>
+<h1 id="5、MapReduce中辅助排序的原理与实现"><a href="#5、MapReduce中辅助排序的原理与实现" class="headerlink" title="5、MapReduce中辅助排序的原理与实现"></a>5、MapReduce中辅助排序的原理与实现</h1><h2 id="（1）任务"><a href="#（1）任务" class="headerlink" title="（1）任务"></a>（1）任务</h2><p>我们需要把内容如下的sample.txt文件处理为下面文件：</p>
+<p>源文件：Sample.txt</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line">bbb 654</span><br><span class="line"></span><br><span class="line">ccc 534</span><br><span class="line"></span><br><span class="line">ddd 423</span><br><span class="line"></span><br><span class="line">aaa 754</span><br><span class="line"></span><br><span class="line">bbb 842</span><br><span class="line"></span><br><span class="line">ccc 120</span><br><span class="line"></span><br><span class="line">ddd 219</span><br><span class="line"></span><br><span class="line">aaa 344</span><br><span class="line"></span><br><span class="line">bbb 214</span><br><span class="line"></span><br><span class="line">ccc 547</span><br><span class="line"></span><br><span class="line">ddd 654</span><br><span class="line"></span><br><span class="line">aaa 122</span><br><span class="line"></span><br><span class="line">bbb 102</span><br><span class="line"></span><br><span class="line">ccc 479</span><br><span class="line"></span><br><span class="line">ddd 742</span><br><span class="line"></span><br><span class="line">aaa 146</span><br></pre></td></tr></table></figure>
+
+<p>目标：part-r-00000</p>
+<p>aaa 122</p>
+<p>bbb 102</p>
+<p>ccc 120</p>
+<p>ddd 219</p>
+<h2 id="2）工作原理"><a href="#2）工作原理" class="headerlink" title="2）工作原理"></a>2）工作原理</h2><p>   过程导引：<br>   1、定义包含记录值和自然值的组合键，本例中为MyPariWritable.</p>
+<p>   2、自定义键的比较器（comparator）来根据组合键对记录进行排序，即同时利用自然键和自然值进行排序。（aaa 122组合为一个键）。</p>
+<p>   3、针对组合键的Partitioner（本示例使用默认的hashPartitioner）和分组comparator在进行分区和分组时均只考虑自然键。</p>
+<p>   详细过程：<br>首先在map阶段，使用job.setInputFormatClass定义的InputFormat将输入的数据集分割成小数据块splites，同时InputFormat提供一个RecordReder的实现。本例子中使用的是TextInputFormat，他提供的RecordReder会将文本的一行的行号作为key，这一行的文本作为value。这就是自定义Map的输入是&lt;LongWritable, Text&gt;的原因。然后调用自定义Map的map方法，将一个个&lt;LongWritable, Text&gt;对输入给Map的map方法。注意输出应该符合自定义Map中定义的输出&lt; MyPariWritable, NullWritable&gt;。最终是生成一个List&lt; MyPariWritable, NullWritable&gt;。在map阶段的最后，会先调用job.setPartitionerClass对这个List进行分区，每个分区映射到一个reducer。每个分区内又调用job.setSortComparatorClass设置的key比较函数类排序。可以看到，这本身就是一个二次排序。在reduce阶段，reducer接收到所有映射到这个reducer的map输出后，也是会调用job.setSortComparatorClass设置的key比较函数类对所有数据对排序。然后开始构造一个key对应的value迭代器。这时就要用到分组，使用jobjob.setGroupingComparatorClass设置的分组函数类。只要这个比较器比较的两个key相同，他们就属于同一个组（本例中由于要求得每一个分区内的最小值，因此比较MyPariWritable类型的Key时，只需要比较自然键，这样就能保证只要两个MyPariWritable的自然键相同，则它们被送到Reduce端时候的Key就认为在相同的分组，由于该分组的Key只取分组中的第一个，而这些数据已经按照自定义MyPariWritable比较器排好序，则第一个Key正好包含了每一个自然键对应的最小值），它们的value放在一个value迭代器，而这个迭代器的key使用属于同一个组的所有key的第一个key。最后就是进入Reducer的reduce方法，reduce方法的输入是所有的key和它的value迭代器。同样注意输入与输出的类型必须与自定义的Reducer中声明的一致。 </p>
+<h2 id="3）实现代码"><a href="#3）实现代码" class="headerlink" title="3）实现代码"></a>3）实现代码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hadoop;</span><br><span class="line"><span class="keyword">import</span> java.io.DataInput;</span><br><span class="line"><span class="keyword">import</span> java.io.DataOutput;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configured;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.FileSystem;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.LongWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.NullWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.WritableComparable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.WritableComparator;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Job;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Mapper;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Reducer;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.Tool;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.util.ToolRunner;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WritableSample</span> <span class="keyword">extends</span> <span class="title class_">Configured</span> <span class="keyword">implements</span> <span class="title class_">Tool</span> &#123;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">run</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		Configuration conf=getConf();</span><br><span class="line">		Job job=<span class="keyword">new</span> <span class="title class_">Job</span>(conf);</span><br><span class="line">		job.setJarByClass(WritableSample.class);</span><br><span class="line">		FileSystem fs=FileSystem.get(conf);</span><br><span class="line">		fs.delete(<span class="keyword">new</span> <span class="title class_">Path</span>(<span class="string">&quot;out&quot;</span>),<span class="literal">true</span>);</span><br><span class="line">		FileInputFormat.addInputPath(job, <span class="keyword">new</span> <span class="title class_">Path</span>(<span class="string">&quot;sample.txt&quot;</span>));</span><br><span class="line">		FileOutputFormat.setOutputPath(job, <span class="keyword">new</span> <span class="title class_">Path</span>(<span class="string">&quot;out&quot;</span>));</span><br><span class="line">        job.setMapperClass(MyWritableMap.class);</span><br><span class="line">        job.setOutputKeyClass(MyPariWritable.class);</span><br><span class="line">        job.setOutputValueClass(NullWritable.class);</span><br><span class="line">        job.setReducerClass(MyWriableReduce.class);</span><br><span class="line">        job.setSortComparatorClass(PairKeyComparator.class);</span><br><span class="line">        job.setGroupingComparatorClass(GroupComparatored.class);</span><br><span class="line">        job.waitForCompletion(<span class="literal">true</span>);</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">		Tool tool=<span class="keyword">new</span> <span class="title class_">WritableSample</span>();</span><br><span class="line">		ToolRunner.run(tool, args);</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyPariWritable</span> <span class="keyword">implements</span> <span class="title class_">WritableComparable</span>&lt;MyPariWritable&gt;&#123;</span><br><span class="line">	Text first;</span><br><span class="line">	IntWritable second;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">set</span><span class="params">(Text first,IntWritable second)</span>&#123;</span><br><span class="line">		<span class="built_in">this</span>.first=first;</span><br><span class="line">		<span class="built_in">this</span>.second=second;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> Text <span class="title function_">getFirst</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.first;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> IntWritable <span class="title function_">getSecond</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="built_in">this</span>.second;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">readFields</span><span class="params">(DataInput in)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">		first=<span class="keyword">new</span> <span class="title class_">Text</span>(in.readUTF());</span><br><span class="line">		second=<span class="keyword">new</span> <span class="title class_">IntWritable</span>(in.readInt());</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">write</span><span class="params">(DataOutput out)</span>&#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			out.writeUTF(first.toString());</span><br><span class="line">			out.writeInt(second.get());</span><br><span class="line">		&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">			<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compareTo</span><span class="params">(MyPariWritable o)</span> &#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">		<span class="keyword">if</span>(<span class="built_in">this</span>.first!=o.getFirst())&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="built_in">this</span>.first.toString().compareTo(o.getFirst().toString());</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">if</span>(<span class="built_in">this</span>.second!=o.getSecond())&#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="built_in">this</span>.second.get()-o.getSecond().get();</span><br><span class="line">		&#125;<span class="keyword">else</span> <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="comment">// TODO Auto-generated method stub</span></span><br><span class="line">		<span class="keyword">return</span> first.toString()+<span class="string">&quot; &quot;</span>+second.get();</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">boolean</span> <span class="title function_">equals</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">		MyPariWritable temp=(MyPariWritable) obj;</span><br><span class="line">		<span class="keyword">return</span> first.equals(temp.first)&amp;&amp;second.equals(temp.second);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">hashCode</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> first.hashCode()*<span class="number">163</span>+second.hashCode();</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyWritableMap</span> <span class="keyword">extends</span> <span class="title class_">Mapper</span>&lt;LongWritable, Text, MyPariWritable, NullWritable&gt;&#123;</span><br><span class="line">	MyPariWritable pair=<span class="keyword">new</span> <span class="title class_">MyPariWritable</span>();</span><br><span class="line">	<span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">map</span><span class="params">(LongWritable key, Text value, Context context)</span> <span class="keyword">throws</span> IOException ,InterruptedException &#123;</span><br><span class="line">		String strs[]=value.toString().split(<span class="string">&quot; &quot;</span>);</span><br><span class="line">		Text keyy=<span class="keyword">new</span> <span class="title class_">Text</span>(strs[<span class="number">0</span>]);</span><br><span class="line">		IntWritable valuee=<span class="keyword">new</span> <span class="title class_">IntWritable</span>(Integer.parseInt(strs[<span class="number">1</span>]));</span><br><span class="line">		pair.set(keyy, valuee);</span><br><span class="line">		context.write(pair, NullWritable.get());</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">PairKeyComparator</span> <span class="keyword">extends</span> <span class="title class_">WritableComparator</span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="title function_">PairKeyComparator</span><span class="params">()</span> &#123;</span><br><span class="line">		<span class="built_in">super</span>(MyPariWritable.class,<span class="literal">true</span>);</span><br><span class="line">			&#125;</span><br><span class="line">	<span class="meta">@SuppressWarnings(&quot;rawtypes&quot;)</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(WritableComparable a,  WritableComparable b)</span> &#123;</span><br><span class="line">		MyPariWritable p1=(MyPariWritable) a;</span><br><span class="line">		MyPariWritable p2=(MyPariWritable) b;</span><br><span class="line">		<span class="keyword">if</span>(!p1.getFirst().toString().equals(p2.getFirst().toString()))&#123;</span><br><span class="line">			<span class="keyword">return</span> p1.first.toString().compareTo(p2.first.toString());</span><br><span class="line">		&#125;<span class="keyword">else</span>&#123;</span><br><span class="line">			<span class="keyword">return</span> p1.getSecond().get()-p2.getSecond().get();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">MyWriableReduce</span> <span class="keyword">extends</span> <span class="title class_">Reducer</span>&lt;MyPariWritable, NullWritable, MyPariWritable, NullWritable&gt;&#123;</span><br><span class="line">	<span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">reduce</span><span class="params">(MyPariWritable key, java.lang.Iterable&lt;NullWritable&gt; values, Context context)</span> <span class="keyword">throws</span> IOException ,InterruptedException &#123;</span><br><span class="line">		context.write(key, NullWritable.get());</span><br><span class="line">	&#125;;</span><br><span class="line">&#125;</span><br><span class="line"><span class="keyword">class</span> <span class="title class_">GroupComparatored</span> <span class="keyword">extends</span> <span class="title class_">WritableComparator</span>&#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="title function_">GroupComparatored</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="built_in">super</span>(MyPariWritable.class,<span class="literal">true</span>);</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="meta">@SuppressWarnings(&quot;rawtypes&quot;)</span></span><br><span class="line">	<span class="meta">@Override</span></span><br><span class="line">	<span class="keyword">public</span> <span class="type">int</span> <span class="title function_">compare</span><span class="params">(WritableComparable a, WritableComparable b)</span> &#123;</span><br><span class="line">		MyPariWritable p1=(MyPariWritable) a;</span><br><span class="line">		MyPariWritable p2=(MyPariWritable) b;</span><br><span class="line">		<span class="keyword">return</span> p1.first.toString().compareTo(p2.first.toString());<span class="comment">//这里只比较第一个元素，只要自然键类型为MyPariWritable的Key就认为是相同，目的是找出自然键对应的最小自然值。</span></span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><strong>mr自带的例子中的源码SecondarySort，我重新写了一下，基本没变。</strong></p>
+<p>这个例子中定义的map和reduce如下，关键是它对输入输出类型的定义：（java泛型编程） </p>
+<p>public static class Map extends Mapper&lt;LongWritable, Text, IntPair, IntWritable&gt; </p>
+<p>public static class Reduce extends Reducer&lt;IntPair, NullWritable, IntWritable, IntWritable&gt; </p>
+<h2 id="1-首先说一下工作原理："><a href="#1-首先说一下工作原理：" class="headerlink" title="1 首先说一下工作原理："></a>1 首先说一下工作原理：</h2><p>在map阶段，使用job.setInputFormatClass定义的InputFormat将输入的数据集分割成小数据块splites，同时InputFormat提供一个RecordReder的实现。本例子中使用的是TextInputFormat，他提供的RecordReder会将文本的一行的行号作为key，这一行的文本作为value。这就是自定义Map的输入是&lt;LongWritable, Text&gt;的原因。然后调用自定义Map的map方法，将一个个&lt;LongWritable, Text&gt;对输入给Map的map方法。注意输出应该符合自定义Map中定义的输出&lt;IntPair, IntWritable&gt;。最终是生成一个List&lt;IntPair, IntWritable&gt;。在map阶段的最后，会先调用job.setPartitionerClass对这个List进行分区，每个分区映射到一个reducer。每个分区内又调用job.setSortComparatorClass设置的key比较函数类排序。可以看到，这本身就是一个二次排序。如果没有通过job.setSortComparatorClass设置key比较函数类，则使用key的实现的compareTo方法。在第一个例子中，使用了IntPair实现的compareTo方法，而在下一个例子中，专门定义了key比较函数类。</p>
+<p>在reduce阶段，reducer接收到所有映射到这个reducer的map输出后，也是会调用job.setSortComparatorClass设置的key比较函数类对所有数据对排序。然后开始构造一个key对应的value迭代器。这时就要用到分组，使用jobjob.setGroupingComparatorClass设置的分组函数类。只要这个比较器比较的两个key相同，他们就属于同一个组，它们的value放在一个value迭代器，而这个迭代器的key使用属于同一个组的所有key的第一个key。最后就是进入Reducer的reduce方法，reduce方法的输入是所有的（key和它的value迭代器）。同样注意输入与输出的类型必须与自定义的Reducer中声明的一致。 </p>
+<h2 id="2-二次排序就是首先按照第一字段排序，然后再对第一字段相同的行按照第二字段排序，注意不能破坏第一次排序的结果-。例如"><a href="#2-二次排序就是首先按照第一字段排序，然后再对第一字段相同的行按照第二字段排序，注意不能破坏第一次排序的结果-。例如" class="headerlink" title="2  二次排序就是首先按照第一字段排序，然后再对第一字段相同的行按照第二字段排序，注意不能破坏第一次排序的结果 。例如"></a>2  二次排序就是首先按照第一字段排序，然后再对第一字段相同的行按照第二字段排序，注意不能破坏第一次排序的结果 。例如</h2><p>输入文件</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">20 21</span><br><span class="line">50 51</span><br><span class="line">50 52</span><br><span class="line">50 53</span><br><span class="line">50 54</span><br><span class="line">60 51</span><br><span class="line">60 53</span><br><span class="line">60 52</span><br><span class="line">60 56</span><br><span class="line">60 57</span><br><span class="line">70 58</span><br><span class="line">60 61</span><br><span class="line">70 54</span><br><span class="line">70 55</span><br><span class="line">70 56</span><br><span class="line">70 57</span><br><span class="line">70 58</span><br><span class="line">1 2</span><br><span class="line">3 4</span><br><span class="line">5 6</span><br><span class="line">7 82</span><br><span class="line">203 21</span><br><span class="line">50 512</span><br><span class="line">50 522</span><br><span class="line">50 53</span><br><span class="line">530 54</span><br><span class="line">40 511</span><br><span class="line">20 53</span><br><span class="line">20 522</span><br><span class="line">60 56</span><br><span class="line">60 57</span><br><span class="line">740 58</span><br><span class="line">63 61</span><br><span class="line">730 54</span><br><span class="line">71 55</span><br><span class="line">71 56</span><br><span class="line">73 57</span><br><span class="line">74 58</span><br><span class="line">12 211</span><br><span class="line">31 42</span><br><span class="line">50 62</span><br><span class="line">7 8</span><br></pre></td></tr></table></figure>
+
+<h2 id="输出：（注意需要分割线）"><a href="#输出：（注意需要分割线）" class="headerlink" title="输出：（注意需要分割线）"></a>输出：（注意需要分割线）</h2><figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line">1       2</span><br><span class="line">3       4</span><br><span class="line">5       6</span><br><span class="line">7       8</span><br><span class="line">7       82</span><br><span class="line">12      211</span><br><span class="line">20      21</span><br><span class="line">20      53</span><br><span class="line">20      522</span><br><span class="line">31      42</span><br><span class="line">40      511</span><br><span class="line">50      51</span><br><span class="line">50      52</span><br><span class="line">50      53</span><br><span class="line">50      53</span><br><span class="line">50      54</span><br><span class="line">50      62</span><br><span class="line">50      512</span><br><span class="line">50      522</span><br><span class="line">60      51</span><br><span class="line">60      52</span><br><span class="line">60      53</span><br><span class="line">60      56</span><br><span class="line">60      56</span><br><span class="line">60      57</span><br><span class="line">60      57</span><br><span class="line">60      61</span><br><span class="line">63      61</span><br><span class="line">70      54</span><br><span class="line">70      55</span><br><span class="line">70      56</span><br><span class="line">70      57</span><br><span class="line">70      58</span><br><span class="line">70      58</span><br><span class="line">71      55</span><br><span class="line">71      56</span><br><span class="line">73      57</span><br><span class="line">74      58</span><br><span class="line">203     21</span><br><span class="line">530     54</span><br><span class="line">730     54</span><br><span class="line">740     58 </span><br></pre></td></tr></table></figure>
+
+
+<h2 id="3-具体步骤："><a href="#3-具体步骤：" class="headerlink" title="3  具体步骤："></a>3  具体步骤：</h2><h3 id="（1）自定义key"><a href="#（1）自定义key" class="headerlink" title="（1）自定义key"></a>（1）自定义key</h3><p>在mr中，所有的key是需要被比较和排序的，并且是二次，先根据partitione，再根据大小。而本例中也是要比较两次。先按照第一字段排序，然后再对第一字段相同的按照第二字段排序。根据这一点，我们可以构造一个复合类IntPair，他有两个字段，先利用分区对第一字段排序，再利用分区内的比较对第二字段排序。</p>
+<p>所有自定义的key应该实现接口WritableComparable，因为是可序列的并且可比较的。并重载方法：<br>[cpp] view plaincopy<br>&#x2F;&#x2F;反序列化，从流中的二进制转换成IntPair<br>public void readFields(DataInput in) throws IOException<br>&#x2F;&#x2F;序列化，将IntPair转化成使用流传送的二进制<br>public void write(DataOutput out)<br>&#x2F;&#x2F;key的比较<br>public int compareTo(IntPair o)<br>&#x2F;&#x2F;另外新定义的类应该重写的两个方法<br>&#x2F;&#x2F;The hashCode() method is used by the HashPartitioner (the default partitioner in MapReduce)<br>public int hashCode()<br>public boolean equals(Object right)  </p>
+<h3 id="（2）由于key是自定义的，所以还需要自定义一下类："><a href="#（2）由于key是自定义的，所以还需要自定义一下类：" class="headerlink" title="（2）由于key是自定义的，所以还需要自定义一下类："></a>（2）由于key是自定义的，所以还需要自定义一下类：</h3><p>（2.1）分区函数类。这是key的第一次比较。<br>[cpp] view plaincopy<br>public static class FirstPartitioner extends Partitioner&lt;IntPair,IntWritable&gt;<br>在job中使用setPartitionerClasss设置Partitioner。</p>
+<p>（2.2）key比较函数类。这是key的第二次比较。这是一个比较器，需要继承WritableComparator。<br>[cpp] view plaincopy<br>public static class KeyComparator extends WritableComparator<br>必须有一个构造函数，并且重载 public int compare(WritableComparable w1, WritableComparable w2)</p>
+<p>另一种方法是 实现接口RawComparator。</p>
+<p>在job中使用setSortComparatorClass设置key比较函数类。</p>
+<h3 id="（2-3）分组函数类。"><a href="#（2-3）分组函数类。" class="headerlink" title="（2.3）分组函数类。"></a>（2.3）分组函数类。</h3><p>在reduce阶段，构造一个key对应的value迭代器的时候，只要first相同就属于同一个组，放在一个value迭代器。这是一个比较器，需要继承WritableComparator。</p>
+<pre><code>[cpp] view plaincopy
+public static class GroupingComparator extends WritableComparator  
+</code></pre>
+<p>分组函数类也必须有一个构造函数，并且重载 public int compare(WritableComparable w1, WritableComparable w2)</p>
+<p>分组函数类的另一种方法是实现接口RawComparator。<br>在job中使用setGroupingComparatorClass设置分组函数类。</p>
+<hr>
+<p>作者：XifengHZ<br>来源：CSDN<br>原文：<a target="_blank" rel="noopener" href="https://blog.csdn.net/xiaocaidexuexibiji/article/details/12125699">https://blog.csdn.net/xiaocaidexuexibiji/article/details/12125699</a> </p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/06/19/Hadoop%20Mapreduce%E5%88%86%E5%8C%BA%E3%80%81%E5%88%86%E7%BB%84%E3%80%81%E8%BF%9E%E6%8E%A5%E4%BB%A5%E5%8F%8A%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%EF%BC%88%E4%B9%9F%E5%8F%AB%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%EF%BC%89%E8%BF%87%E7%A8%8B%E8%AF%A6%E8%A7%A3/" title="Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解">https://hufanglei.github.io/2019/06/19/Hadoop Mapreduce分区、分组、连接以及辅助排序（也叫二次排序）过程详解/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/hadoop-mapreduce/" rel="tag"># hadoop mapreduce</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/06/18/mapreduce%E6%A1%88%E4%BE%8B%E5%AE%9E%E6%88%98-%E6%8E%92%E5%BA%8F%E5%92%8C%E4%BA%8C%E6%AC%A1%E6%8E%92%E5%BA%8F%E6%A1%88%E4%BE%8B/" rel="prev" title="mapreduce案例实战-排序和二次排序案例">
+                  <i class="fa fa-angle-left"></i> mapreduce案例实战-排序和二次排序案例
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/06/20/mapreduce%E8%BE%85%E5%8A%A9%E6%8E%92%E5%BA%8F%E5%92%8C%E5%BA%8F%E5%88%97%E5%8C%96%E7%9A%84%E5%AE%9E%E4%BE%8B%E7%BB%83%E4%B9%A0/" rel="next" title="mapreduce辅助排序和序列化的实例练习">
+                  mapreduce辅助排序和序列化的实例练习 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

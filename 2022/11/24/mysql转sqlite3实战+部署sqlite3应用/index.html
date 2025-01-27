@@ -1,0 +1,511 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[TOC] 场景 最近维护一个嵌入式设备的java应用，由于内存有限，需要压缩内存，考虑到之前用的是mysql，需要对mysql替换，使用轻量的sqlite3。今天就记录下走过的坑。  mysql脚本转sqlite31.新建个sqlite3的文件并使用navicat连接选择新建，然后找个目录新建个 .db或者.sqlite的文件，建个连接。  准备好mysql并连接上我的是这个egemtmt">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="mysql转sqlite3实战+部署sqlite3应用">
+<meta property="og:url" content="https://hufanglei.github.io/2022/11/24/mysql%E8%BD%ACsqlite3%E5%AE%9E%E6%88%98+%E9%83%A8%E7%BD%B2sqlite3%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[TOC] 场景 最近维护一个嵌入式设备的java应用，由于内存有限，需要压缩内存，考虑到之前用的是mysql，需要对mysql替换，使用轻量的sqlite3。今天就记录下走过的坑。  mysql脚本转sqlite31.新建个sqlite3的文件并使用navicat连接选择新建，然后找个目录新建个 .db或者.sqlite的文件，建个连接。  准备好mysql并连接上我的是这个egemtmt">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7fb08f58729ae48edc2cbe2c130775e0_1737628660140.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08cd9856e2a284d3e11d4ee66f9b63db_1737628672105.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1c3e02f05335c5f13b2fd850a7aface4_1737628672105.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/37678523b9ffb8bfc03d8443d9737521_1737628672105.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e643f99c3d6868c4c92535218edbafe1_1737628672105.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e88184d843805f7f2d2073278af93bac_1737628672105.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/da8fba55b499767a45431e22884bbbb0_1737628682988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08c7d0a26807e42bdd73fdde91221ae7_1737628682988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d719fab081886b6446d8aab0cdcbbc8_1737628682988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2b39b7e73d9277f4a6b4ad53b5bac447_1737628682988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ec99d2238f2c1369165da010bde97efe_1737628682988.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8e6507ae5e19660f0f702e0e9ee913b3_1737628695701.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/739e1e3e6559a642b173409950e8d6fd_1737628695701.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/91a23d18dbafa9b58c08fd823390acc4_1737628695701.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/316e17ad4b7356c8f11398b9b987cd31_1737628695701.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f793673c0dac276d34b33e56aa4eafaa_1737631899169.png">
+<meta property="article:published_time" content="2022-11-24T05:26:49.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="mysql sqlite 数据库">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7fb08f58729ae48edc2cbe2c130775e0_1737628660140.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2022/11/24/mysql%E8%BD%ACsqlite3%E5%AE%9E%E6%88%98+%E9%83%A8%E7%BD%B2sqlite3%E5%BA%94%E7%94%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2022/11/24/mysql%E8%BD%ACsqlite3%E5%AE%9E%E6%88%98+%E9%83%A8%E7%BD%B2sqlite3%E5%BA%94%E7%94%A8/","path":"2022/11/24/mysql转sqlite3实战+部署sqlite3应用/","title":"mysql转sqlite3实战+部署sqlite3应用"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysql转sqlite3实战+部署sqlite3应用 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%BA%E6%99%AF"><span class="nav-text">场景</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#mysql%E8%84%9A%E6%9C%AC%E8%BD%ACsqlite3"><span class="nav-text">mysql脚本转sqlite3</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%96%B0%E5%BB%BA%E4%B8%AAsqlite3%E7%9A%84%E6%96%87%E4%BB%B6%E5%B9%B6%E4%BD%BF%E7%94%A8navicat%E8%BF%9E%E6%8E%A5"><span class="nav-text">1.新建个sqlite3的文件并使用navicat连接</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%87%86%E5%A4%87%E5%A5%BDmysql%E5%B9%B6%E8%BF%9E%E6%8E%A5%E4%B8%8A"><span class="nav-text">准备好mysql并连接上</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BD%BF%E7%94%A8navicat%E6%95%B0%E6%8D%AE%E4%BC%A0%E8%BE%93"><span class="nav-text">使用navicat数据传输</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%A0%E8%BE%93%E5%AE%8C%E5%90%8E%EF%BC%8C%E8%AE%BE%E7%BD%AE%E4%B8%BB%E9%94%AE%E8%87%AA%E5%A2%9E"><span class="nav-text">传输完后，设置主键自增</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BF%AE%E6%94%B9%E5%BA%94%E7%94%A8%E7%A8%8B%E5%BA%8F"><span class="nav-text">修改应用程序</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E6%B7%BB%E5%8A%A0sqlite3%E7%9A%84%E9%A9%B1%E5%8A%A8%E5%8C%85"><span class="nav-text">1.添加sqlite3的驱动包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E4%BF%AE%E6%94%B9sqlite3%E7%9A%84jdbc%E8%BF%9E%E6%8E%A5%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6"><span class="nav-text">2.修改sqlite3的jdbc连接配置文件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E5%85%A8%E5%B1%80%E6%9B%BF%E6%8D%A2Date%E7%B1%BB%E5%9E%8B%E5%AD%97%E6%AE%B5%E4%B8%BAString%E7%B1%BB%E5%9E%8B"><span class="nav-text">3.全局替换Date类型字段为String类型</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E5%85%A8%E5%B1%80%E6%9B%BF%E6%8D%A2-sql%E6%96%87%E4%BB%B6%E4%B8%AD%E7%9A%84-date%EF%BC%88%EF%BC%89%E7%AD%89%E5%87%BD%E6%95%B0"><span class="nav-text">4.全局替换 sql文件中的 date（）等函数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%A3%80%E6%9F%A5%E5%85%B6%E4%BB%96%E5%B7%A5%E5%85%B7%E6%88%96%E8%80%85%E7%B1%BB%E5%9E%8B%E4%B8%8D%E5%8C%B9%E9%85%8D%E7%9A%84%E9%97%AE%E9%A2%98"><span class="nav-text">5.检查其他工具或者类型不匹配的问题</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%86sqlite3%E7%9A%84%E6%95%B0%E6%8D%AE%E5%BA%93%E5%AF%BC%E5%87%BA%E6%88%90sql%E6%96%87%E4%BB%B62"><span class="nav-text">将sqlite3的数据库导出成sql文件2</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9C%A8%E6%9C%8D%E5%8A%A1%E5%99%A8%E4%B8%8A%E5%AE%89%E8%A3%85sqlite3%E7%8E%AF%E5%A2%83%E5%B9%B6%E5%AF%BC%E5%85%A5sql%E6%96%87%E4%BB%B6"><span class="nav-text">在服务器上安装sqlite3环境并导入sql文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B5%8B%E8%AF%95"><span class="nav-text">测试</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%94%A8navicat%E6%88%96%E8%80%85%E5%91%BD%E4%BB%A4%E5%8E%BB%E6%9F%A5%E7%9C%8B%E5%8D%B3%E5%8F%AF%E3%80%82"><span class="nav-text">用navicat或者命令去查看即可。</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2022/11/24/mysql%E8%BD%ACsqlite3%E5%AE%9E%E6%88%98+%E9%83%A8%E7%BD%B2sqlite3%E5%BA%94%E7%94%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysql转sqlite3实战+部署sqlite3应用 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysql转sqlite3实战+部署sqlite3应用
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-11-24 13:26:49" itemprop="dateCreated datePublished" datetime="2022-11-24T13:26:49+08:00">2022-11-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/java%E5%9F%BA%E7%A1%80-Oracle%E6%95%B0%E6%8D%AE%E5%BA%93-mysql/" itemprop="url" rel="index"><span itemprop="name">java基础 Oracle数据库 mysql</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h2 id="场景"><a href="#场景" class="headerlink" title="场景"></a>场景</h2><blockquote>
+<p>最近维护一个嵌入式设备的java应用，由于内存有限，需要压缩内存，考虑到之前用的是mysql，需要对mysql替换，使用轻量的sqlite3。今天就记录下走过的坑。</p>
+</blockquote>
+<h3 id="mysql脚本转sqlite3"><a href="#mysql脚本转sqlite3" class="headerlink" title="mysql脚本转sqlite3"></a>mysql脚本转sqlite3</h3><h3 id="1-新建个sqlite3的文件并使用navicat连接"><a href="#1-新建个sqlite3的文件并使用navicat连接" class="headerlink" title="1.新建个sqlite3的文件并使用navicat连接"></a>1.新建个sqlite3的文件并使用navicat连接</h3><p>选择新建，然后找个目录新建个 .db或者.sqlite的文件，建个连接。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7fb08f58729ae48edc2cbe2c130775e0_1737628660140.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08cd9856e2a284d3e11d4ee66f9b63db_1737628672105.png" alt="在这里插入图片描述"></p>
+<h3 id="准备好mysql并连接上"><a href="#准备好mysql并连接上" class="headerlink" title="准备好mysql并连接上"></a>准备好mysql并连接上</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1c3e02f05335c5f13b2fd850a7aface4_1737628672105.png" alt="在这里插入图片描述"><br>我的是这个egemtmt-init的mysql数据库</p>
+<h3 id="使用navicat数据传输"><a href="#使用navicat数据传输" class="headerlink" title="使用navicat数据传输"></a>使用navicat数据传输</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/37678523b9ffb8bfc03d8443d9737521_1737628672105.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e643f99c3d6868c4c92535218edbafe1_1737628672105.png" alt="在这里插入图片描述"></p>
+<h3 id="传输完后，设置主键自增"><a href="#传输完后，设置主键自增" class="headerlink" title="传输完后，设置主键自增"></a>传输完后，设置主键自增</h3><p>这里有个问题，就是mysql原来主键自增的字段，传输给sqlite3数据库后发现主键没自增。需要检查下自增的字段,然后勾选上。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e88184d843805f7f2d2073278af93bac_1737628672105.png" alt="在这里插入图片描述"><br>最下面的自动递增勾选上。其他表一样。</p>
+<h2 id="修改应用程序"><a href="#修改应用程序" class="headerlink" title="修改应用程序"></a>修改应用程序</h2><h3 id="1-添加sqlite3的驱动包"><a href="#1-添加sqlite3的驱动包" class="headerlink" title="1.添加sqlite3的驱动包"></a>1.添加sqlite3的驱动包</h3><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- sqlite3 驱动包 --&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.xerial<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>sqlite-jdbc<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>这里没加版本，因为springboot自带版本，可以查看下:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/da8fba55b499767a45431e22884bbbb0_1737628682988.png" alt="在这里插入图片描述"><br>这里使用的是 <code>   &lt;sqlite-jdbc.version&gt;3.28.0&lt;/sqlite-jdbc.version&gt;</code>这个版本。</p>
+<h3 id="2-修改sqlite3的jdbc连接配置文件"><a href="#2-修改sqlite3的jdbc连接配置文件" class="headerlink" title="2.修改sqlite3的jdbc连接配置文件"></a>2.修改sqlite3的jdbc连接配置文件</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08c7d0a26807e42bdd73fdde91221ae7_1737628682988.png" alt="在这里插入图片描述"><br>用的若依框架，这里直接设置驱动和url，不需要设置用户名和密码</p>
+<h3 id="3-全局替换Date类型字段为String类型"><a href="#3-全局替换Date类型字段为String类型" class="headerlink" title="3.全局替换Date类型字段为String类型"></a>3.全局替换Date类型字段为String类型</h3><p>将代码中的所有的Date类型替换为String类型。因为sqlite3数据库没有时间类型，数据库存储的是TEXT类型。<br>以下面的代码举例:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d719fab081886b6446d8aab0cdcbbc8_1737628682988.png" alt="在这里插入图片描述"></p>
+<h3 id="4-全局替换-sql文件中的-date（）等函数"><a href="#4-全局替换-sql文件中的-date（）等函数" class="headerlink" title="4.全局替换 sql文件中的 date（）等函数"></a>4.全局替换 sql文件中的 date（）等函数</h3><p>本人使用的是mybatis，在xml中的一些sql带有sysdate()等一些时间函数转成：<code>datetime(&#39;now&#39;,&#39;localtime&#39;)</code>,<img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2b39b7e73d9277f4a6b4ad53b5bac447_1737628682988.png" alt="在这里插入图片描述"><br>不加now显示的不是当地时间，因为我们是东八区，所以应该显示这个时间。</p>
+<h3 id="5-检查其他工具或者类型不匹配的问题"><a href="#5-检查其他工具或者类型不匹配的问题" class="headerlink" title="5.检查其他工具或者类型不匹配的问题"></a>5.检查其他工具或者类型不匹配的问题</h3><p>有些时间转换的 比如计算时间的间隔，由date转为string再计算。这里不举例了。报错的话，自己再具体解决。</p>
+<h2 id="将sqlite3的数据库导出成sql文件2"><a href="#将sqlite3的数据库导出成sql文件2" class="headerlink" title="将sqlite3的数据库导出成sql文件2"></a>将sqlite3的数据库导出成sql文件2</h2><p>在sqlite3命令行中。2种方式进入sqlite3终端。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ec99d2238f2c1369165da010bde97efe_1737628682988.png" alt="在这里插入图片描述"></p>
+<p>我使用第一种：</p>
+<p>进入sqlite3的数据库文件夹下:</p>
+<p><code>sqlite3 edgemgmt3.db .dump &gt; edgemgmt.sql</code></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8e6507ae5e19660f0f702e0e9ee913b3_1737628695701.png" alt="在这里插入图片描述"></p>
+<p>导出数据为sql文件:</p>
+<blockquote>
+<p>您可以在命令提示符中使用 SQLite .dump 点命令来导出完整的数据库在一个文本文件中，如下所示：</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/739e1e3e6559a642b173409950e8d6fd_1737628695701.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/91a23d18dbafa9b58c08fd823390acc4_1737628695701.png" alt="在这里插入图片描述"><br>可以看到一大堆的表<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/316e17ad4b7356c8f11398b9b987cd31_1737628695701.png" alt="在这里插入图片描述"></p>
+<h2 id="在服务器上安装sqlite3环境并导入sql文件"><a href="#在服务器上安装sqlite3环境并导入sql文件" class="headerlink" title="在服务器上安装sqlite3环境并导入sql文件"></a>在服务器上安装sqlite3环境并导入sql文件</h2><p><code>sqlite3 edgemgmt3.db &lt; edgemgmt-sqlite3.sql</code></p>
+<h2 id="测试"><a href="#测试" class="headerlink" title="测试"></a>测试</h2><h2 id="用navicat或者命令去查看即可。"><a href="#用navicat或者命令去查看即可。" class="headerlink" title="用navicat或者命令去查看即可。"></a>用navicat或者命令去查看即可。</h2><p>开通了个微信公众号：<br>搜索： 怒放de每一天<br>后续可能不定时推送相关文章，期待和大家一起成长！！</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f793673c0dac276d34b33e56aa4eafaa_1737631899169.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>大功告成!!</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2022/11/24/mysql%E8%BD%ACsqlite3%E5%AE%9E%E6%88%98+%E9%83%A8%E7%BD%B2sqlite3%E5%BA%94%E7%94%A8/" title="mysql转sqlite3实战+部署sqlite3应用">https://hufanglei.github.io/2022/11/24/mysql转sqlite3实战+部署sqlite3应用/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/mysql-sqlite-%E6%95%B0%E6%8D%AE%E5%BA%93/" rel="tag"># mysql sqlite 数据库</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/11/24/java%E7%BB%98%E5%88%B6%E6%A0%87%E6%B3%A8%E6%A1%86%EF%BC%8C%E6%B3%A8%E5%86%8C%E5%AD%97%E4%BD%93/" rel="prev" title="java绘制标注框，注册字体">
+                  <i class="fa fa-angle-left"></i> java绘制标注框，注册字体
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/11/30/linux%E5%AE%89%E8%A3%85%E6%B5%8F%E8%A7%88%E5%99%A8%20linux%E6%9C%AC%E5%9C%B0%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BF%9B%E8%A1%8C%E8%AE%BF%E9%97%AE/" rel="next" title="linux安装浏览器 linux本地浏览器进行访问">
+                  linux安装浏览器 linux本地浏览器进行访问 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

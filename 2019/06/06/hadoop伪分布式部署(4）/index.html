@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@TOC 伪分布式部署1.规划和准备 规划咋规划啊，就一个电脑，但是部署的内容还是需要知道的，麻雀虽小，五脏俱全。每个hadoop环境，包含一个hdfs和一个yarn。具体如下     架构 bigdata111 作用    HDFS NameNode 存储元数据    SecondaryNameNode 监控namenode 的元数据，每隔一定的时间进行元数据的合并    DataNode">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="hadoop伪分布式部署(4）">
+<meta property="og:url" content="https://hufanglei.github.io/2019/06/06/hadoop%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2(4%EF%BC%89/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@TOC 伪分布式部署1.规划和准备 规划咋规划啊，就一个电脑，但是部署的内容还是需要知道的，麻雀虽小，五脏俱全。每个hadoop环境，包含一个hdfs和一个yarn。具体如下     架构 bigdata111 作用    HDFS NameNode 存储元数据    SecondaryNameNode 监控namenode 的元数据，每隔一定的时间进行元数据的合并    DataNode">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1b4c48f0dd62451c43de5a10054eb2ff_1737628161214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6e33d24ccb44f21acb4da4fd9022d96c_1737628161214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/557c251b0cdbe28b36d67f15e0a02333_1737628161214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/43377b8752473911ac675672fcca7888_1737628161214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d976d10e8ca58de80c3dbc811955a8f3_1737628170132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bfdb3971981302cecce7ec5f3f85b02c_1737628170132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08579b17bc590398cb7837f61c3f38fd_1737628170132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/210f975870346e632c69cb8dd62366f4_1737628170132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/027ebd250093aed6f65107ba65d74d7d_1737628170132.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/796762c913c8354f066e8822885aa076_1737628180753.png">
+<meta property="article:published_time" content="2019-06-06T15:19:29.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="hadoop 伪分布式部署 大数据">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1b4c48f0dd62451c43de5a10054eb2ff_1737628161214.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/06/06/hadoop%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2(4%EF%BC%89/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/06/06/hadoop%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2(4%EF%BC%89/","path":"2019/06/06/hadoop伪分布式部署(4）/","title":"hadoop伪分布式部署(4）"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>hadoop伪分布式部署(4） | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2"><span class="nav-text">伪分布式部署</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%A7%84%E5%88%92%E5%92%8C%E5%87%86%E5%A4%87"><span class="nav-text">1.规划和准备</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%A7%A3%E5%8E%8B%E6%96%B9%E5%BC%8F%E5%AE%89%E8%A3%85hadoop2-8-4%E5%92%8Cjdk8%E5%B9%B6%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-text">2.解压方式安装hadoop2.8.4和jdk8并配置环境变量</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A0%E5%8E%8B%E7%BC%A9%E5%8C%85%E4%BD%8D%E7%BD%AE"><span class="nav-text">①压缩包位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A1%E8%A7%A3%E5%8E%8B%E4%BD%8D%E7%BD%AE"><span class="nav-text">②解压位置</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A2%E9%85%8D%E7%BD%AE%E7%8E%AF%E5%A2%83%E5%8F%98%E9%87%8F"><span class="nav-text">③配置环境变量</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%85%8D%E7%BD%AEhdfs"><span class="nav-text">3.配置hdfs</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%85%8D%E7%BD%AEcore-site-xml"><span class="nav-text">1.配置core-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AEhdfs-site-xml"><span class="nav-text">2.配置hdfs-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BF%AE%E6%94%B9hadoop-env-sh"><span class="nav-text">3.修改hadoop-env.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E6%B5%8B%E8%AF%95"><span class="nav-text">4.测试</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#yarn%E9%85%8D%E7%BD%AE"><span class="nav-text">yarn配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-%E9%85%8D%E7%BD%AEyarn-site-xml"><span class="nav-text">1.配置yarn-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-%E9%85%8D%E7%BD%AEmapred-site-xml"><span class="nav-text">2.配置mapred-site.xml</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-%E4%BF%AE%E6%94%B9yarn-env-sh"><span class="nav-text">3.修改yarn-env.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-%E4%BF%AE%E6%94%B9mapred-env-sh"><span class="nav-text">4.修改mapred-env.sh</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#5-%E6%B5%8B%E8%AF%95"><span class="nav-text">5.测试</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%89%A7%E8%A1%8Cstart-yarn-sh"><span class="nav-text">执行start-yarn.sh</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/06/06/hadoop%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2(4%EF%BC%89/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="hadoop伪分布式部署(4） | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          hadoop伪分布式部署(4）
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-06-06 23:19:29" itemprop="dateCreated datePublished" datetime="2019-06-06T23:19:29+08:00">2019-06-06</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.1k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@<a href="%E7%9B%AE%E5%BD%95">TOC</a></p>
+<h1 id="伪分布式部署"><a href="#伪分布式部署" class="headerlink" title="伪分布式部署"></a>伪分布式部署</h1><h2 id="1-规划和准备"><a href="#1-规划和准备" class="headerlink" title="1.规划和准备"></a>1.规划和准备</h2><ul>
+<li>规划<br>咋规划啊，就一个电脑，但是部署的内容还是需要知道的，麻雀虽小，五脏俱全。每个hadoop环境，包含一个hdfs和一个yarn。<br>具体如下</li>
+</ul>
+<table>
+<thead>
+<tr>
+<th>架构</th>
+<th>bigdata111</th>
+<th>作用</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>HDFS</td>
+<td>NameNode</td>
+<td>存储元数据</td>
+</tr>
+<tr>
+<td></td>
+<td>SecondaryNameNode</td>
+<td>监控namenode 的元数据，每隔一定的时间进行元数据的合并</td>
+</tr>
+<tr>
+<td></td>
+<td>DataNode</td>
+<td>存储数据的节点，会对数据块进行校验</td>
+</tr>
+<tr>
+<td>yarn</td>
+<td>ResourceManager</td>
+<td>处理客户端请求、启动&#x2F;监控ApplicationMaster、监控NodeManager、资源分配与调度</td>
+</tr>
+<tr>
+<td></td>
+<td>NodeManager</td>
+<td>单个节点上的资源管理、处理来自ResourceManager的命令、处理来自ApplicationMaster的命令</td>
+</tr>
+</tbody></table>
+<ul>
+<li>准备<br>关闭防火墙（看前面的文章）、静态ip（192.168.157.121）、设置主机名称为bigdata121</li>
+</ul>
+<h2 id="2-解压方式安装hadoop2-8-4和jdk8并配置环境变量"><a href="#2-解压方式安装hadoop2-8-4和jdk8并配置环境变量" class="headerlink" title="2.解压方式安装hadoop2.8.4和jdk8并配置环境变量"></a>2.解压方式安装hadoop2.8.4和jdk8并配置环境变量</h2><h3 id="①压缩包位置"><a href="#①压缩包位置" class="headerlink" title="①压缩包位置"></a>①压缩包位置</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1b4c48f0dd62451c43de5a10054eb2ff_1737628161214.png" alt="在这里插入图片描述"></p>
+<h3 id="②解压位置"><a href="#②解压位置" class="headerlink" title="②解压位置"></a>②解压位置</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6e33d24ccb44f21acb4da4fd9022d96c_1737628161214.png" alt="在这里插入图片描述"></p>
+<h3 id="③配置环境变量"><a href="#③配置环境变量" class="headerlink" title="③配置环境变量"></a>③配置环境变量</h3><ul>
+<li>vi &#x2F;etc&#x2F;profile<br>后面追加下面的代码</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">export JAVA_HOME=/opt/mod/jdk1.8.0_144</span><br><span class="line">export HADOOP_HOME=/opt/mod/hadoop-2.8.4</span><br><span class="line">export PATH=$PATH:$JAVA_HOME/bin:$HADOOP_HOME/bin:$HADOOP_HOME/sbin</span><br></pre></td></tr></table></figure>
+<ul>
+<li>source &#x2F;etc&#x2F;profile</li>
+</ul>
+<h2 id="3-配置hdfs"><a href="#3-配置hdfs" class="headerlink" title="3.配置hdfs"></a>3.配置hdfs</h2><p>切换到&#x2F;opt&#x2F;mod&#x2F;hadoop-2.8.4&#x2F;etc&#x2F;hadoop目录下<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/557c251b0cdbe28b36d67f15e0a02333_1737628161214.png" alt="在这里插入图片描述"></p>
+<h3 id="1-配置core-site-xml"><a href="#1-配置core-site-xml" class="headerlink" title="1.配置core-site.xml"></a>1.配置core-site.xml</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- 指定HDFS中NameNode的地址 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;fs.defaultFS&lt;/name&gt;</span><br><span class="line">&lt;value&gt;hdfs://bigdata121:9000&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 指定hadoop运行时产生文件的存储目录 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;hadoop.tmp.dir&lt;/name&gt;</span><br><span class="line">&lt;value&gt;/opt/mod/hadoop-2.8.4/data&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="2-配置hdfs-site-xml"><a href="#2-配置hdfs-site-xml" class="headerlink" title="2.配置hdfs-site.xml"></a>2.配置hdfs-site.xml</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">&lt;!--数据冗余数--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;dfs.replication&lt;/name&gt;</span><br><span class="line">&lt;value&gt;1&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!--secondary的地址--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;dfs.namenode.secondary.http-address&lt;/name&gt;</span><br><span class="line">&lt;value&gt;bigdata121:50090&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!--关闭权限--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;dfs.permissions&lt;/name&gt;</span><br><span class="line">&lt;value&gt;false&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="3-修改hadoop-env-sh"><a href="#3-修改hadoop-env-sh" class="headerlink" title="3.修改hadoop-env.sh"></a>3.修改hadoop-env.sh</h3><p>25行指定自己的java_home</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">24 # The java implementation to use.</span><br><span class="line">25 export JAVA_HOME=/opt/mod/jdk1.8.0_144</span><br></pre></td></tr></table></figure>
+<p>至此，hdfs已经部署成功了</p>
+<h3 id="4-测试"><a href="#4-测试" class="headerlink" title="4.测试"></a>4.测试</h3><ul>
+<li><pre><code>格式化Namenode
+</code></pre>
+</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hdfs namenode -format</span><br></pre></td></tr></table></figure>
+<ul>
+<li>启动hdfs</li>
+</ul>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">start-dfs.sh</span><br></pre></td></tr></table></figure>
+<ul>
+<li>命令查看hdfs是否启动</li>
+<li><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/43377b8752473911ac675672fcca7888_1737628161214.png" alt="在这里插入图片描述"></li>
+<li>浏览器打开测试<br><a target="_blank" rel="noopener" href="http://192.168.157.121:50070/">http://192.168.157.121:50070</a><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d976d10e8ca58de80c3dbc811955a8f3_1737628170132.png" alt="在这里插入图片描述"><br>出现这个页面就成功了。</li>
+<li>测试一个上传文件<br>在 &#x2F;opt&#x2F;mod下新建个test文件，内容如下<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bfdb3971981302cecce7ec5f3f85b02c_1737628170132.png" alt="在这里插入图片描述"></li>
+<li>切换到&#x2F;opt&#x2F;mod下，上传到hdfs根目录去</li>
+</ul>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -put test / </span><br></pre></td></tr></table></figure>
+<p>2个地方可以看到<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/08579b17bc590398cb7837f61c3f38fd_1737628170132.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/210f975870346e632c69cb8dd62366f4_1737628170132.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>自此hdfs配置成功,下面配置yarn。</p>
+<h2 id="yarn配置"><a href="#yarn配置" class="headerlink" title="yarn配置"></a>yarn配置</h2><p>切换到&#x2F;opt&#x2F;mod&#x2F;hadoop-2.8.4&#x2F;etc&#x2F;hadoop目录下</p>
+<h3 id="1-配置yarn-site-xml"><a href="#1-配置yarn-site-xml" class="headerlink" title="1.配置yarn-site.xml"></a>1.配置yarn-site.xml</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line">&lt;!-- reducer获取数据的方式 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.nodemanager.aux-services&lt;/name&gt;</span><br><span class="line">&lt;value&gt;mapreduce_shuffle&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br><span class="line">&lt;!-- 指定YARN的ResourceManager的地址 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.resourcemanager.hostname&lt;/name&gt;</span><br><span class="line">&lt;value&gt;bigdata121&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 日志聚集功能使能 --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.log-aggregation-enable&lt;/name&gt;</span><br><span class="line">&lt;value&gt;true&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!-- 日志保留时间设置7天(秒) --&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;yarn.log-aggregation.retain-seconds&lt;/name&gt;</span><br><span class="line">&lt;value&gt;604800&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h3 id="2-配置mapred-site-xml"><a href="#2-配置mapred-site-xml" class="headerlink" title="2.配置mapred-site.xml"></a>2.配置mapred-site.xml</h3><p>因为没有mapred-site.xml，可以使用<br><code>cp mapred-site.xml.template mapred-site.xml</code><br>克隆一份<br>然后修改mapred-site.xml</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line">&lt;configuration&gt;</span><br><span class="line">&lt;!-- 指定mr运行在yarn上--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;mapreduce.framework.name&lt;/name&gt;</span><br><span class="line">&lt;value&gt;yarn&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!--历史服务器的地址--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;mapreduce.jobhistory.address&lt;/name&gt;</span><br><span class="line">&lt;value&gt;bigdata121:10020&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line">&lt;!--历史服务器页面的地址--&gt;</span><br><span class="line">&lt;property&gt;</span><br><span class="line">&lt;name&gt;mapreduce.jobhistory.webapp.address&lt;/name&gt;</span><br><span class="line">&lt;value&gt;bigdata121:19888&lt;/value&gt;</span><br><span class="line">&lt;/property&gt;</span><br><span class="line"></span><br><span class="line">&lt;/configuration&gt;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h3 id="3-修改yarn-env-sh"><a href="#3-修改yarn-env-sh" class="headerlink" title="3.修改yarn-env.sh"></a>3.修改yarn-env.sh</h3><p>明确指定全路径java目录<br>23行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">22 # some Java parameters</span><br><span class="line">23  export JAVA_HOME=/opt/mod/jdk1.8.0_144</span><br></pre></td></tr></table></figure>
+<h3 id="4-修改mapred-env-sh"><a href="#4-修改mapred-env-sh" class="headerlink" title="4.修改mapred-env.sh"></a>4.修改mapred-env.sh</h3><p>第16行</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">16  export JAVA_HOME=/opt/mod/jdk1.8.0_144</span><br></pre></td></tr></table></figure>
+
+<hr>
+<p>自此，yarn已经配置好了</p>
+<h3 id="5-测试"><a href="#5-测试" class="headerlink" title="5.测试"></a>5.测试</h3><h4 id="执行start-yarn-sh"><a href="#执行start-yarn-sh" class="headerlink" title="执行start-yarn.sh"></a>执行start-yarn.sh</h4><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/027ebd250093aed6f65107ba65d74d7d_1737628170132.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/796762c913c8354f066e8822885aa076_1737628180753.png" alt="在这里插入图片描述"><br>以上2图都说明yarn也已经启动了。</p>
+<hr>
+<p>自此，hadoop伪分布部署已经全部部署功能， 补充点概念</p>
+<ul>
+<li><p>为什么要格式化？<br>NameNode主要被用来管理整个分布式文件系统的命名空间(实际上就是目录和文件)的元数据信息，同时为了保证数据的可靠性，还加入了操作日志，所以，NameNode会持久化这些数据(保存到本地的文件系统中)。对于第一次使用HDFS，在启动NameNode时，需要先执行-format命令，然后才能正常启动NameNode节点的服务。<br>格式化做了哪些事情？<br>在NameNode节点上，有两个最重要的路径，分别被用来存储元数据信息和操作日志，而这两个路径来自于配置文件，它们对应的属性分别是dfs.name.dir和dfs.name.edits.dir，同时，它们默认的路径均是&#x2F;tmp&#x2F;hadoop&#x2F;dfs&#x2F;name。格式化时，NameNode会清空两个目录下的所有文件，之后，会在目录dfs.name.dir下创建文件<br>hadoop.tmp.dir 这个配置，会让dfs.name.dir和dfs.name.edits.dir会让两个目录的文件生成在一个目录里</p>
+</li>
+<li><p>启动集群得命令：<br>Namenode的主节点：sbin&#x2F;start-dfs.sh<br>Yarn的主节点：sbin&#x2F;stop-yarn.sh</p>
+</li>
+</ul>
+<p>注意：Namenode和ResourceManger如果不是同一台机器，不能在NameNode上启动 yarn，应该在ResouceManager所在的机器上启动yarn。</p>
+<hr>
+<p>自此，本文大功告成!!</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/06/06/hadoop%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2(4%EF%BC%89/" title="hadoop伪分布式部署(4）">https://hufanglei.github.io/2019/06/06/hadoop伪分布式部署(4）/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/hadoop-%E4%BC%AA%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2-%E5%A4%A7%E6%95%B0%E6%8D%AE/" rel="tag"># hadoop 伪分布式部署 大数据</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/06/06/hadoop%E5%88%86%E5%B8%83%E5%BC%8F%E9%83%A8%E7%BD%B2%E5%87%86%E5%A4%87%E4%B9%8B%E5%85%8D%E5%AF%86%E7%A0%81%E7%99%BB%E5%BD%95%EF%BC%883%EF%BC%89/" rel="prev" title="hadoop分布式部署准备之免密码登录（3）">
+                  <i class="fa fa-angle-left"></i> hadoop分布式部署准备之免密码登录（3）
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/06/07/hadoop%E5%AE%8C%E5%85%A8%E5%88%86%E5%B8%83%E5%BC%8F%E7%8E%AF%E5%A2%83%E6%90%AD%E5%BB%BA%E7%9F%A5%E8%AF%86%E5%87%86%E5%A4%87%EF%BC%885%EF%BC%89/" rel="next" title="hadoop完全分布式环境搭建知识准备（5）">
+                  hadoop完全分布式环境搭建知识准备（5） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

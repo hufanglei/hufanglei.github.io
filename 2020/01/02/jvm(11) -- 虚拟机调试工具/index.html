@@ -1,0 +1,971 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@toc  一、命令行工具1.jps 官网地址: https:&#x2F;&#x2F;docs.oracle.com&#x2F;javase&#x2F;8&#x2F;docs&#x2F;technotes&#x2F;tools&#x2F;unix&#x2F;jps.html JVM Process Status Tool，显示虚拟机进程。 用法：jps [-q] [-mlvV] 参数说明  -q：打印进程号  -l：打印启动类的全限定名  -m：打印启动类的 main 方法入参">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="jvm(11) -- 虚拟机调试工具">
+<meta property="og:url" content="https://hufanglei.github.io/2020/01/02/jvm(11)%20--%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@toc  一、命令行工具1.jps 官网地址: https:&#x2F;&#x2F;docs.oracle.com&#x2F;javase&#x2F;8&#x2F;docs&#x2F;technotes&#x2F;tools&#x2F;unix&#x2F;jps.html JVM Process Status Tool，显示虚拟机进程。 用法：jps [-q] [-mlvV] 参数说明  -q：打印进程号  -l：打印启动类的全限定名  -m：打印启动类的 main 方法入参">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d66cc89379b2dbf4e92a373ffb5ec4ea_1737626540682.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d4d5717ae7381cbcd71bb7d3376dec28_1737626540682.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4580de6a9d4cc4469ac9aa69432c6c48_1737626540682.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a1a9fbc3bab6374215739df3d9fd1c50_1737626553264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d8db1de2d93d4ca384292f611d0938f3_1737626553264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/df5816a8163b57f9441539f7eda0dbf9_1737626553264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8f2f50197d52975fa658f02b0eaeb772_1737626553264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/48391105ab4296b6cfdd5065ee0933de_1737626553264.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/10b1341193d9611b5b0fe5d8bfc2c1a9_1737626564195.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/419e3c0850b2bec514c90a2ba80fe71d_1737626564195.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b3bcb7f3d33d385dff231a49d2214e23_1737626564195.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d157e2bb94fe8e39004c8431abf0c57c_1737626564195.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5de9b9511de6abe0b7a493987c3d4b1a_1737626564195.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7e451b2f394e0865f0147abc58c2641_1737626574739.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cd98e9b8315520e6989a21f78dc4129f_1737626574739.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/80a754ca5c960115984b9330547215a9_1737626574739.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1138e48d4972a0fb34cd71f6c6eeaf88_1737626574739.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/32b2b99774894d0fd88b6640cf4450fc_1737626574739.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/135786c876ccbbb5dfa9e48509414b97_1737626583582.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9c5840b8344339be8a6bf8440e1fa857_1737626583582.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/82821be987a1a906434a1d5ec3e693a4_1737626583582.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a77ad06dba6e70cf4c1afe3c45de093b_1737626583582.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4dd7157704ea90e16435a39a437bd154_1737626583582.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/af9c61cedb980416af282be96398e055_1737626593326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a0ba5b6ea6a8ff2a29cd88f0c65e4fac_1737626593326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d42e7bb894c60d2620cf6c418f321e12_1737626593326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2bd4f6d7d58aced12b9e0d8ea2648d5f_1737626593326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4c5ca77425bbf557fafbd507286783fc_1737626593326.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a40c5d26687b65be35fcff763474abd1_1737626603920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ccc6ebe59d2cf0ad74b206977d622254_1737626603920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8d3ecd1f97cd6e5fbaf01e5d6f3f3599_1737626603920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7621e36f7376d953e0cc99c8cc4dd04_1737626603920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b73e23499db36e062e63614940766839_1737626603920.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d2582d076cd7c0cbdef2babe1c4f88f_1737626613691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8d7c15ab209e1ddd305dd944e94b0524_1737626613691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ac028685fac3d6a0f9c62282db044bbf_1737626613691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/141ad2cdd2da7d347324baa80ce14572_1737626613691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d1821d16a93daebdbe2b2a53832e5d9_1737626613691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/628861efd122d5a4fa076a76db3cc9b5_1737626623042.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/456b0ea168f2b0b4db2c355bff191a77_1737626623042.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cce79a2c4b06732153d2368d697d5a9a_1737626623042.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2862d946524edda2c93aaa2912eda395_1737626623042.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cc82367db0690d8761162b64d9878312_1737626623042.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7cd508a9c19575fb7ffa8347626a9c0f_1737626632401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/acb177533f3d78ae655d731d9f1366c6_1737626632401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/055307a011fdf9c090eaa53b6536109e_1737626632401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/397b064d9ae7f0ef3e9376576000bfe0_1737626632401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e6ab50aacf11c6d38db1cdba9cc0ef02_1737626632401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ab37a677796dc2eac271b8e2a3a3eef3_1737626643115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8ca8b7369e786cb29d57dbea18f0464f_1737626643115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cd77fd7bd3b0536475d7841621f73346_1737626643115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d3f5b1272f2496849249e6f452952af6_1737626643115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c867f95f9abd6eaf5bb8378e15fad8a3_1737626643115.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c263d69fb8f482f94f6c680fd2372e99_1737626653969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7bf4ab6808b54c6ea58f4c14721cd020_1737626653969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e6a7540661120eb1a46a60cf14e7b90a_1737626653969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b3f4b91585258a37995bae01f9ad48f8_1737626653969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d557ddc6154d47606d9cc11b0033a384_1737626653969.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d922262c13e414fe08ca3a4cd9f8b70e_1737626664401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/655b7166d583227fe3884957d27eb1ea_1737626664401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/98cf257a375ee0c94c1c8118b0ad1ef3_1737626664401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cf3edbc4b554a19f753de179bd090d7b_1737626664401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/56712dc2b5f31a6eade36234ff7f84c8_1737626664401.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/fdaa6933df8fc1250a6b3bc74263d373_1737626674015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a65caca6c2b8c7c81f842fd8ee6dd27a_1737626674015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f6e3ff4cf8f4cffbc22984d6315ab772_1737626674015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f0fe6a69c332bf599ec4aa7d1f84c999_1737626674015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/22c0c53aa369122d78c0f12fc292a7f1_1737626674015.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/88909dc94518a35591d49ec0c1dd7a40_1737626683909.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5bd6e3ba3e0deb6543d6a8ba49a36bb4_1737626683909.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/030c301cd9502235daa1c9ee23a2ab85_1737626683909.png">
+<meta property="article:published_time" content="2020-01-02T06:47:52.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d66cc89379b2dbf4e92a373ffb5ec4ea_1737626540682.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/01/02/jvm(11)%20--%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/01/02/jvm(11)%20--%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/","path":"2020/01/02/jvm(11) -- 虚拟机调试工具/","title":"jvm(11) -- 虚拟机调试工具"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>jvm(11) -- 虚拟机调试工具 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%91%BD%E4%BB%A4%E8%A1%8C%E5%B7%A5%E5%85%B7"><span class="nav-text">一、命令行工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-jps"><span class="nav-text">1.jps</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A0jps-q-%E5%8F%AA%E6%98%BE%E7%A4%BA%E8%BF%9B%E7%A8%8B%E5%8F%B7"><span class="nav-text">①jps -q 只显示进程号</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A1jps-m"><span class="nav-text">②jps  -m</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A2-jps-l"><span class="nav-text">③ jps -l</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A3jps-v"><span class="nav-text">④jps -v</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Jstat"><span class="nav-text">2.Jstat</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jstat-%E7%94%A8%E6%B3%95"><span class="nav-text">jstat 用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%80%EF%BC%9A-class"><span class="nav-text">示例一：-class</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%8C%EF%BC%9A-compiler"><span class="nav-text">示例二： -compiler</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%89%EF%BC%9A-gc"><span class="nav-text">示例三： -gc</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%9B%9B%EF%BC%9A-gccapacity"><span class="nav-text">示例四：  -gccapacity</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%94%EF%BC%9A-gcmetacapacity"><span class="nav-text">示例五：-gcmetacapacity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%85%AD%EF%BC%9A-gcnew"><span class="nav-text">示例六： -gcnew</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%83%EF%BC%9A-gcnewcapacity"><span class="nav-text">示例七： -gcnewcapacity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%85%AB%EF%BC%9A-gcold"><span class="nav-text">示例八： -gcold</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B9%9D%EF%BC%9A-gcoldcapacity"><span class="nav-text">示例九：-gcoldcapacity</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%8D%81%EF%BC%9A-gcutil"><span class="nav-text">示例十： - gcutil</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%8D%81%E4%B8%80%EF%BC%9A-gccause"><span class="nav-text">示例十一：-gccause</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%8D%81%E4%BA%8C%EF%BC%9A-printcompilation"><span class="nav-text">示例十二： -printcompilation</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Jinfo"><span class="nav-text">3.Jinfo</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#jinfo-%E7%94%A8%E6%B3%95"><span class="nav-text">jinfo 用法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%E8%AF%B4%E6%98%8E"><span class="nav-text">参数说明</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#option"><span class="nav-text">option</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Javacore-%E6%A6%82%E8%BF%B0"><span class="nav-text">Javacore 概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%80%EF%BC%9A-no-option"><span class="nav-text">示例一： no option</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%8C%EF%BC%9A-flag-name"><span class="nav-text">示例二： -flag name</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%89%EF%BC%9A-flag-name"><span class="nav-text">示例三：-flag [+|-]name</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%9B%9B%EF%BC%9A-flag-name-value"><span class="nav-text">示例四：-flag name&#x3D;value</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%94%EF%BC%9A-flags"><span class="nav-text">示例五： -flags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%85%AD%EF%BC%9A-sysprops"><span class="nav-text">示例六：-sysprops</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-jmap"><span class="nav-text">4.jmap</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A6%82%E8%BF%B0"><span class="nav-text">概述</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#jmap-%E7%94%A8%E6%B3%95"><span class="nav-text">jmap 用法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%82%E6%95%B0%EF%BC%9A"><span class="nav-text">参数：</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%80%EF%BC%9Ano-option"><span class="nav-text">示例一：no option</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%8C%EF%BC%9Aheap"><span class="nav-text">示例二：heap</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%B8%89%EF%BC%9Ahisto-live"><span class="nav-text">示例三：histo[:live]</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%9B%9B%EF%BC%9Aclstats"><span class="nav-text">示例四：clstats</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E4%BA%94%EF%BC%9Afinalizerinfo"><span class="nav-text">示例五：finalizerinfo</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%A4%BA%E4%BE%8B%E5%85%AD%EF%BC%9Adump"><span class="nav-text">示例六：dump:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-jhat"><span class="nav-text">5.jhat</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%A1%88%E4%BE%8B"><span class="nav-text">案例:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-jstack"><span class="nav-text">6.jstack</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F1-%E7%9B%B4%E6%8E%A5%E6%9F%A5%E7%9C%8B%E5%A0%86%E6%A0%88%E4%BF%A1%E6%81%AF"><span class="nav-text">方式1:直接查看堆栈信息</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%96%B9%E5%BC%8F2"><span class="nav-text">方式2:</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E5%8F%AF%E8%A7%86%E5%8C%96%E5%B7%A5%E5%85%B7"><span class="nav-text">二、可视化工具</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-jconsole"><span class="nav-text">1.jconsole</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A0%E5%86%85%E5%AD%98%E7%9B%91%E6%8E%A7"><span class="nav-text">①内存监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A1%E7%BA%BF%E7%A8%8B%E7%9B%91%E6%8E%A7"><span class="nav-text">②线程监控</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A2%E7%BA%BF%E7%A8%8B%E6%AD%BB%E9%94%81%E7%9B%91%E6%8E%A7"><span class="nav-text">③线程死锁监控</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-visualVM"><span class="nav-text">2.visualVM</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A0%E5%AE%89%E8%A3%85"><span class="nav-text">①安装:</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E2%91%A1%E6%8F%92%E4%BB%B6%E4%B8%8B%E8%BD%BD"><span class="nav-text">②插件下载</span></a></li></ol></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/01/02/jvm(11)%20--%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="jvm(11) -- 虚拟机调试工具 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jvm(11) -- 虚拟机调试工具
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-02 14:47:52" itemprop="dateCreated datePublished" datetime="2020-01-02T14:47:52+08:00">2020-01-02</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>13k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>12 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+
+<p>@<a href="%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7">toc</a></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d66cc89379b2dbf4e92a373ffb5ec4ea_1737626540682.png" alt="在这里插入图片描述"></p>
+<h1 id="一、命令行工具"><a href="#一、命令行工具" class="headerlink" title="一、命令行工具"></a>一、命令行工具</h1><h2 id="1-jps"><a href="#1-jps" class="headerlink" title="1.jps"></a>1.jps</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d4d5717ae7381cbcd71bb7d3376dec28_1737626540682.png" alt="在这里插入图片描述"></p>
+<p>官网地址:</p>
+<p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jps.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jps.html</a></p>
+<p>JVM Process Status Tool，显示虚拟机进程。</p>
+<p><strong>用法</strong>：<code>jps [-q] [-mlvV]</code></p>
+<p><strong>参数说明</strong></p>
+<ul>
+<li><p>-q：打印进程号</p>
+</li>
+<li><p>-l：打印启动类的全限定名</p>
+</li>
+<li><p>-m：打印启动类的 main 方法入参</p>
+</li>
+<li><p>-v：打印指定的虚拟机参数</p>
+</li>
+<li><p>-V：打印类名</p>
+<p>JPS（全称：Java Virtual Machine Process Status Tool）。安装JDK后在%JAVA_HOME%&#x2F;bin目录下面自带的一个工具。用来查看计算机上面运行的JAVA进程。（如下图）  在Linux机器上我一般使用的ps -aux|grep java</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4580de6a9d4cc4469ac9aa69432c6c48_1737626540682.png" alt="在这里插入图片描述"><br> 该工具只有16KB，所占内存很小。但是他会调用%JAVA_HOME%&#x2F;lib&#x2F;tools.jar里面的JAVA方法，来实现功能。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a1a9fbc3bab6374215739df3d9fd1c50_1737626553264.png" alt="在这里插入图片描述"></p>
+<h3 id="①jps-q-只显示进程号"><a href="#①jps-q-只显示进程号" class="headerlink" title="①jps -q 只显示进程号"></a>①jps -q 只显示进程号</h3><blockquote>
+<p>C:\Users\Winston&gt;jps -q<br>13476<br>2964<br>15224<br>9800</p>
+</blockquote>
+<p> 跟windows自带的任务管理器里面的PID就行比较，发现是一致的。此处windows进程里面少了一个。主要是少了我们当前运行的jps 命令。他也会发起一个java进程。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d8db1de2d93d4ca384292f611d0938f3_1737626553264.png" alt="在这里插入图片描述"></p>
+<h3 id="②jps-m"><a href="#②jps-m" class="headerlink" title="②jps  -m"></a>②jps  -m</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/df5816a8163b57f9441539f7eda0dbf9_1737626553264.png" alt="在这里插入图片描述"><br>jps -m 显示传递给main方法的参数。针对嵌入式JVM可能输出null.</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8f2f50197d52975fa658f02b0eaeb772_1737626553264.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/48391105ab4296b6cfdd5065ee0933de_1737626553264.png" alt="在这里插入图片描述"></p>
+<h3 id="③-jps-l"><a href="#③-jps-l" class="headerlink" title="③ jps -l"></a>③ jps -l</h3><p>显示运行程序主类的包名，或者运行程序jar包的完整路径。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/10b1341193d9611b5b0fe5d8bfc2c1a9_1737626564195.png" alt="在这里插入图片描述"></p>
+<h3 id="④jps-v"><a href="#④jps-v" class="headerlink" title="④jps -v"></a>④jps -v</h3><p>打印指定的虚拟机参数</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/419e3c0850b2bec514c90a2ba80fe71d_1737626564195.png" alt="在这里插入图片描述"></p>
+<p>④jps -V</p>
+<p>打印类名</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b3bcb7f3d33d385dff231a49d2214e23_1737626564195.png" alt="在这里插入图片描述"></p>
+<h2 id="2-Jstat"><a href="#2-Jstat" class="headerlink" title="2.Jstat"></a>2.Jstat</h2><p>官网地址:<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html#BEHBBBDJ">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html#BEHBBBDJ</a></p>
+<p>Jstat是JDK自带的一个轻量级小工具。全称“Java Virtual Machine statistics monitoring tool”，它位于java的bin目录下，主要利用JVM内建的指令对Java应用程序的资源和性能进行实时的命令行的监控，包括了对Heap size和垃圾回收状况的监控。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d157e2bb94fe8e39004c8431abf0c57c_1737626564195.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5de9b9511de6abe0b7a493987c3d4b1a_1737626564195.png" alt="在这里插入图片描述"></p>
+<p>每1秒，显示一下gc信息</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7e451b2f394e0865f0147abc58c2641_1737626574739.png" alt="在这里插入图片描述"></p>
+<h3 id="jstat-用法"><a href="#jstat-用法" class="headerlink" title="jstat 用法"></a>jstat 用法</h3><p>监视Java虚拟机（JVM）统计信息。此命令是实验性的，不受支持。<br>官网地址: <a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstat.html</a><br>使用情况，参考文章链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/213710fb9e40">https://www.jianshu.com/p/213710fb9e40</a><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cd98e9b8315520e6989a21f78dc4129f_1737626574739.png" alt="img"></p>
+<ul>
+<li><strong>option：</strong> 参数选项</li>
+<li><strong>-t：</strong> 可以在打印的列加上Timestamp列，用于显示系统运行的时间</li>
+<li><strong>-h：</strong> 可以在周期性数据数据的时候，可以在指定输出多少行以后输出一次表头</li>
+<li><strong>vmid：</strong> Virtual Machine ID（ 进程的 pid）</li>
+<li><strong>interval：</strong> 执行每次的间隔时间，单位为毫秒</li>
+<li><strong>count：</strong> 用于指定输出多少次记录，缺省则会一直打印</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/80a754ca5c960115984b9330547215a9_1737626574739.png" alt="img"></p>
+<blockquote>
+<p>option   可以从下面参数中选择</p>
+</blockquote>
+<ul>
+<li><p>-class                 显示ClassLoad的相关信息；</p>
+</li>
+<li><p>-compiler           显示JIT编译的相关信息；</p>
+</li>
+<li><p>-gc                     显示和gc相关的堆信息；</p>
+</li>
+<li><p>-gccapacity 　　  显示各个代的容量以及使用情况；</p>
+</li>
+<li><p>-gcmetacapacity 显示metaspace的大小</p>
+</li>
+<li><p>-gcnew               显示新生代信息；</p>
+</li>
+<li><p>-gcnewcapacity  显示新生代大小和使用情况；</p>
+</li>
+<li><p>-gcold                 显示老年代和永久代的信息；</p>
+</li>
+<li><p>-gcoldcapacity    显示老年代的大小；</p>
+</li>
+<li><p>-gcutil　　           显示垃圾收集信息；</p>
+</li>
+<li><p>-gccause             显示垃圾回收的相关信息（通-gcutil）,同时显示最后一次或当前正在发生的垃圾回收的诱因；</p>
+</li>
+<li><p>-printcompilation 输出JIT编译的方法信息；</p>
+</li>
+</ul>
+<h3 id="示例一：-class"><a href="#示例一：-class" class="headerlink" title="示例一：-class"></a>示例一：-class</h3><p>显示加载class的数量，及所占空间等信息。</p>
+<figure class="highlight ruby"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -<span class="keyword">class</span> &lt;pid&gt;</span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1138e48d4972a0fb34cd71f6c6eeaf88_1737626574739.png" alt="img"></p>
+<ul>
+<li>Loaded : 已经装载的类的数量</li>
+<li>Bytes : 装载类所占用的字节数</li>
+<li>Unloaded：已经卸载类的数量</li>
+<li>Bytes：卸载类的字节数</li>
+<li>Time：装载和卸载类所花费的时间</li>
+</ul>
+<h3 id="示例二：-compiler"><a href="#示例二：-compiler" class="headerlink" title="示例二： -compiler"></a>示例二： -compiler</h3><p>显示VM实时编译(JIT)的数量等信息。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -compiler <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/32b2b99774894d0fd88b6640cf4450fc_1737626574739.png" alt="img"></p>
+<ul>
+<li>Compiled：编译任务执行数量</li>
+<li>Failed：编译任务执行失败数量</li>
+<li>Invalid  ：编译任务执行失效数量</li>
+<li>Time  ：编译任务消耗时间</li>
+<li>FailedType：最后一个编译失败任务的类型</li>
+<li>FailedMethod：最后一个编译失败任务所在的类及方法</li>
+</ul>
+<h3 id="示例三：-gc"><a href="#示例三：-gc" class="headerlink" title="示例三： -gc"></a>示例三： -gc</h3><p>显示gc相关的堆信息，查看gc的次数，及时间。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat –gc <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/135786c876ccbbb5dfa9e48509414b97_1737626583582.png" alt="img"></p>
+<ul>
+<li>S0C：年轻代中第一个survivor（幸存区）的容量 （字节）</li>
+<li>S1C：年轻代中第二个survivor（幸存区）的容量 (字节)</li>
+<li>S0U   ：年轻代中第一个survivor（幸存区）目前已使用空间 (字节)</li>
+<li>S1U     ：年轻代中第二个survivor（幸存区）目前已使用空间 (字节)</li>
+<li>EC      ：年轻代中Eden（伊甸园）的容量 (字节)</li>
+<li>EU       ：年轻代中Eden（伊甸园）目前已使用空间 (字节)</li>
+<li>OC        ：Old代的容量 (字节)</li>
+<li>OU      ：Old代目前已使用空间 (字节)</li>
+<li>MC：metaspace(元空间)的容量 (字节)</li>
+<li>MU：metaspace(元空间)目前已使用空间 (字节)</li>
+<li>YGC    ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>YGCT   ：从应用程序启动到采样时年轻代中gc所用时间(s)</li>
+<li>FGC   ：从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT    ：从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT：从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<p>还可以间隔xx毫秒，打印x条记录，比如下面间隔250毫秒，打印10条数据。</p>
+<blockquote>
+<p>jstat -gc 17360 250 10<br> S0C    S1C    S0U    S1U      EC       EU        OC         OU       MC     MU    CCSC   CCSU   YGC     YGCT    FGC    FGCT     GCT<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 65536.0   7577.7   175104.0    144.0    18816.0 18379.0 2176.0 2082.2      1    0.023   0      0.000    0.023<br>10752.0 10752.0  0.0   3957.9 6553</p>
+</blockquote>
+<h2 id="示例四：-gccapacity"><a href="#示例四：-gccapacity" class="headerlink" title="示例四：  -gccapacity"></a>示例四：  -gccapacity</h2><p>可以显示，VM内存中三代（young,old,perm）对象的使用和占用大小</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gccapacity <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9c5840b8344339be8a6bf8440e1fa857_1737626583582.png" alt="img"></p>
+<ul>
+<li>NGCMN   ：年轻代(young)中初始化(最小)的大小(字节)</li>
+<li>NGCMX    ：年轻代(young)的最大容量 (字节)</li>
+<li>NGC    ：年轻代(young)中当前的容量 (字节)</li>
+<li>S0C  ：年轻代中第一个survivor（幸存区）的容量 (字节)</li>
+<li>S1C  ：    年轻代中第二个survivor（幸存区）的容量 (字节)</li>
+<li>EC    ：年轻代中Eden（伊甸园）的容量 (字节)</li>
+<li>OGCMN     ：old代中初始化(最小)的大小 (字节)</li>
+<li>OGCMX      ：old代的最大容量(字节)</li>
+<li>OGC：old代当前新生成的容量 (字节)</li>
+<li>OC     ：Old代的容量 (字节)</li>
+<li>MCMN：metaspace(元空间)中初始化(最小)的大小 (字节)</li>
+<li>MCMX ：metaspace(元空间)的最大容量 (字节)</li>
+<li>MC ：metaspace(元空间)当前新生成的容量 (字节)</li>
+<li>CCSMN：最小压缩类空间大小</li>
+<li>CCSMX：最大压缩类空间大小</li>
+<li>CCSC：当前压缩类空间大小</li>
+<li>YGC   ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>FGC：从应用程序启动到采样时old代(全gc)gc次数</li>
+</ul>
+<h3 id="示例五：-gcmetacapacity"><a href="#示例五：-gcmetacapacity" class="headerlink" title="示例五：-gcmetacapacity"></a>示例五：-gcmetacapacity</h3><p>metaspace 中对象的信息及其占用量。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcmetacapacity<span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/82821be987a1a906434a1d5ec3e693a4_1737626583582.png" alt="img"></p>
+<ul>
+<li>MCMN:最小元数据容量</li>
+<li>MCMX：最大元数据容量</li>
+<li>MC：当前元数据空间大小</li>
+<li>CCSMN：最小压缩类空间大小</li>
+<li>CCSMX：最大压缩类空间大小</li>
+<li>CCSC：当前压缩类空间大小</li>
+<li>YGC  ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>FGC   ：从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT    ：从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT：从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<h3 id="示例六：-gcnew"><a href="#示例六：-gcnew" class="headerlink" title="示例六： -gcnew"></a>示例六： -gcnew</h3><p>年轻代对象的信息。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcnew <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a77ad06dba6e70cf4c1afe3c45de093b_1737626583582.png" alt="img"></p>
+<ul>
+<li>S0C   ：年轻代中第一个survivor（幸存区）的容量 (字节)</li>
+<li>S1C   ：年轻代中第二个survivor（幸存区）的容量 (字节)</li>
+<li>S0U   ：年轻代中第一个survivor（幸存区）目前已使用空间 (字节)</li>
+<li>S1U  ：年轻代中第二个survivor（幸存区）目前已使用空间 (字节)</li>
+<li>TT：持有次数限制</li>
+<li>MTT：最大持有次数限制</li>
+<li>DSS：期望的幸存区大小</li>
+<li>EC：年轻代中Eden（伊甸园）的容量 (字节)</li>
+<li>EU ：年轻代中Eden（伊甸园）目前已使用空间 (字节)</li>
+<li>YGC ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>YGCT：从应用程序启动到采样时年轻代中gc所用时间(s)</li>
+</ul>
+<h3 id="示例七：-gcnewcapacity"><a href="#示例七：-gcnewcapacity" class="headerlink" title="示例七： -gcnewcapacity"></a>示例七： -gcnewcapacity</h3><p>年轻代对象的信息及其占用量</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcnewcapacity <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4dd7157704ea90e16435a39a437bd154_1737626583582.png" alt="img"></p>
+<ul>
+<li>NGCMN     ：年轻代(young)中初始化(最小)的大小(字节)</li>
+<li>NGCMX      ：年轻代(young)的最大容量 (字节)</li>
+<li>NGC     ：年轻代(young)中当前的容量 (字节)</li>
+<li>S0CMX    ：年轻代中第一个survivor（幸存区）的最大容量 (字节)</li>
+<li>S0C    ：年轻代中第一个survivor（幸存区）的容量 (字节)</li>
+<li>S1CMX ：年轻代中第二个survivor（幸存区）的最大容量 (字节)</li>
+<li>S1C：年轻代中第二个survivor（幸存区）的容量 (字节)</li>
+<li>ECMX：年轻代中Eden（伊甸园）的最大容量 (字节)</li>
+<li>EC：年轻代中Eden（伊甸园）的容量 (字节)</li>
+<li>YGC：从应用程序启动到采样时年轻代中gc次数</li>
+<li>FGC：从应用程序启动到采样时old代(全gc)gc次数</li>
+</ul>
+<h3 id="示例八：-gcold"><a href="#示例八：-gcold" class="headerlink" title="示例八： -gcold"></a>示例八： -gcold</h3><p>old代对象的信息</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcold <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/af9c61cedb980416af282be96398e055_1737626593326.png" alt="img"></p>
+<ul>
+<li>MC ：metaspace(元空间)的容量 (字节)</li>
+<li>MU：metaspace(元空间)目前已使用空间 (字节)</li>
+<li>CCSC:压缩类空间大小</li>
+<li>CCSU:压缩类空间使用大小</li>
+<li>OC：Old代的容量 (字节)</li>
+<li>OU：Old代目前已使用空间 (字节)</li>
+<li>YGC：从应用程序启动到采样时年轻代中gc次数</li>
+<li>FGC：从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT：从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT：从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<h3 id="示例九：-gcoldcapacity"><a href="#示例九：-gcoldcapacity" class="headerlink" title="示例九：-gcoldcapacity"></a>示例九：-gcoldcapacity</h3><p>old代对象的信息及其占用量</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcoldcapacity <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a0ba5b6ea6a8ff2a29cd88f0c65e4fac_1737626593326.png" alt="img"></p>
+<ul>
+<li>OGCMN      ：old代中初始化(最小)的大小 (字节)</li>
+<li>OGCMX       ：old代的最大容量(字节)</li>
+<li>OGC        ：old代当前新生成的容量 (字节)</li>
+<li>OC      ：Old代的容量 (字节)</li>
+<li>YGC  ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>FGC   ：从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT    ：从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT：从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<h3 id="示例十：-gcutil"><a href="#示例十：-gcutil" class="headerlink" title="示例十： - gcutil"></a>示例十： - gcutil</h3><p>统计gc信息</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gcutil <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d42e7bb894c60d2620cf6c418f321e12_1737626593326.png" alt="img"></p>
+<ul>
+<li>S0    ：年轻代中第一个survivor（幸存区）已使用的占当前容量百分比</li>
+<li>S1    ：年轻代中第二个survivor（幸存区）已使用的占当前容量百分比</li>
+<li>E     ：年轻代中Eden（伊甸园）已使用的占当前容量百分比</li>
+<li>O     ：old代已使用的占当前容量百分比</li>
+<li>P    ：perm代已使用的占当前容量百分比</li>
+<li>YGC  ：从应用程序启动到采样时年轻代中gc次数</li>
+<li>YGCT   ：从应用程序启动到采样时年轻代中gc所用时间(s)</li>
+<li>FGC   ：从应用程序启动到采样时old代(全gc)gc次数</li>
+<li>FGCT    ：从应用程序启动到采样时old代(全gc)gc所用时间(s)</li>
+<li>GCT：从应用程序启动到采样时gc用的总时间(s)</li>
+</ul>
+<h3 id="示例十一：-gccause"><a href="#示例十一：-gccause" class="headerlink" title="示例十一：-gccause"></a>示例十一：-gccause</h3><p>显示垃圾回收的相关信息（通-gcutil）,同时显示最后一次或当前正在发生的垃圾回收的诱因。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -gccause <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2bd4f6d7d58aced12b9e0d8ea2648d5f_1737626593326.png" alt="img"></p>
+<ul>
+<li>LGCC：最后一次GC原因</li>
+<li>GCC：当前GC原因（No GC 为当前没有执行GC）</li>
+</ul>
+<h3 id="示例十二：-printcompilation"><a href="#示例十二：-printcompilation" class="headerlink" title="示例十二： -printcompilation"></a>示例十二： -printcompilation</h3><p>当前VM执行的信息。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">jstat -printcompilation <span class="tag">&lt;<span class="name">pid</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4c5ca77425bbf557fafbd507286783fc_1737626593326.png" alt="img"></p>
+<ul>
+<li>Compiled ：编译任务的数目</li>
+<li>Size ：方法生成的字节码的大小</li>
+<li>Type：编译类型</li>
+<li>Method：类名和方法名用来标识编译的方法。类名使用&#x2F;做为一个命名空间分隔符。方法名是给定类中的方法。上述格式是由-XX:+PrintComplation选项进行设置的.</li>
+</ul>
+<h2 id="3-Jinfo"><a href="#3-Jinfo" class="headerlink" title="3.Jinfo"></a>3.Jinfo</h2><p>jinfo 是 JDK 自带的命令，可以用来查看正在运行的 java 应用程序的扩展参数，包括Java System属性和JVM命令行参数；也可以动态的修改正在运行的 JVM 一些参数。当系统崩溃时，jinfo可以从core文件里面知道崩溃的Java应用程序的配置信息.</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a40c5d26687b65be35fcff763474abd1_1737626603920.png" alt="在这里插入图片描述"><br>官网地址:</p>
+<p>&lt;<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jinfo.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jinfo.html</a>&gt;</p>
+<p>jinfo用法:</p>
+<p>参考博客地址:</p>
+<p>&lt;<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/8d8aef212b25">https://www.jianshu.com/p/8d8aef212b25</a>&gt;</p>
+<h3 id="jinfo-用法"><a href="#jinfo-用法" class="headerlink" title="jinfo 用法"></a>jinfo 用法</h3><p>jinfo 是 JDK 自带的命令，可以用来查看正在运行的 java 应用程序的扩展参数，包括Java System属性和JVM命令行参数；也可以动态的修改正在运行的 JVM 一些参数。当系统崩溃时，jinfo可以从core文件里面知道崩溃的Java应用程序的配置信息.<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ccc6ebe59d2cf0ad74b206977d622254_1737626603920.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8d3ecd1f97cd6e5fbaf01e5d6f3f3599_1737626603920.png" alt="img"></p>
+<h4 id="参数说明"><a href="#参数说明" class="headerlink" title="参数说明"></a>参数说明</h4><ul>
+<li>pid  对应jvm的进程id</li>
+<li>executable core 产生core dump文件</li>
+<li>[server-id@]remote server IP or  hostname  远程的ip或者hostname，server-id标记服务的唯一性id</li>
+</ul>
+<h4 id="option"><a href="#option" class="headerlink" title="option"></a>option</h4><ul>
+<li>no option   输出全部的参数和系统属性</li>
+<li>-flag  name  输出对应名称的参数</li>
+<li>-flag [+|-]name  开启或者关闭对应名称的参数</li>
+<li>-flag name&#x3D;value  设定对应名称的参数</li>
+<li>-flags  输出全部的参数</li>
+<li>-sysprops  输出系统属性</li>
+</ul>
+<h3 id="Javacore-概述"><a href="#Javacore-概述" class="headerlink" title="Javacore 概述"></a>Javacore 概述</h3><p>Javacore，也可以称为“threaddump”或是“javadump”，它是 Java 提供的一种诊断特性，能够提供一份可读的当前运行的 JVM 中线程使用情况的快照。即在某个特定时刻，JVM 中有哪些线程在运行，每个线程执行到哪一个类，哪一个方法。<br> 应用程序如果出现不可恢复的错误或是内存泄露，就会自动触发 Javacore 的生成。</p>
+<h3 id="示例一：-no-option"><a href="#示例一：-no-option" class="headerlink" title="示例一： no option"></a>示例一： no option</h3><p>命令：jinfo pid<br> 描述：输出当前 jvm 进程的全部参数和系统属性</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7621e36f7376d953e0cc99c8cc4dd04_1737626603920.png" alt="img"></p>
+<h3 id="示例二：-flag-name"><a href="#示例二：-flag-name" class="headerlink" title="示例二： -flag name"></a>示例二： -flag name</h3><p>命令：jinfo -flag name pid<br> 描述：输出对应名称的参数</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b73e23499db36e062e63614940766839_1737626603920.png" alt="img"></p>
+<p>使用该命令，可以查看指定的 jvm 参数的值。如：查看当前 jvm 进程是否开启打印 GC 日志。</p>
+<h3 id="示例三：-flag-name"><a href="#示例三：-flag-name" class="headerlink" title="示例三：-flag [+|-]name"></a>示例三：-flag [+|-]name</h3><p>命令：jinfo -flag [+|-]name   pid<br> 描述：开启或者关闭对应名称的参数</p>
+<p>使用 jinfo 可以在不重启虚拟机的情况下，可以动态的修改 jvm 的参数。尤其在线上的环境特别有用。</p>
+<p>使用如下：</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d2582d076cd7c0cbdef2babe1c4f88f_1737626613691.png" alt="img"></p>
+<h3 id="示例四：-flag-name-value"><a href="#示例四：-flag-name-value" class="headerlink" title="示例四：-flag name&#x3D;value"></a>示例四：-flag name&#x3D;value</h3><p>命令：jinfo -flag  name&#x3D;value  pid<br> 描述：修改指定参数的值。</p>
+<p>同示例三，但示例三主要是针对 boolean 值的参数设置的。<br> 如果是设置 value值，则需要使用 name&#x3D;value  的形式。</p>
+<p>使用如下：</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8d7c15ab209e1ddd305dd944e94b0524_1737626613691.png" alt="img"></p>
+<blockquote>
+<p>注意事项 ：</p>
+</blockquote>
+<p>jinfo虽然可以在java程序运行时动态地修改虚拟机参数，但并不是所有的参数都支持动态修改</p>
+<h3 id="示例五：-flags"><a href="#示例五：-flags" class="headerlink" title="示例五： -flags"></a>示例五： -flags</h3><p>命令：jinfo -flags pid<br> 描述：输出全部的参数</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ac028685fac3d6a0f9c62282db044bbf_1737626613691.png" alt="img"></p>
+<h3 id="示例六：-sysprops"><a href="#示例六：-sysprops" class="headerlink" title="示例六：-sysprops"></a>示例六：-sysprops</h3><p>命令：jinfo -sysprops pid<br> 描述：输出当前 jvm 进行的全部的系统属性</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/141ad2cdd2da7d347324baa80ce14572_1737626613691.png" alt="img"></p>
+<h2 id="4-jmap"><a href="#4-jmap" class="headerlink" title="4.jmap"></a>4.jmap</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2d1821d16a93daebdbe2b2a53832e5d9_1737626613691.png" alt="在这里插入图片描述"></p>
+<p>官网地址:&lt;<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jmap.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jmap.html</a>&gt;</p>
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>命令jmap是一个多功能的命令。它可以生成 java 程序的 dump 文件， 也可以查看堆内对象示例的统计信息、查看 ClassLoader 的信息以及 finalizer 队列。</p>
+<h3 id="jmap-用法"><a href="#jmap-用法" class="headerlink" title="jmap 用法"></a>jmap 用法</h3><p>参考文章:<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/a4ad53179df3">https://www.jianshu.com/p/a4ad53179df3</a></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/628861efd122d5a4fa076a76db3cc9b5_1737626623042.png" alt="img"></p>
+<h3 id="参数："><a href="#参数：" class="headerlink" title="参数："></a>参数：</h3><ul>
+<li><strong>option：</strong> 选项参数。</li>
+<li><strong>pid：</strong> 需要打印配置信息的进程ID。</li>
+<li><strong>executable：</strong> 产生核心dump的Java可执行文件。</li>
+<li><strong>core：</strong> 需要打印配置信息的核心文件。</li>
+<li><strong>server-id</strong> 可选的唯一id，如果相同的远程主机上运行了多台调试服务器，用此选项参数标识服务器。</li>
+<li><strong>remote server IP or hostname</strong> 远程调试服务器的IP地址或主机名。</li>
+</ul>
+<p>option</p>
+<ul>
+<li><strong>no option：</strong> 查看进程的内存映像信息,类似 Solaris pmap 命令。</li>
+<li><strong>heap：</strong> 显示Java堆详细信息</li>
+<li><strong>histo[:live]：</strong> 显示堆中对象的统计信息</li>
+<li>**clstats：**打印类加载器信息</li>
+<li><strong>finalizerinfo：</strong> 显示在F-Queue队列等待Finalizer线程执行finalizer方法的对象</li>
+<li>**dump:<dump-options>：**生成堆转储快照</li>
+<li><strong>F：</strong> 当-dump没有响应时，使用-dump或者-histo参数. 在这个模式下,live子参数无效.</li>
+<li>**help：**打印帮助信息</li>
+<li>**J<flag>：**指定传递给运行jmap的JVM的参数</li>
+</ul>
+<h3 id="示例一：no-option"><a href="#示例一：no-option" class="headerlink" title="示例一：no option"></a>示例一：no option</h3><p>命令：jmap pid<br> 描述：查看进程的内存映像信息,类似 Solaris pmap 命令。</p>
+<p>使用不带选项参数的jmap打印共享对象映射，将会打印目标虚拟机中加载的每个共享对象的起始地址、映射大小以及共享对象文件的路径全称。这与Solaris的pmap工具比较相似。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/456b0ea168f2b0b4db2c355bff191a77_1737626623042.png" alt="img"></p>
+<h3 id="示例二：heap"><a href="#示例二：heap" class="headerlink" title="示例二：heap"></a>示例二：heap</h3><p>命令：jmap -heap pid<br> 描述：显示Java堆详细信息</p>
+<p>打印一个堆的摘要信息，包括使用的GC算法、堆配置信息和各内存区域内存使用信息</p>
+<figure class="highlight text"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br></pre></td><td class="code"><pre><span class="line">C:\Users\jjs&gt;jmap -heap 5932</span><br><span class="line">Attaching to process ID 5932, please wait...</span><br><span class="line">Debugger attached successfully.</span><br><span class="line">Server compiler detected.</span><br><span class="line">JVM version is 25.91-b15</span><br><span class="line"></span><br><span class="line">using thread-local object allocation.</span><br><span class="line">Parallel GC with 4 thread(s)</span><br><span class="line"></span><br><span class="line">Heap Configuration:</span><br><span class="line">   MinHeapFreeRatio         = 0</span><br><span class="line">   MaxHeapFreeRatio         = 100</span><br><span class="line">   MaxHeapSize              = 1073741824 (1024.0MB)</span><br><span class="line">   NewSize                  = 42991616 (41.0MB)</span><br><span class="line">   MaxNewSize               = 357564416 (341.0MB)</span><br><span class="line">   OldSize                  = 87031808 (83.0MB)</span><br><span class="line">   NewRatio                 = 2</span><br><span class="line">   SurvivorRatio            = 8</span><br><span class="line">   MetaspaceSize            = 21807104 (20.796875MB)</span><br><span class="line">   CompressedClassSpaceSize = 1073741824 (1024.0MB)</span><br><span class="line">   MaxMetaspaceSize         = 17592186044415 MB</span><br><span class="line">   G1HeapRegionSize         = 0 (0.0MB)</span><br><span class="line"></span><br><span class="line">Heap Usage:</span><br><span class="line">PS Young Generation</span><br><span class="line">Eden Space:</span><br><span class="line">   capacity = 60293120 (57.5MB)</span><br><span class="line">   used     = 44166744 (42.120689392089844MB)</span><br><span class="line">   free     = 16126376 (15.379310607910156MB)</span><br><span class="line">   73.25337285580842% used</span><br><span class="line">From Space:</span><br><span class="line">   capacity = 5242880 (5.0MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 5242880 (5.0MB)</span><br><span class="line">   0.0% used</span><br><span class="line">To Space:</span><br><span class="line">   capacity = 14680064 (14.0MB)</span><br><span class="line">   used     = 0 (0.0MB)</span><br><span class="line">   free     = 14680064 (14.0MB)</span><br><span class="line">   0.0% used</span><br><span class="line">PS Old Generation</span><br><span class="line">   capacity = 120061952 (114.5MB)</span><br><span class="line">   used     = 19805592 (18.888084411621094MB)</span><br><span class="line">   free     = 100256360 (95.6119155883789MB)</span><br><span class="line">   16.496143590935453% used</span><br><span class="line"></span><br><span class="line">20342 interned Strings occupying 1863208 bytes.</span><br></pre></td></tr></table></figure>
+
+<h3 id="示例三：histo-live"><a href="#示例三：histo-live" class="headerlink" title="示例三：histo[:live]"></a>示例三：histo[:live]</h3><p>命令：jmap -histo:live pid<br> 描述：显示堆中对象的统计信息</p>
+<p>其中包括每个Java类、对象数量、内存大小(单位：字节)、完全限定的类名。打印的虚拟机内部的类名称将会带有一个’*’前缀。如果指定了live子选项，则只计算活动的对象。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cce79a2c4b06732153d2368d697d5a9a_1737626623042.png" alt="img"></p>
+<h3 id="示例四：clstats"><a href="#示例四：clstats" class="headerlink" title="示例四：clstats"></a>示例四：clstats</h3><p>命令：jmap -clstats pid<br> 描述：打印类加载器信息</p>
+<p>-clstats是-permstat的替代方案，在JDK8之前，-permstat用来打印类加载器的数据<br> 打印Java堆内存的永久保存区域的类加载器的智能统计信息。对于每个类加载器而言，它的名称、活跃度、地址、父类加载器、它所加载的类的数量和大小都会被打印。此外，包含的字符串数量和大小也会被打印。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2862d946524edda2c93aaa2912eda395_1737626623042.png" alt="img"></p>
+<h3 id="示例五：finalizerinfo"><a href="#示例五：finalizerinfo" class="headerlink" title="示例五：finalizerinfo"></a>示例五：finalizerinfo</h3><p>命令：jmap -finalizerinfo pid<br> 描述：打印等待终结的对象信息</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cc82367db0690d8761162b64d9878312_1737626623042.png" alt="img"></p>
+<p>Number of objects pending for finalization: 0 说明当前F-QUEUE队列中并没有等待Fializer线程执行final</p>
+<h3 id="示例六：dump"><a href="#示例六：dump" class="headerlink" title="示例六：dump:"></a>示例六：dump:<dump-options></h3><p>命令：<code>jmap -dump:format=b,file=heapdump.phrof pid</code><br> 描述：生成堆转储快照dump文件。</p>
+<p>以hprof二进制格式转储Java堆到指定filename的文件中。live子选项是可选的。如果指定了live子选项，堆中只有活动的对象会被转储。想要浏览heap dump，你可以使用jhat(Java堆分析工具)读取生成的文件。</p>
+<blockquote>
+<p>这个命令执行，JVM会将整个heap的信息dump写入到一个文件，heap如果比较大的话，就会导致这个过程比较耗时，并且执行的过程中为了保证dump的信息是可靠的，所以会暂停应用， 线上系统慎用。</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7cd508a9c19575fb7ffa8347626a9c0f_1737626632401.png" alt="img"></p>
+<h2 id="5-jhat"><a href="#5-jhat" class="headerlink" title="5.jhat"></a>5.jhat</h2><p>官网:<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jhat.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jhat.html</a></p>
+<p>该<code>jhat</code>命令解析Java堆转储文件并启动Web服务器。该<code>jhat</code>命令使您可以使用自己喜欢的Web浏览器浏览堆转储。该<code>jhat</code>命令支持预先设计的查询，例如显示已知类的所有实例<code>MyClass</code>以及对象查询语言（OQL）。OQL与SQL类似，除了查询堆转储。可从<code>jhat</code>命令显示的OQL帮助页面获得有关OQL的帮助。使用默认端口，可以从http&#x2F;&#x2F;localhost:7000&#x2F;oqlhelp &#x2F;获得OQL帮助。</p>
+<h3 id="案例"><a href="#案例" class="headerlink" title="案例:"></a>案例:</h3><p>1.导出dump信息到a.bin文件<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/acb177533f3d78ae655d731d9f1366c6_1737626632401.png" alt="在这里插入图片描述"><br>2.启动jhat进行分析文件</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/055307a011fdf9c090eaa53b6536109e_1737626632401.png" alt="在这里插入图片描述"><br>3.浏览器查看</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/397b064d9ae7f0ef3e9376576000bfe0_1737626632401.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>Heap Histogram<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e6ab50aacf11c6d38db1cdba9cc0ef02_1737626632401.png" alt="在这里插入图片描述"></li>
+<li>OQL</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ab37a677796dc2eac271b8e2a3a3eef3_1737626643115.png" alt="在这里插入图片描述"></p>
+<h2 id="6-jstack"><a href="#6-jstack" class="headerlink" title="6.jstack"></a>6.jstack</h2><p>官方地址:</p>
+<p><a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstack.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jstack.html</a></p>
+<p>jstack是jdk自带的线程堆栈分析工具，使用该命令可以查看或导出 Java 应用程序中线程堆栈信息。</p>
+<p>例子:</p>
+<ol>
+<li><a target="_blank" rel="noopener" href="https://jingyan.baidu.com/article/4f34706e3ec075e387b56df2.html">高手是如何用jstack找到异常代码的</a></li>
+<li><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/025cb069cb69">jvm 性能调优工具之 jstack(用法+死锁案例)</a></li>
+</ol>
+<p>演示:</p>
+<h3 id="方式1-直接查看堆栈信息"><a href="#方式1-直接查看堆栈信息" class="headerlink" title="方式1:直接查看堆栈信息"></a>方式1:直接查看堆栈信息</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8ca8b7369e786cb29d57dbea18f0464f_1737626643115.png" alt="在这里插入图片描述"></p>
+<h3 id="方式2"><a href="#方式2" class="headerlink" title="方式2:"></a>方式2:</h3><p>java用thread的api有个方法:Thread.getAllStackTraces().也可以查看堆栈信息。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cd77fd7bd3b0536475d7841621f73346_1737626643115.png" alt="在这里插入图片描述"><br>打印结果如下:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d3f5b1272f2496849249e6f452952af6_1737626643115.png" alt="在这里插入图片描述"></p>
+<h1 id="二、可视化工具"><a href="#二、可视化工具" class="headerlink" title="二、可视化工具"></a>二、可视化工具</h1><h2 id="1-jconsole"><a href="#1-jconsole" class="headerlink" title="1.jconsole"></a>1.jconsole</h2><p>该<code>jconsole</code>命令启动图形控制台工具，使您可以监视和管理本地或远程计算机上的Java应用程序和虚拟机。</p>
+<p>官网地址:&lt;<a target="_blank" rel="noopener" href="https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jconsole.html">https://docs.oracle.com/javase/8/docs/technotes/tools/unix/jconsole.html</a>&gt;<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c867f95f9abd6eaf5bb8378e15fad8a3_1737626643115.png" alt="在这里插入图片描述"></p>
+<h3 id="①内存监控"><a href="#①内存监控" class="headerlink" title="①内存监控"></a>①内存监控</h3><p>写个demo测试下:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JconsoleTest</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="type">byte</span>[] b1 = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">128</span> * <span class="number">1024</span>];</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            Thread.sleep(<span class="number">5000</span>);</span><br><span class="line">        &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">        System.out.println(<span class="string">&quot;start ..&quot;</span>);</span><br><span class="line">        fill(<span class="number">1000</span>);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">fill</span><span class="params">(<span class="type">int</span> n)</span> &#123;</span><br><span class="line">        ArrayList&lt;JconsoleTest&gt; jlist = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (<span class="type">int</span> i=<span class="number">0</span>;i&lt;n;i++)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            jlist.add(<span class="keyword">new</span> <span class="title class_">JconsoleTest</span>());</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>cmd中输入jconsole<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c263d69fb8f482f94f6c680fd2372e99_1737626653969.png" alt="在这里插入图片描述"></p>
+<p>查看堆和线程等信息的变化：</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7bf4ab6808b54c6ea58f4c14721cd020_1737626653969.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e6a7540661120eb1a46a60cf14e7b90a_1737626653969.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b3f4b91585258a37995bae01f9ad48f8_1737626653969.png" alt="在这里插入图片描述"></p>
+<h3 id="②线程监控"><a href="#②线程监控" class="headerlink" title="②线程监控"></a>②线程监控</h3><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="comment">//创建一个输入流，让程序卡在这里</span></span><br><span class="line">        <span class="type">Scanner</span> <span class="variable">sc</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Scanner</span>(System.in);</span><br><span class="line">        sc.next();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">            <span class="meta">@Override</span></span><br><span class="line">            <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">                <span class="keyword">while</span>(<span class="literal">true</span>)&#123;</span><br><span class="line"></span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;,<span class="string">&quot;while true线程&quot;</span>).start();</span><br><span class="line"></span><br><span class="line">        sc.next();</span><br><span class="line">        testWait(<span class="keyword">new</span> <span class="title class_">Object</span>());</span><br><span class="line"></span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">testWait</span><span class="params">(Object obj)</span> &#123;</span><br><span class="line">        System.out.println(<span class="string">&quot;----testWait-------&quot;</span>);</span><br><span class="line">       <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">Runnable</span>() &#123;</span><br><span class="line">           <span class="meta">@Override</span></span><br><span class="line">           <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">               <span class="keyword">synchronized</span> (obj)&#123;</span><br><span class="line">                   <span class="keyword">try</span> &#123;</span><br><span class="line">                       obj.wait();</span><br><span class="line">                   &#125;<span class="keyword">catch</span> (InterruptedException e)&#123;</span><br><span class="line">                       e.printStackTrace();</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;,<span class="string">&quot;testWait 线程&quot;</span>).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d557ddc6154d47606d9cc11b0033a384_1737626653969.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>监控输入流的线程</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d922262c13e414fe08ca3a4cd9f8b70e_1737626664401.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/655b7166d583227fe3884957d27eb1ea_1737626664401.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>监控runnable线程<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/98cf257a375ee0c94c1c8118b0ad1ef3_1737626664401.png" alt="在这里插入图片描述"></p>
+</li>
+<li><p>监控wait线程<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cf3edbc4b554a19f753de179bd090d7b_1737626664401.png" alt="在这里插入图片描述"></p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/56712dc2b5f31a6eade36234ff7f84c8_1737626664401.png" alt="在这里插入图片描述"></p>
+<h3 id="③线程死锁监控"><a href="#③线程死锁监控" class="headerlink" title="③线程死锁监控"></a>③线程死锁监控</h3><p>测试代码</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">DeadLock</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> Object obj1;</span><br><span class="line">    <span class="keyword">private</span> Object obj2;</span><br><span class="line">    <span class="keyword">public</span> <span class="title function_">DeadLock</span><span class="params">(Object obj1, Object obj2)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.obj1 = obj1;</span><br><span class="line">        <span class="built_in">this</span>.obj2 = obj2;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">synchronized</span> (obj1)&#123;</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                Thread.sleep(<span class="number">100</span>);</span><br><span class="line">            &#125; <span class="keyword">catch</span> (InterruptedException e) &#123;</span><br><span class="line">                e.printStackTrace();</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">synchronized</span> (obj2)&#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;Hello&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Main</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj1</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">        <span class="type">Object</span> <span class="variable">obj2</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Object</span>();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">DeadLock</span>(obj1, obj2)).start();</span><br><span class="line">        <span class="keyword">new</span> <span class="title class_">Thread</span>(<span class="keyword">new</span> <span class="title class_">DeadLock</span>(obj2, obj1)).start();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>使用jconsole查看<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/fdaa6933df8fc1250a6b3bc74263d373_1737626674015.png" alt="在这里插入图片描述"></p>
+<p>点击检测死锁</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a65caca6c2b8c7c81f842fd8ee6dd27a_1737626674015.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f6e3ff4cf8f4cffbc22984d6315ab772_1737626674015.png" alt="在这里插入图片描述"></p>
+<h2 id="2-visualVM"><a href="#2-visualVM" class="headerlink" title="2.visualVM"></a>2.visualVM</h2><p>VisualVM是一个以监控、显示本地或者远程服务器 JVM工作情况，进行性能调优的工具。借助VisualVM，我们可以实现对JVM内存各个子池、CPU、垃圾收集器等方面进行监控，从而发现程序代码中潜在的泄露点和配置问题。</p>
+<p>VisualVM是一个Java编写的绿色软件，属于开源范畴。VisualVM是使用插件Plugin的方式提供功能，默认提供了一些基本检测功能。如果需要进行拓展，可以使用下载插件的功能进行。</p>
+<p>下载地址: <a target="_blank" rel="noopener" href="https://visualvm.github.io/index.html">https://visualvm.github.io/index.html</a></p>
+<p>插件下载地址:<a target="_blank" rel="noopener" href="https://visualvm.github.io/pluginscenters.html">https://visualvm.github.io/pluginscenters.html</a></p>
+<h4 id="①安装"><a href="#①安装" class="headerlink" title="①安装:"></a>①安装:</h4><p>安装完毕，打开exe</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f0fe6a69c332bf599ec4aa7d1f84c999_1737626674015.png" alt="在这里插入图片描述"><br>如果打开了idea或者eclipse，可以在左侧菜单栏看到:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/22c0c53aa369122d78c0f12fc292a7f1_1737626674015.png" alt="在这里插入图片描述"><br>可以看到，各种idea的各种信息</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/88909dc94518a35591d49ec0c1dd7a40_1737626683909.png" alt="在这里插入图片描述"></p>
+<h4 id="②插件下载"><a href="#②插件下载" class="headerlink" title="②插件下载"></a>②插件下载</h4><p>可以用这个地址:</p>
+<p>插件下载地址:&lt;<a target="_blank" rel="noopener" href="https://visualvm.github.io/pluginscenters.html">https://visualvm.github.io/pluginscenters.html</a></p>
+<p>也可以：</p>
+<p>在线安装:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5bd6e3ba3e0deb6543d6a8ba49a36bb4_1737626683909.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/030c301cd9502235daa1c9ee23a2ab85_1737626683909.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/01/02/jvm(11)%20--%20%E8%99%9A%E6%8B%9F%E6%9C%BA%E8%B0%83%E8%AF%95%E5%B7%A5%E5%85%B7/" title="jvm(11) -- 虚拟机调试工具">https://hufanglei.github.io/2020/01/02/jvm(11) -- 虚拟机调试工具/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/jvm/" rel="tag"># jvm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/01/01/%E8%BF%9B%E9%98%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F(3)%20--%20%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="prev" title="进阶设计模式(3) -- 适配器模式">
+                  <i class="fa fa-angle-left"></i> 进阶设计模式(3) -- 适配器模式
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/01/06/jvm(12)%20--%20class%E6%96%87%E4%BB%B6%E7%BB%93%E6%9E%84/" rel="next" title="jvm(12) -- class文件结构">
+                  jvm(12) -- class文件结构 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc] 为啥使用消息中间件看下品优购的结构图 我们已经完成了5个web模块和4个服务模块。其中运营商后台的调用关系最多，用到了商家商品服务、广告内容服务、搜索服务和页面生成服务。这种模块之间的依赖也称之为耦合。而耦合越多，之后的维护工作就越困难。那么如何改善系统模块调用关系、减少模块之间的耦合呢？一种解决方案就是—-消息中间件。 使用了消息中间件改造后的调用关系:运营商系统与搜索服务、页">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="消息中间件JMS介绍、入门demo与spring整合">
+<meta property="og:url" content="https://hufanglei.github.io/2019/11/20/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6JMS%E4%BB%8B%E7%BB%8D%E3%80%81%E5%85%A5%E9%97%A8demo%E4%B8%8Espring%E6%95%B4%E5%90%88/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc] 为啥使用消息中间件看下品优购的结构图 我们已经完成了5个web模块和4个服务模块。其中运营商后台的调用关系最多，用到了商家商品服务、广告内容服务、搜索服务和页面生成服务。这种模块之间的依赖也称之为耦合。而耦合越多，之后的维护工作就越困难。那么如何改善系统模块调用关系、减少模块之间的耦合呢？一种解决方案就是—-消息中间件。 使用了消息中间件改造后的调用关系:运营商系统与搜索服务、页">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/95e66cefbdfd75b04bdd254f7df43356_1737631446315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/48c54a6cea066400dbf1eaacec6485b8_1737631446315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6cab5cae54f5526bb17660d9bb1ec378_1737631446315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d914fd0cec3b613502c1a46ed2054557_1737631446315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a0efd4c9006949c0942f67e11da058d_1737631456691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/458307092296f76338fa61c59ea6a810_1737631456691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/800d87b660fdb1ae4b977b0a150161e9_1737631456691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2f76db5e0a24412d9e68473eea08540f_1737631456691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4f3a038eb10070584275ba172de9e18f_1737631456691.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f1983e70f38f78ed7afb3523da4d9465_1737631466011.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c8aec44d298a960916b64a6f6d41aefb_1737631466011.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7cdf2b767f49d42ada53c54723c47dcc_1737631466011.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b7091ab613074398f3bd186e79f04c7e_1737631466011.png">
+<meta property="article:published_time" content="2019-11-20T02:19:22.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="jms active">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/95e66cefbdfd75b04bdd254f7df43356_1737631446315.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/11/20/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6JMS%E4%BB%8B%E7%BB%8D%E3%80%81%E5%85%A5%E9%97%A8demo%E4%B8%8Espring%E6%95%B4%E5%90%88/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/11/20/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6JMS%E4%BB%8B%E7%BB%8D%E3%80%81%E5%85%A5%E9%97%A8demo%E4%B8%8Espring%E6%95%B4%E5%90%88/","path":"2019/11/20/消息中间件JMS介绍、入门demo与spring整合/","title":"消息中间件JMS介绍、入门demo与spring整合"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>消息中间件JMS介绍、入门demo与spring整合 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%BA%E5%95%A5%E4%BD%BF%E7%94%A8%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="nav-text">为啥使用消息中间件</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F"><span class="nav-text">注意:</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6"><span class="nav-text">什么是消息中间件</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#JMS%E7%AE%80%E4%BB%8B"><span class="nav-text">JMS简介</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS%E4%BA%94%E7%A7%8D%E6%B6%88%E6%81%AF%E6%AD%A3%E6%96%87%E6%A0%BC%E5%BC%8F"><span class="nav-text">JMS五种消息正文格式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#JMS%E6%B6%88%E6%81%AF%E4%BC%A0%E9%80%92%E7%B1%BB%E5%9E%8B"><span class="nav-text">JMS消息传递类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%A5%E9%97%A8%E5%B0%8Fdemo-%E7%82%B9%E5%AF%B9%E7%82%B9-%EF%BC%8C%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-text">入门小demo(点对点 ，发布&#x2F;订阅模式)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%9B%E5%BB%BA%E5%B7%A5%E7%A8%8B"><span class="nav-text">创建工程</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%82%B9%E5%AF%B9%E7%82%B9"><span class="nav-text">点对点</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F"><span class="nav-text">发布&#x2F;订阅模式</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E8%80%85TopicProducer"><span class="nav-text">消息生产者TopicProducer</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-text">代码地址</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#spring%E6%95%B4%E5%90%88JMS%E4%B9%8Bactivemq"><span class="nav-text">spring整合JMS之activemq</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%82%B9%E5%AF%B9%E7%82%B9%E6%A8%A1%E5%BC%8F"><span class="nav-text">点对点模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E7%94%9F%E4%BA%A7%E8%80%85"><span class="nav-text">消息生产者</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E8%80%85"><span class="nav-text">消息消费者</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8F%91%E5%B8%83-%E8%AE%A2%E9%98%85%E6%A8%A1%E5%BC%8F-1"><span class="nav-text">发布&#x2F;订阅模式</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%B6%88%E6%81%AF%E6%B6%88%E8%B4%B9%E8%80%85-1"><span class="nav-text">消息消费者</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#spring%E6%95%B4%E5%90%88jms%E6%BA%90%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-text">spring整合jms源码地址</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/11/20/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6JMS%E4%BB%8B%E7%BB%8D%E3%80%81%E5%85%A5%E9%97%A8demo%E4%B8%8Espring%E6%95%B4%E5%90%88/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="消息中间件JMS介绍、入门demo与spring整合 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          消息中间件JMS介绍、入门demo与spring整合
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-11-20 10:19:22" itemprop="dateCreated datePublished" datetime="2019-11-20T10:19:22+08:00">2019-11-20</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/spring%E5%AE%B6%E6%97%8F-%E6%B6%88%E6%81%AF%E9%98%9F%E5%88%97/" itemprop="url" rel="index"><span itemprop="name">spring家族 消息队列</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>14k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>13 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[toc]</p>
+<h1 id="为啥使用消息中间件"><a href="#为啥使用消息中间件" class="headerlink" title="为啥使用消息中间件"></a>为啥使用消息中间件</h1><p>看下品优购的结构图<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/95e66cefbdfd75b04bdd254f7df43356_1737631446315.png" alt="在这里插入图片描述"></p>
+<p>我们已经完成了5个web模块和4个服务模块。其中运营商后台的调用关系最多，用到了商家商品服务、广告内容服务、搜索服务和页面生成服务。这种模块之间的依赖也称之为耦合。而耦合越多，之后的维护工作就越困难。那么如何<code>改善系统模块调用关系、减少模块之间的耦合</code>呢？一种解决方案就是—-消息中间件。</p>
+<p><strong>使用了消息中间件改造后的调用关系</strong>:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/48c54a6cea066400dbf1eaacec6485b8_1737631446315.png" alt="在这里插入图片描述"><br>运营商系统与搜索服务、页面生成服务解除了耦合.</p>
+<h2 id="注意"><a href="#注意" class="headerlink" title="注意:"></a>注意:</h2><p><code>使用消息中间件的通常前提条件是： 调用的业务执行时间比较长，而且不需要结果返回值的时候。</code></p>
+<h1 id="什么是消息中间件"><a href="#什么是消息中间件" class="headerlink" title="什么是消息中间件"></a>什么是消息中间件</h1><p>消息中间件利用高效可靠的消息传递机制进行平台无关的数据交流，并基于数据通信来进行分布式系统的集成。通过提供消息传递和消息排队模型，它可以在分布式环境下扩展进程间的通信。对于消息中间件，常见的角色大致也就有Producer（生产者）、Consumer（消费者）<br>常见的消息中间件产品:</p>
+<ul>
+<li>（1）ActiveMQ<br>ActiveMQ 是Apache出品，最流行的，能力强劲的开源消息总线。ActiveMQ 是一个完全支持JMS1.1和J2EE 1.4规范的 JMS Provider实现。我们在本次课程中介绍 ActiveMQ的使用。</li>
+<li>（2）RabbitMQ<br>AMQP协议的领导实现，支持多种场景。淘宝的MySQL集群内部有使用它进行通讯，OpenStack开源云平台的通信组件，最先在金融行业得到运用。</li>
+<li>（3）ZeroMQ<br>史上最快的消息队列系统</li>
+<li>（4）Kafka<br>Apache下的一个子项目 。特点：高吞吐，在一台普通的服务器上既可以达到10W&#x2F;s的吞吐速率；完全的分布式系统。适合处理海量数据。</li>
+</ul>
+<h1 id="JMS简介"><a href="#JMS简介" class="headerlink" title="JMS简介"></a>JMS简介</h1><p>JMS（Java Messaging Service）是Java平台上有关面向消息中间件的技术规范，它便于消息系统中的Java应用程序进行消息交换,并且通过提供标准的产生、发送、接收消息的接口简化企业应用的开发。<br>       JMS本身只定义了一系列的接口规范，是一种与厂商无关的 API，用来访问消息收发系统。它类似于 JDBC(java Database Connectivity)：这里，JDBC 是可以用来访问许多不同关系数据库的 API，而 JMS 则提供同样与厂商无关的访问方法，以访问消息收发服务。许多厂商目前都支持 JMS，包括 IBM 的 MQSeries、BEA的 Weblogic JMS service和 Progress 的 SonicMQ，这只是几个例子。 JMS 使您能够通过消息收发服务（有时称为消息中介程序或路由器）从一个 JMS 客户机向另一个 JML 客户机发送消息。消息是 JMS 中的一种类型对象，由两部分组成：报头和消息主体。报头由路由信息以及有关该消息的元数据组成。消息主体则携带着应用程序的数据或有效负载。</p>
+<h2 id="JMS五种消息正文格式"><a href="#JMS五种消息正文格式" class="headerlink" title="JMS五种消息正文格式"></a>JMS五种消息正文格式</h2><p>JMS 定义了五种不同的消息正文格式，以及调用的消息类型，允许你发送并接收以一<br>些不同形式的数据，提供现有消息格式的一些级别的兼容性。<br>· TextMessage–一个字符串对象<br>· MapMessage–一套名称-值对<br>· ObjectMessage–一个序列化的 Java 对象<br>· BytesMessage–一个字节的数据流<br>· StreamMessage – Java 原始值的数据流</p>
+<h2 id="JMS消息传递类型"><a href="#JMS消息传递类型" class="headerlink" title="JMS消息传递类型"></a>JMS消息传递类型</h2><p>对于消息的传递有两种类型：<br>一种是点对点的，即一个生产者和一个消费者一一对应；<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6cab5cae54f5526bb17660d9bb1ec378_1737631446315.png" alt="在这里插入图片描述"><br>另一种是发布&#x2F; 订阅模式，即一个生产者产生消息并进行发送后，可以由多个消费者进行接收。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d914fd0cec3b613502c1a46ed2054557_1737631446315.png" alt="在这里插入图片描述"></p>
+<h2 id="入门小demo-点对点-，发布-订阅模式"><a href="#入门小demo-点对点-，发布-订阅模式" class="headerlink" title="入门小demo(点对点 ，发布&#x2F;订阅模式)"></a>入门小demo(点对点 ，发布&#x2F;订阅模式)</h2><h3 id="创建工程"><a href="#创建工程" class="headerlink" title="创建工程"></a>创建工程</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a0efd4c9006949c0942f67e11da058d_1737631456691.png" alt="在这里插入图片描述"></p>
+<h4 id="点对点"><a href="#点对点" class="headerlink" title="点对点"></a>点对点</h4><p>点对点的模式主要建立在一个队列上面，当连接一个列队的时候，发送端不需要知道接收端是否正在接收，可以直接向ActiveMQ发送消息，发送的消息，将会先进入队列中，如果有接收端在监听，则会发向接收端，如果没有接收端接收，则会保存在activemq服务器，直到接收端接收消息，点对点的消息模式可以有多个发送端，多个接收端，但是一条消息，只会被一个接收端给接收到，哪个接收端先连上ActiveMQ，则会先接收到，而后来的接收端则接收不到那条消息。<br>pom</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.activemq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activemq-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>5.13.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>QueueProducer  </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.创建连接工厂</span></span><br><span class="line">	ConnectionFactory connectionFactory=<span class="keyword">new</span> <span class="title class_">ActiveMQConnectionFactory</span>(<span class="string">&quot;tcp://192.168.157.111:61616&quot;</span>);</span><br><span class="line">	<span class="comment">//2.获取连接</span></span><br><span class="line">	<span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> connectionFactory.createConnection();</span><br><span class="line">	<span class="comment">//3.启动连接</span></span><br><span class="line">	connection.start();</span><br><span class="line">	<span class="comment">//4.获取session  (参数1：是否启动事务,参数2：消息确认模式)</span></span><br><span class="line">	<span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> connection.createSession(<span class="literal">false</span>, Session.AUTO_ACKNOWLEDGE);		</span><br><span class="line">	<span class="comment">//5.创建队列对象</span></span><br><span class="line">	<span class="type">Queue</span> <span class="variable">queue</span> <span class="operator">=</span> session.createQueue(<span class="string">&quot;test-queue&quot;</span>);</span><br><span class="line">	<span class="comment">//6.创建消息生产者</span></span><br><span class="line">	<span class="type">MessageProducer</span> <span class="variable">producer</span> <span class="operator">=</span> session.createProducer(queue);</span><br><span class="line">	<span class="comment">//7.创建消息</span></span><br><span class="line">	<span class="type">TextMessage</span> <span class="variable">textMessage</span> <span class="operator">=</span> session.createTextMessage(<span class="string">&quot;欢迎来到神奇的消息队列世界&quot;</span>);</span><br><span class="line">	<span class="comment">//8.发送消息</span></span><br><span class="line">	producer.send(textMessage);</span><br><span class="line">	<span class="comment">//9.关闭资源</span></span><br><span class="line">	producer.close();</span><br><span class="line">	session.close();</span><br><span class="line">	connection.close();</span><br></pre></td></tr></table></figure>
+<p>上述代码中第4步创建session  的两个参数：<br>第1个参数 是否使用事务<br>第2个参数 消息的确认模式<br>•	AUTO_ACKNOWLEDGE &#x3D; 1    自动确认<br>•	CLIENT_ACKNOWLEDGE &#x3D; 2    客户端手动确认<br>•	DUPS_OK_ACKNOWLEDGE &#x3D; 3    自动批量确认<br>•	SESSION_TRANSACTED &#x3D; 0    事务提交并确认<br>运行后通过ActiveMQ管理界面查询<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/458307092296f76338fa61c59ea6a810_1737631456691.png" alt="在这里插入图片描述"><br>消息消费者QueueConsumer </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.创建连接工厂</span></span><br><span class="line">	ConnectionFactory connectionFactory=<span class="keyword">new</span> <span class="title class_">ActiveMQConnectionFactory</span>(<span class="string">&quot;tcp://192.168.157.111:61616&quot;</span>);</span><br><span class="line">	<span class="comment">//2.获取连接</span></span><br><span class="line">	<span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> connectionFactory.createConnection();</span><br><span class="line">	<span class="comment">//3.启动连接</span></span><br><span class="line">	connection.start();</span><br><span class="line">	<span class="comment">//4.获取session  (参数1：是否启动事务,参数2：消息确认模式)</span></span><br><span class="line">	<span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> connection.createSession(<span class="literal">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line">	<span class="comment">//5.创建队列对象</span></span><br><span class="line">	<span class="type">Queue</span> <span class="variable">queue</span> <span class="operator">=</span> session.createQueue(<span class="string">&quot;test-queue&quot;</span>);</span><br><span class="line">	<span class="comment">//6.创建消息消费</span></span><br><span class="line">	<span class="type">MessageConsumer</span> <span class="variable">consumer</span> <span class="operator">=</span> session.createConsumer(queue);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//7.监听消息</span></span><br><span class="line">	consumer.setMessageListener(<span class="keyword">new</span> <span class="title class_">MessageListener</span>() &#123;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(Message message)</span> &#123;</span><br><span class="line">			TextMessage textMessage=(TextMessage)message;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				System.out.println(<span class="string">&quot;接收到消息：&quot;</span>+textMessage.getText());</span><br><span class="line">			&#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);	</span><br><span class="line">	<span class="comment">//8.等待键盘输入</span></span><br><span class="line">	System.in.read();	</span><br><span class="line">	<span class="comment">//9.关闭资源</span></span><br><span class="line">	consumer.close();</span><br><span class="line">	session.close();</span><br><span class="line">	connection.close();	</span><br></pre></td></tr></table></figure>
+<p>执行后看到控制台输出<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/800d87b660fdb1ae4b977b0a150161e9_1737631456691.png" alt="在这里插入图片描述"><br><strong>运行测试</strong><br>同时开启2个以上的消费者，再次运行生产者，观察每个消费者控制台的输出，会发现只有一个消费者会接收到消息。</p>
+<h4 id="发布-订阅模式"><a href="#发布-订阅模式" class="headerlink" title="发布&#x2F;订阅模式"></a>发布&#x2F;订阅模式</h4><h4 id="消息生产者TopicProducer"><a href="#消息生产者TopicProducer" class="headerlink" title="消息生产者TopicProducer"></a>消息生产者TopicProducer</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.创建连接工厂</span></span><br><span class="line">	ConnectionFactory connectionFactory=<span class="keyword">new</span> <span class="title class_">ActiveMQConnectionFactory</span>(<span class="string">&quot;tcp://192.168.25.135:61616&quot;</span>);</span><br><span class="line">	<span class="comment">//2.获取连接</span></span><br><span class="line">	<span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> connectionFactory.createConnection();</span><br><span class="line">	<span class="comment">//3.启动连接</span></span><br><span class="line">	connection.start();</span><br><span class="line">	<span class="comment">//4.获取session  (参数1：是否启动事务,参数2：消息确认模式)</span></span><br><span class="line">	<span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> connection.createSession(<span class="literal">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line">	<span class="comment">//5.创建主题对象</span></span><br><span class="line">	<span class="type">Topic</span> <span class="variable">topic</span> <span class="operator">=</span> session.createTopic(<span class="string">&quot;test-topic&quot;</span>);</span><br><span class="line">	<span class="comment">//6.创建消息生产者</span></span><br><span class="line">	<span class="type">MessageProducer</span> <span class="variable">producer</span> <span class="operator">=</span> session.createProducer(topic);</span><br><span class="line">	<span class="comment">//7.创建消息</span></span><br><span class="line">	<span class="type">TextMessage</span> <span class="variable">textMessage</span> <span class="operator">=</span> session.createTextMessage(<span class="string">&quot;欢迎来到申请的消息队列广播世界&quot;</span>);</span><br><span class="line">	<span class="comment">//8.发送消息</span></span><br><span class="line">	producer.send(textMessage);</span><br><span class="line">	<span class="comment">//9.关闭资源</span></span><br><span class="line">	producer.close();</span><br><span class="line">	session.close();</span><br><span class="line">	connection.close();</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>运行效果如下：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2f76db5e0a24412d9e68473eea08540f_1737631456691.png" alt="在这里插入图片描述"><br>消息消费者TopicConsumer </p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//1.创建连接工厂</span></span><br><span class="line">	ConnectionFactory connectionFactory=<span class="keyword">new</span> <span class="title class_">ActiveMQConnectionFactory</span>(<span class="string">&quot;tcp://192.168.25.135:61616&quot;</span>);</span><br><span class="line">	<span class="comment">//2.获取连接</span></span><br><span class="line">	<span class="type">Connection</span> <span class="variable">connection</span> <span class="operator">=</span> connectionFactory.createConnection();</span><br><span class="line">	<span class="comment">//3.启动连接</span></span><br><span class="line">	connection.start();</span><br><span class="line">	<span class="comment">//4.获取session  (参数1：是否启动事务,参数2：消息确认模式)</span></span><br><span class="line">	<span class="type">Session</span> <span class="variable">session</span> <span class="operator">=</span> connection.createSession(<span class="literal">false</span>, Session.AUTO_ACKNOWLEDGE);</span><br><span class="line">	<span class="comment">//5.创建主题对象</span></span><br><span class="line">	<span class="comment">//Queue queue = session.createQueue(&quot;test-queue&quot;);</span></span><br><span class="line">	<span class="type">Topic</span> <span class="variable">topic</span> <span class="operator">=</span> session.createTopic(<span class="string">&quot;test-topic&quot;</span>);</span><br><span class="line">	<span class="comment">//6.创建消息消费</span></span><br><span class="line">	<span class="type">MessageConsumer</span> <span class="variable">consumer</span> <span class="operator">=</span> session.createConsumer(topic);</span><br><span class="line">	</span><br><span class="line">	<span class="comment">//7.监听消息</span></span><br><span class="line">	consumer.setMessageListener(<span class="keyword">new</span> <span class="title class_">MessageListener</span>() &#123;</span><br><span class="line">		<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(Message message)</span> &#123;</span><br><span class="line">			TextMessage textMessage=(TextMessage)message;</span><br><span class="line">			<span class="keyword">try</span> &#123;</span><br><span class="line">				System.out.println(<span class="string">&quot;接收到消息：&quot;</span>+textMessage.getText());</span><br><span class="line">			&#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">				<span class="comment">// TODO Auto-generated catch block</span></span><br><span class="line">				e.printStackTrace();</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;);</span><br><span class="line">	<span class="comment">//8.等待键盘输入</span></span><br><span class="line">	System.in.read();</span><br><span class="line">	<span class="comment">//9.关闭资源</span></span><br><span class="line">	consumer.close();</span><br><span class="line">	session.close();</span><br><span class="line">	connection.close();	</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4f3a038eb10070584275ba172de9e18f_1737631456691.png" alt="在这里插入图片描述"><br>运行测试<br>同时开启2个以上的消费者，再次运行生产者，观察每个消费者控制台的输出，会发现每个消费者会接收到消息。</p>
+<h4 id="代码地址"><a href="#代码地址" class="headerlink" title="代码地址"></a>代码地址</h4><p><a target="_blank" rel="noopener" href="https://github.com/hufanglei/pinyou/tree/jms-demo">https://github.com/hufanglei/pinyou/tree/jms-demo</a></p>
+<h2 id="spring整合JMS之activemq"><a href="#spring整合JMS之activemq" class="headerlink" title="spring整合JMS之activemq"></a>spring整合JMS之activemq</h2><p>pom</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependencies</span>&gt;</span></span><br><span class="line">          <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-jms<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.springframework<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-test<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>$&#123;spring.version&#125;<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>junit<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>4.9<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">groupId</span>&gt;</span>org.apache.activemq<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>activemq-client<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="name">version</span>&gt;</span>5.13.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>创建2个项目，一个是消息生产者项目 springjms-producer。该项目上有2个类分别发送点对点消息，发布&#x2F;订阅消息， 在测试类中test中调用改项目。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f1983e70f38f78ed7afb3523da4d9465_1737631466011.png" alt="在这里插入图片描述"></p>
+<p>一个是消息消费者项目 springjms-consumer，该项目上有一个监听器，2个配置文件，分别配置点对点，发布&#x2F;订阅消息。并在测试类test中监控控制台，看消息接受情况。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c8aec44d298a960916b64a6f6d41aefb_1737631466011.png" alt="在这里插入图片描述"></p>
+<h3 id="点对点模式"><a href="#点对点模式" class="headerlink" title="点对点模式"></a>点对点模式</h3><h4 id="消息生产者"><a href="#消息生产者" class="headerlink" title="消息生产者"></a>消息生产者</h4><p>（1）创建工程springjms_producer，在POM文件中引入SpringJms 、activeMQ以及单元测试相关依赖<br>（2）在src&#x2F;main&#x2F;resources下创建spring配置文件applicationContext-jms-producer.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">context:component-scan</span> <span class="attr">base-package</span>=<span class="string">&quot;cn.itcast.demo&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">context:component-scan</span>&gt;</span>        </span><br><span class="line">    <span class="comment">&lt;!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供--&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.ActiveMQConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;brokerURL&quot;</span> <span class="attr">value</span>=<span class="string">&quot;tcp://192.168.157.111:61616&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>          </span><br><span class="line">    <span class="comment">&lt;!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory --&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.connection.SingleConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line">	<span class="comment">&lt;!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory --&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;targetConnectionFactory&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>  	   </span><br><span class="line">    <span class="comment">&lt;!-- Spring提供的JMS工具类，它可以进行消息发送、接收等 --&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;jmsTemplate&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.core.JmsTemplate&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="comment">&lt;!-- 这个connectionFactory对应的是我们定义的Spring提供的那个ConnectionFactory对象 --&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;connectionFactory&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>      </span><br><span class="line">    <span class="comment">&lt;!--这个是队列目的地，点对点的  文本信息--&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;queueTextDestination&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.command.ActiveMQQueue&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;queue_text&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>    </span><br></pre></td></tr></table></figure>
+
+<p>（3）在cn.itcast.demo包下创建消息生产者类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">QueueProducer</span> &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> JmsTemplate jmsTemplate;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> Destination queueTextDestination;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 发送文本消息</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> text</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendTextMessage</span><span class="params">(<span class="keyword">final</span> String text)</span>&#123;</span><br><span class="line">		jmsTemplate.send(queueTextDestination, <span class="keyword">new</span> <span class="title class_">MessageCreator</span>() &#123;			</span><br><span class="line">			<span class="keyword">public</span> Message <span class="title function_">createMessage</span><span class="params">(Session session)</span> <span class="keyword">throws</span> JMSException &#123;</span><br><span class="line">				<span class="keyword">return</span> session.createTextMessage(text);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>（4）单元测试<br>在src&#x2F;test&#x2F;java创建测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span></span><br><span class="line"><span class="meta">@ContextConfiguration(locations=&quot;classpath:applicationContext-jms-producer.xml&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestQueue</span> &#123;</span><br><span class="line"></span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> QueueProducer queueProducer;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testSend</span><span class="params">()</span>&#123;</span><br><span class="line">		queueProducer.sendTextMessage(<span class="string">&quot;SpringJms-点对点&quot;</span>);</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h4 id="消息消费者"><a href="#消息消费者" class="headerlink" title="消息消费者"></a>消息消费者</h4><p>（1）创建工程springjms_consumer，在POM文件中引入依赖 （同上一个工程）<br>（2）创建配置文件 applicationContext-jms-consumer-queue.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.ActiveMQConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;brokerURL&quot;</span> <span class="attr">value</span>=<span class="string">&quot;tcp://192.168.157.111:61616&quot;</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span>	   </span><br><span class="line">   <span class="comment">&lt;!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory --&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.connection.SingleConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line"><span class="comment">&lt;!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory --&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;targetConnectionFactory&quot;</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span>  	</span><br><span class="line">   <span class="comment">&lt;!--这个是队列目的地，点对点的  文本信息--&gt;</span>  </span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;queueTextDestination&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.command.ActiveMQQueue&quot;</span>&gt;</span>  </span><br><span class="line">    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;queue_text&quot;</span>/&gt;</span>  </span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span>    </span><br><span class="line"><span class="comment">&lt;!-- 我的监听类 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myMessageListener&quot;</span> <span class="attr">class</span>=<span class="string">&quot;cn.itcast.demo.MyMessageListener&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"><span class="comment">&lt;!-- 消息监听容器 --&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.listener.DefaultMessageListenerContainer&quot;</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;connectionFactory&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;destination&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;queueTextDestination&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;messageListener&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;myMessageListener&quot;</span> /&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">bean</span>&gt;</span>	</span><br></pre></td></tr></table></figure>
+<p>（3）编写监听类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyMessageListener</span> <span class="keyword">implements</span> <span class="title class_">MessageListener</span> &#123;</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">onMessage</span><span class="params">(Message message)</span> &#123;</span><br><span class="line">	TextMessage textMessage=(TextMessage)message;		</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			System.out.println(<span class="string">&quot;接收到消息：&quot;</span>+textMessage.getText());</span><br><span class="line">		&#125; <span class="keyword">catch</span> (JMSException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>（4）创建测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span></span><br><span class="line"><span class="meta">@ContextConfiguration(locations=&quot;classpath:applicationContext-jms-consumer-queue.xml&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestQueue</span> &#123;</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testQueue</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			System.in.read();</span><br><span class="line">		&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;		</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7cdf2b767f49d42ada53c54723c47dcc_1737631466011.png" alt="在这里插入图片描述"></p>
+<h3 id="发布-订阅模式-1"><a href="#发布-订阅模式-1" class="headerlink" title="发布&#x2F;订阅模式"></a>发布&#x2F;订阅模式</h3><p>1）在工程springjms_producer的applicationContext-jms-producer.xml增加配置</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--这个是订阅模式  文本信息--&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;topicTextDestination&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.command.ActiveMQTopic&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;topic_text&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>  </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>（2）创建生产者类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TopicProducer</span> &#123;</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> JmsTemplate jmsTemplate;</span><br><span class="line">	</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> Destination topicTextDestination;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 发送文本消息</span></span><br><span class="line"><span class="comment">	 * <span class="doctag">@param</span> text</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendTextMessage</span><span class="params">(<span class="keyword">final</span> String text)</span>&#123;</span><br><span class="line">		jmsTemplate.send(topicTextDestination, <span class="keyword">new</span> <span class="title class_">MessageCreator</span>() &#123;			</span><br><span class="line">			<span class="keyword">public</span> Message <span class="title function_">createMessage</span><span class="params">(Session session)</span> <span class="keyword">throws</span> JMSException &#123;</span><br><span class="line">				<span class="keyword">return</span> session.createTextMessage(text);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;);		</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>（3）编写测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.junit.Test;</span><br><span class="line"><span class="keyword">import</span> org.junit.runner.RunWith;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.annotation.Autowired;</span><br><span class="line"><span class="keyword">import</span> org.springframework.test.context.ContextConfiguration;</span><br><span class="line"><span class="keyword">import</span> org.springframework.test.context.junit4.SpringJUnit4ClassRunner;</span><br><span class="line"><span class="keyword">import</span> cn.itcast.demo.TopicProducer;</span><br><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span></span><br><span class="line"><span class="meta">@ContextConfiguration(locations=&quot;classpath:applicationContext-activemq-producer.xml&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestTopic</span> &#123;</span><br><span class="line">	<span class="meta">@Autowired</span></span><br><span class="line">	<span class="keyword">private</span> TopicProducer topicProducer;</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">sendTextQueue</span><span class="params">()</span>&#123;		</span><br><span class="line">		topicProducer.sendTextMessage();</span><br><span class="line">	&#125;	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h4 id="消息消费者-1"><a href="#消息消费者-1" class="headerlink" title="消息消费者"></a>消息消费者</h4><p>（1）在activemq-spring-consumer工程中创建配置文件applicationContext-jms-consumer-topic.xml</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!-- 真正可以产生Connection的ConnectionFactory，由对应的 JMS服务厂商提供--&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.ActiveMQConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;brokerURL&quot;</span> <span class="attr">value</span>=<span class="string">&quot;tcp://192.168.157.111:61616&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">    <span class="comment">&lt;!-- Spring用于管理真正的ConnectionFactory的ConnectionFactory --&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.connection.SingleConnectionFactory&quot;</span>&gt;</span>  </span><br><span class="line">	<span class="comment">&lt;!-- 目标ConnectionFactory对应真实的可以产生JMS Connection的ConnectionFactory --&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;targetConnectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;targetConnectionFactory&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>  </span><br><span class="line">    <span class="comment">&lt;!--这个是队列目的地，点对点的  文本信息--&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;topicTextDestination&quot;</span> <span class="attr">class</span>=<span class="string">&quot;org.apache.activemq.command.ActiveMQTopic&quot;</span>&gt;</span>  </span><br><span class="line">	    <span class="tag">&lt;<span class="name">constructor-arg</span> <span class="attr">value</span>=<span class="string">&quot;topic_text&quot;</span>/&gt;</span>  </span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span>    </span><br><span class="line">	<span class="comment">&lt;!-- 我的监听类 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">id</span>=<span class="string">&quot;myMessageListener&quot;</span> <span class="attr">class</span>=<span class="string">&quot;cn.itcast.demo.MyMessageListener&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line">	<span class="comment">&lt;!-- 消息监听容器 --&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">bean</span> <span class="attr">class</span>=<span class="string">&quot;org.springframework.jms.listener.DefaultMessageListenerContainer&quot;</span>&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;connectionFactory&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;connectionFactory&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;destination&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;topicTextDestination&quot;</span> /&gt;</span></span><br><span class="line">		<span class="tag">&lt;<span class="name">property</span> <span class="attr">name</span>=<span class="string">&quot;messageListener&quot;</span> <span class="attr">ref</span>=<span class="string">&quot;myMessageListener&quot;</span> /&gt;</span></span><br><span class="line">	<span class="tag">&lt;/<span class="name">bean</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>（2）编写测试类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RunWith(SpringJUnit4ClassRunner.class)</span></span><br><span class="line"><span class="meta">@ContextConfiguration(locations=&quot;classpath:applicationContext-jms-consumer-topic.xml&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TestTopic</span> &#123;</span><br><span class="line">	<span class="meta">@Test</span></span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">testTopic</span><span class="params">()</span>&#123;</span><br><span class="line">		<span class="keyword">try</span> &#123;</span><br><span class="line">			System.in.read();</span><br><span class="line">		&#125; <span class="keyword">catch</span> (IOException e) &#123;</span><br><span class="line">			e.printStackTrace();</span><br><span class="line">		&#125;		</span><br><span class="line">	&#125;		</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>测试：同时运行三个消费者工程，在运行生产者工程，查看三个消费者工程的控制台输出<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b7091ab613074398f3bd186e79f04c7e_1737631466011.png" alt="在这里插入图片描述"></p>
+<h3 id="spring整合jms源码地址"><a href="#spring整合jms源码地址" class="headerlink" title="spring整合jms源码地址"></a>spring整合jms源码地址</h3><p><a target="_blank" rel="noopener" href="https://github.com/hufanglei/pinyou/tree/springjms-producer">https://github.com/hufanglei/pinyou/tree/springjms-producer</a></p>
+<p><a target="_blank" rel="noopener" href="https://github.com/hufanglei/pinyou/tree/springjms-consumer">https://github.com/hufanglei/pinyou/tree/springjms-consumer</a></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/11/20/%E6%B6%88%E6%81%AF%E4%B8%AD%E9%97%B4%E4%BB%B6JMS%E4%BB%8B%E7%BB%8D%E3%80%81%E5%85%A5%E9%97%A8demo%E4%B8%8Espring%E6%95%B4%E5%90%88/" title="消息中间件JMS介绍、入门demo与spring整合">https://hufanglei.github.io/2019/11/20/消息中间件JMS介绍、入门demo与spring整合/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/jms-active/" rel="tag"># jms active</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/11/20/freemarker%E9%9D%99%E6%80%81%E5%8C%96%E6%96%B9%E6%A1%88%E6%80%9D%E8%B7%AF%E6%A2%B3%E7%90%86/" rel="prev" title="freemarker静态化方案思路梳理">
+                  <i class="fa fa-angle-left"></i> freemarker静态化方案思路梳理
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/11/20/%E5%A4%A7%E6%95%B0%E6%8D%AE%E6%8A%80%E6%9C%AF%E4%B9%8B%20--%20flume/" rel="next" title="大数据技术之 -- flume">
+                  大数据技术之 -- flume <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

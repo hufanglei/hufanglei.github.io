@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc] 执行计划解释1234EXPLAINselect id from testwhere  age&#x3D;18 and  EXISTS(select name from test where name &#x3D;&#x27;张三&#x27;)  索引类型普通索引 唯一索引 单列索引 组合索引注意，只支持，最左索引: 查看索引语句12SHOW INDEX FROM TEST  优化查询注意哪些情况索引">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器">
+<meta property="og:url" content="https://hufanglei.github.io/2020/07/05/mysq%E4%BC%98%E5%8C%96---mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A%E3%80%81%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc] 执行计划解释1234EXPLAINselect id from testwhere  age&#x3D;18 and  EXISTS(select name from test where name &#x3D;&#x27;张三&#x27;)  索引类型普通索引 唯一索引 单列索引 组合索引注意，只支持，最左索引: 查看索引语句12SHOW INDEX FROM TEST  优化查询注意哪些情况索引">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/89f5de74f4009d4055b0fa21a66ea7c5_1737630004694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8570fa54a08b1f8e6cc801b58d1e80ed_1737630004694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/18cbc409f754ce4a87672882f6c19818_1737630004694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/312ed49c048ec9d5dc3608e8eacc1391_1737630004694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d25adbe3a6291c58bf5a779ea971a8a9_1737630004694.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/620596c4969611e54123f0fba1024328_1737630018447.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad8848103f78ef503bde3731f8e7e38c_1737630018447.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b657f8b7664f3721070b83a0c23bd2e0_1737630018447.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7a5de1fd11db3990f8e697d9363bc444_1737630018447.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/dd647e19ccc4c67977ba3d80673fb01e_1737630018447.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/c3f95ceeec31a14b31bd3fc185b15f45.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/e4e9b48baf2458cbe89e7d85d9db996e.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/f57739c3a3d028888d3b68ddf474dd47.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/db9cfaf383a8f646346f96259c86d7cd.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/78ae7ade23f8cc5a008ae34ba17c27e4.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ba89e426902d9ca9100f5d417d27949_1737630058679.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/800681c255e5c0a89d5266ea4c3494ba_1737630058679.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/03257a943ef096915c40789a27d975c3_1737630058679.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e1a3414887875ce25ae9348f11cf1e3_1737630058679.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bc5a3d531bb5e6a22fb6b280907c3999_1737630058679.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cf5a99d7f24db93dcb8a47eafc24a087_1737630072350.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad572a7494669fbdbfd5c9acfb2738f9_1737630072350.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/43d63700381d3d8ad95d082d61376949_1737630072350.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7437f9bb9f344637a78f06c70a1438d_1737630072350.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d4afe23c3b38892d721061eab55e84bf_1737630072350.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/86bb661a5f80d474c8a6c547f430d07f_1737630087117.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b0421b69a4db4f8eeb18bf452a4e982d_1737630087117.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c3e53eb7b3899cf87ec2c9ce349f39ef_1737630087117.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d2ce4b9f97db38a92e290d083cf9016c_1737630087117.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4e909b7f41949daba18ad6a90c796677_1737630087117.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bcd04261acc70ba4e7214188abef8193_1737630103912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7f65e0f779888b03f49e04269366e188_1737630103912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/55751e5b5dfa4ede5f2fc8014bea0f33_1737630103912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6bf6d6b831d3238abbf8f50109e8c27f_1737630103912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c6da3e2be22f217acc914536ccc42cfc_1737630103912.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a6ae925fe2eb2d4aef537ef8a9457a6b_1737630125506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b01090f4c507396bf06f2b3c97a472a7_1737630125506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/21c67862b6274ef1b29b14c2c5e8ab4c_1737630125506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cfdf29dead8759fca9902ab7d3320554_1737630125506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e80e33b2cae9114944c373b9acbb2ec4_1737630125506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cc0ca8bf5d56cb2d8464f635cf2eeacd_1737630141378.png">
+<meta property="article:published_time" content="2020-07-05T13:11:47.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="mysql 索引 数据库 sql">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/89f5de74f4009d4055b0fa21a66ea7c5_1737630004694.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/07/05/mysq%E4%BC%98%E5%8C%96---mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A%E3%80%81%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/07/05/mysq%E4%BC%98%E5%8C%96---mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A%E3%80%81%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/","path":"2020/07/05/mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器/","title":"mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A"><span class="nav-text">执行计划解释</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%B4%A2%E5%BC%95%E7%B1%BB%E5%9E%8B"><span class="nav-text">索引类型</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%99%AE%E9%80%9A%E7%B4%A2%E5%BC%95"><span class="nav-text">普通索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%94%AF%E4%B8%80%E7%B4%A2%E5%BC%95"><span class="nav-text">唯一索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%8D%95%E5%88%97%E7%B4%A2%E5%BC%95"><span class="nav-text">单列索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BB%84%E5%90%88%E7%B4%A2%E5%BC%95"><span class="nav-text">组合索引</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%B4%A2%E5%BC%95%E8%AF%AD%E5%8F%A5"><span class="nav-text">查看索引语句</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2"><span class="nav-text">优化查询</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%B3%A8%E6%84%8F%E5%93%AA%E4%BA%9B%E6%83%85%E5%86%B5%E7%B4%A2%E5%BC%95%E4%B8%8D%E7%94%9F%E6%95%88"><span class="nav-text">注意哪些情况索引不生效</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E5%AD%90%E6%9F%A5%E8%AF%A2"><span class="nav-text">优化子查询</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">优化数据结构</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E5%AD%97%E6%AE%B5%E5%BE%88%E5%A4%9A%E7%9A%84%E8%A1%A8%E5%88%86%E8%A7%A3%E6%88%90%E5%A4%9A%E4%B8%AA%E8%A1%A8"><span class="nav-text">将字段很多的表分解成多个表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E4%B8%AD%E9%97%B4%E8%A1%A8"><span class="nav-text">增加中间表</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%A2%9E%E5%8A%A0%E5%86%97%E4%BD%99%E5%AD%97%E6%AE%B5"><span class="nav-text">增加冗余字段</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%8F%92%E5%85%A5%E8%AE%B0%E5%BD%95%E7%9A%84%E9%80%9F%E5%BA%A6"><span class="nav-text">优化插入记录的速度</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E8%A1%A8%EF%BC%8C%E6%A3%80%E6%9F%A5%E8%A1%A8%E5%92%8C%E4%BC%98%E5%8C%96%E8%A1%A8"><span class="nav-text">分析表，检查表和优化表</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%88%86%E6%9E%90%E8%A1%A8"><span class="nav-text">分析表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E6%A3%80%E6%9F%A5%E8%A1%A8"><span class="nav-text">检查表</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E8%A1%A8"><span class="nav-text">优化表</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BC%98%E5%8C%96mysql%E6%9C%8D%E5%8A%A1%E5%99%A8"><span class="nav-text">优化mysql服务器</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96%E6%9C%8D%E5%8A%A1%E5%99%A8%E7%A1%AC%E4%BB%B6"><span class="nav-text">优化服务器硬件</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E5%8C%96mysql%E5%8F%82%E6%95%B0"><span class="nav-text">优化mysql参数</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/07/05/mysq%E4%BC%98%E5%8C%96---mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A%E3%80%81%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-07-05 21:11:47" itemprop="dateCreated datePublished" datetime="2020-07-05T21:11:47+08:00">2020-07-05</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/mysql/" itemprop="url" rel="index"><span itemprop="name">mysql</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>380</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[toc]</p>
+<h1 id="执行计划解释"><a href="#执行计划解释" class="headerlink" title="执行计划解释"></a>执行计划解释</h1><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">EXPLAIN</span><br><span class="line"><span class="keyword">select</span> id <span class="keyword">from</span> test</span><br><span class="line"><span class="keyword">where</span>  age<span class="operator">=</span><span class="number">18</span> <span class="keyword">and</span>  <span class="keyword">EXISTS</span></span><br><span class="line">(<span class="keyword">select</span> name <span class="keyword">from</span> test <span class="keyword">where</span> name <span class="operator">=</span><span class="string">&#x27;张三&#x27;</span>)</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/89f5de74f4009d4055b0fa21a66ea7c5_1737630004694.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8570fa54a08b1f8e6cc801b58d1e80ed_1737630004694.png" alt="在这里插入图片描述"></p>
+<h1 id="索引类型"><a href="#索引类型" class="headerlink" title="索引类型"></a>索引类型</h1><h3 id="普通索引"><a href="#普通索引" class="headerlink" title="普通索引"></a>普通索引</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/18cbc409f754ce4a87672882f6c19818_1737630004694.png" alt="在这里插入图片描述"></p>
+<h3 id="唯一索引"><a href="#唯一索引" class="headerlink" title="唯一索引"></a>唯一索引</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/312ed49c048ec9d5dc3608e8eacc1391_1737630004694.png" alt="在这里插入图片描述"></p>
+<h3 id="单列索引"><a href="#单列索引" class="headerlink" title="单列索引"></a>单列索引</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d25adbe3a6291c58bf5a779ea971a8a9_1737630004694.png" alt="在这里插入图片描述"></p>
+<h3 id="组合索引"><a href="#组合索引" class="headerlink" title="组合索引"></a>组合索引</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/620596c4969611e54123f0fba1024328_1737630018447.png" alt="在这里插入图片描述"><br>注意，只支持，最左索引:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad8848103f78ef503bde3731f8e7e38c_1737630018447.png" alt="在这里插入图片描述"></p>
+<h3 id="查看索引语句"><a href="#查看索引语句" class="headerlink" title="查看索引语句"></a>查看索引语句</h3><figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">SHOW</span> INDEX <span class="keyword">FROM</span> TEST</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b657f8b7664f3721070b83a0c23bd2e0_1737630018447.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7a5de1fd11db3990f8e697d9363bc444_1737630018447.png" alt="在这里插入图片描述"></p>
+<h1 id="优化查询"><a href="#优化查询" class="headerlink" title="优化查询"></a>优化查询</h1><h2 id="注意哪些情况索引不生效"><a href="#注意哪些情况索引不生效" class="headerlink" title="注意哪些情况索引不生效"></a>注意哪些情况索引不生效</h2><p>我们知道索引可以加快查询，但是有些情况索引不生效:</p>
+<ul>
+<li>1.like的查询语句</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/dd647e19ccc4c67977ba3d80673fb01e_1737630018447.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>2.使用多列索引的查询<br><img src="https://i-blog.csdnimg.cn/blog_migrate/c3f95ceeec31a14b31bd3fc185b15f45.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/e4e9b48baf2458cbe89e7d85d9db996e.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/f57739c3a3d028888d3b68ddf474dd47.png" alt="在这里插入图片描述"></p>
+</li>
+<li><p>3.使用or关键字的查询语句</p>
+</li>
+</ul>
+<p><img src="https://i-blog.csdnimg.cn/blog_migrate/db9cfaf383a8f646346f96259c86d7cd.png" alt="在这里插入图片描述"><br><img src="https://i-blog.csdnimg.cn/blog_migrate/78ae7ade23f8cc5a008ae34ba17c27e4.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ba89e426902d9ca9100f5d417d27949_1737630058679.png" alt="在这里插入图片描述"></p>
+<h2 id="优化子查询"><a href="#优化子查询" class="headerlink" title="优化子查询"></a>优化子查询</h2><p><code>为什么子查询效率低?</code><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/800681c255e5c0a89d5266ea4c3494ba_1737630058679.png" alt="在这里插入图片描述"><br>如何优化子查询:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/03257a943ef096915c40789a27d975c3_1737630058679.png" alt="在这里插入图片描述"></p>
+<h2 id="优化数据结构"><a href="#优化数据结构" class="headerlink" title="优化数据结构"></a>优化数据结构</h2><h3 id="将字段很多的表分解成多个表"><a href="#将字段很多的表分解成多个表" class="headerlink" title="将字段很多的表分解成多个表"></a>将字段很多的表分解成多个表</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e1a3414887875ce25ae9348f11cf1e3_1737630058679.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bc5a3d531bb5e6a22fb6b280907c3999_1737630058679.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cf5a99d7f24db93dcb8a47eafc24a087_1737630072350.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad572a7494669fbdbfd5c9acfb2738f9_1737630072350.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/43d63700381d3d8ad95d082d61376949_1737630072350.png" alt="在这里插入图片描述"></p>
+<h3 id="增加中间表"><a href="#增加中间表" class="headerlink" title="增加中间表"></a>增加中间表</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7437f9bb9f344637a78f06c70a1438d_1737630072350.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d4afe23c3b38892d721061eab55e84bf_1737630072350.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/86bb661a5f80d474c8a6c547f430d07f_1737630087117.png" alt="在这里插入图片描述"></p>
+<h3 id="增加冗余字段"><a href="#增加冗余字段" class="headerlink" title="增加冗余字段"></a>增加冗余字段</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b0421b69a4db4f8eeb18bf452a4e982d_1737630087117.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c3e53eb7b3899cf87ec2c9ce349f39ef_1737630087117.png" alt="在这里插入图片描述"></p>
+<h3 id="优化插入记录的速度"><a href="#优化插入记录的速度" class="headerlink" title="优化插入记录的速度"></a>优化插入记录的速度</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d2ce4b9f97db38a92e290d083cf9016c_1737630087117.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4e909b7f41949daba18ad6a90c796677_1737630087117.png" alt="在这里插入图片描述"></p>
+<h3 id="分析表，检查表和优化表"><a href="#分析表，检查表和优化表" class="headerlink" title="分析表，检查表和优化表"></a>分析表，检查表和优化表</h3><h4 id="分析表"><a href="#分析表" class="headerlink" title="分析表"></a>分析表</h4><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bcd04261acc70ba4e7214188abef8193_1737630103912.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7f65e0f779888b03f49e04269366e188_1737630103912.png" alt="在这里插入图片描述"></p>
+<h4 id="检查表"><a href="#检查表" class="headerlink" title="检查表"></a>检查表</h4><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/55751e5b5dfa4ede5f2fc8014bea0f33_1737630103912.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6bf6d6b831d3238abbf8f50109e8c27f_1737630103912.png" alt="在这里插入图片描述"></p>
+<h4 id="优化表"><a href="#优化表" class="headerlink" title="优化表"></a>优化表</h4><p>主要消除文件碎片<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c6da3e2be22f217acc914536ccc42cfc_1737630103912.png" alt="在这里插入图片描述"></p>
+<h2 id="优化mysql服务器"><a href="#优化mysql服务器" class="headerlink" title="优化mysql服务器"></a>优化mysql服务器</h2><h3 id="优化服务器硬件"><a href="#优化服务器硬件" class="headerlink" title="优化服务器硬件"></a>优化服务器硬件</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a6ae925fe2eb2d4aef537ef8a9457a6b_1737630125506.png" alt="在这里插入图片描述"></p>
+<h3 id="优化mysql参数"><a href="#优化mysql参数" class="headerlink" title="优化mysql参数"></a>优化mysql参数</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b01090f4c507396bf06f2b3c97a472a7_1737630125506.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/21c67862b6274ef1b29b14c2c5e8ab4c_1737630125506.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cfdf29dead8759fca9902ab7d3320554_1737630125506.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e80e33b2cae9114944c373b9acbb2ec4_1737630125506.png" alt="在这里插入图片描述"><br><code>实战案例</code>:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/cc0ca8bf5d56cb2d8464f635cf2eeacd_1737630141378.png" alt="在这里插入图片描述"></p>
+<p>参考《MYSQL5.7入门到精通（刘增杰）》</p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/07/05/mysq%E4%BC%98%E5%8C%96---mysql%E6%89%A7%E8%A1%8C%E8%AE%A1%E5%88%92%E8%A7%A3%E9%87%8A%E3%80%81%E4%BC%98%E5%8C%96%E6%9F%A5%E8%AF%A2%E3%80%81%E6%95%B0%E6%8D%AE%E5%BA%93%E7%BB%93%E6%9E%84%E3%80%81%E6%9C%8D%E5%8A%A1%E5%99%A8/" title="mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器">https://hufanglei.github.io/2020/07/05/mysq优化---mysql执行计划解释、优化查询、数据库结构、服务器/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/mysql-%E7%B4%A2%E5%BC%95-%E6%95%B0%E6%8D%AE%E5%BA%93-sql/" rel="tag"># mysql 索引 数据库 sql</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/07/03/%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(8)%20--%20%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F/" rel="prev" title="小程序学习笔记(8) -- 小程序生命周期">
+                  <i class="fa fa-angle-left"></i> 小程序学习笔记(8) -- 小程序生命周期
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/07/05/mysql5.7%20json%E7%B1%BB%E5%9E%8B%E6%93%8D%E4%BD%9C/" rel="next" title="mysql5.7 json类型操作">
+                  mysql5.7 json类型操作 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

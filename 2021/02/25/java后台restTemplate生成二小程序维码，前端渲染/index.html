@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[TOC] 需求场景用户A登录小程序，在我的页面，点击推荐新客户，需要生成小程序二维码携带用户A的id；用户B扫描上面的二维码，即可进入小程序，根据是否注册过，将用户B和用户A的id建立推荐关系。 技术实现分析  重点代码如下:  java后台restTemplate生成二小程序维码123456789101112131415161718192021@RequestMapping(&quot;">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="java后台restTemplate生成二小程序维码，前端渲染">
+<meta property="og:url" content="https://hufanglei.github.io/2021/02/25/java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81%EF%BC%8C%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[TOC] 需求场景用户A登录小程序，在我的页面，点击推荐新客户，需要生成小程序二维码携带用户A的id；用户B扫描上面的二维码，即可进入小程序，根据是否注册过，将用户B和用户A的id建立推荐关系。 技术实现分析  重点代码如下:  java后台restTemplate生成二小程序维码123456789101112131415161718192021@RequestMapping(&quot;">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c53e148a63cbcab4b0e412f2b4e6c165_1737629933538.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/139ff4557a6546d29b1503ec7b0d7ff2_1737629933538.png">
+<meta property="article:published_time" content="2021-02-25T07:34:45.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="小程序">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c53e148a63cbcab4b0e412f2b4e6c165_1737629933538.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2021/02/25/java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81%EF%BC%8C%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2021/02/25/java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81%EF%BC%8C%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93/","path":"2021/02/25/java后台restTemplate生成二小程序维码，前端渲染/","title":"java后台restTemplate生成二小程序维码，前端渲染"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java后台restTemplate生成二小程序维码，前端渲染 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9C%80%E6%B1%82%E5%9C%BA%E6%99%AF"><span class="nav-text">需求场景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%8A%80%E6%9C%AF%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90"><span class="nav-text">技术实现分析</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81"><span class="nav-text">java后台restTemplate生成二小程序维码</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93"><span class="nav-text">前端渲染</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#app-js"><span class="nav-text">app.js</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E6%9E%9C%E5%A6%82%E4%B8%8B"><span class="nav-text">效果如下:</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2021/02/25/java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81%EF%BC%8C%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="java后台restTemplate生成二小程序维码，前端渲染 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java后台restTemplate生成二小程序维码，前端渲染
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2021-02-25 15:34:45" itemprop="dateCreated datePublished" datetime="2021-02-25T15:34:45+08:00">2021-02-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F/" itemprop="url" rel="index"><span itemprop="name">微信小程序</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>5.9k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h2 id="需求场景"><a href="#需求场景" class="headerlink" title="需求场景"></a>需求场景</h2><p>用户A登录小程序，在我的页面，点击推荐新客户，需要生成小程序二维码携带用户A的id；<br>用户B扫描上面的二维码，即可进入小程序，根据是否注册过，将用户B和用户A的id建立推荐关系。</p>
+<h2 id="技术实现分析"><a href="#技术实现分析" class="headerlink" title="技术实现分析"></a>技术实现分析</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c53e148a63cbcab4b0e412f2b4e6c165_1737629933538.png" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>重点代码如下:</p>
+</blockquote>
+<h2 id="java后台restTemplate生成二小程序维码"><a href="#java后台restTemplate生成二小程序维码" class="headerlink" title="java后台restTemplate生成二小程序维码"></a>java后台restTemplate生成二小程序维码</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@RequestMapping(&quot;/getQrCode&quot;)</span></span><br><span class="line">   <span class="meta">@ResponseBody</span></span><br><span class="line">   <span class="keyword">public</span> String <span class="title function_">getAppQrCode</span><span class="params">(<span class="meta">@RequestParam(name=&quot;recomReferorId&quot;)</span> String recomReferorId, HttpServletResponse response)</span> <span class="keyword">throws</span> Exception &#123;</span><br><span class="line">       <span class="type">RestTemplate</span> <span class="variable">restTemplate</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">RestTemplate</span>();</span><br><span class="line">       <span class="type">SimpleClientHttpRequestFactory</span> <span class="variable">requestFactory</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleClientHttpRequestFactory</span>();</span><br><span class="line">       <span class="comment">// 设置代理，因为我们公司访问外网需要代理，所以设置代理，如果没有这个要求，就不用设置</span></span><br><span class="line">       restTemplate.setRequestFactory(requestFactory);</span><br><span class="line">       <span class="comment">// 获取token</span></span><br><span class="line">       <span class="type">String</span> <span class="variable">token</span> <span class="operator">=</span> businessWxService.getAccessToken();</span><br><span class="line">       <span class="comment">// 配置参数</span></span><br><span class="line">       Map&lt;String, Object&gt; param = <span class="keyword">new</span> <span class="title class_">HashMap</span>&lt;&gt;(<span class="number">5</span>);</span><br><span class="line">       param.put(<span class="string">&quot;scene&quot;</span>, <span class="string">&quot;clientId=&quot;</span>+recomReferorId);</span><br><span class="line">       param.put(<span class="string">&quot;page&quot;</span>, <span class="string">&quot;pages/index/index&quot;</span>);</span><br><span class="line">       param.put(<span class="string">&quot;width&quot;</span>, <span class="number">247</span>);</span><br><span class="line">       param.put(<span class="string">&quot;is_hyaline&quot;</span>, <span class="literal">true</span>);</span><br><span class="line">       <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> <span class="string">&quot;https://api.weixin.qq.com/wxa/getwxacodeunlimit?access_token=&quot;</span> + token;</span><br><span class="line">       ResponseEntity&lt;<span class="type">byte</span>[]&gt; responseEntity = restTemplate.postForEntity(url, JSON.toJSONString(param), <span class="type">byte</span>[].class);</span><br><span class="line">       <span class="type">byte</span>[] result = responseEntity.getBody();</span><br><span class="line">       <span class="type">String</span> <span class="variable">s</span> <span class="operator">=</span> Base64.getEncoder().encodeToString(result);</span><br><span class="line">       <span class="keyword">return</span> s;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+<h2 id="前端渲染"><a href="#前端渲染" class="headerlink" title="前端渲染"></a>前端渲染</h2><p>生成二维码页js</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 获取小程序码（接口）</span></span><br><span class="line"> <span class="title function_">getQrCode</span>(<span class="params"></span>) &#123;</span><br><span class="line">   app.<span class="property">func</span>.<span class="title function_">reqGet</span>(<span class="string">&#x27;/static/wx/getQrCode&#x27;</span>, &#123;</span><br><span class="line">     <span class="attr">recomReferorId</span>: wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;userInfo&#x27;</span>).<span class="property">wechatId</span></span><br><span class="line">   &#125;, <span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">     <span class="keyword">if</span> (res.<span class="property">result</span> === <span class="string">&#x27;SUCCEED&#x27;</span>) &#123;</span><br><span class="line">       <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123;</span><br><span class="line">         <span class="attr">qrcode</span>: <span class="string">`data:image/PNG;base64,<span class="subst">$&#123;res.data&#125;</span>`</span></span><br><span class="line">       &#125;)</span><br><span class="line">     &#125;</span><br><span class="line">   &#125;)</span><br><span class="line"> &#125;,</span><br></pre></td></tr></table></figure>
+<p>二维码页面</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;share-container&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;qrcode&quot;</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;&#123;&#123;qrcode&#125;&#125;&quot;</span> <span class="attr">mode</span>=<span class="string">&quot;widthFix&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">button</span> <span class="attr">class</span>=<span class="string">&quot;btn&quot;</span> <span class="attr">type</span>=<span class="string">&quot;primary&quot;</span> <span class="attr">open-type</span>=<span class="string">&quot;share&quot;</span>&gt;</span>立即分享<span class="tag">&lt;/<span class="name">button</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="app-js"><a href="#app-js" class="headerlink" title="app.js"></a>app.js</h2><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br><span class="line">114</span><br><span class="line">115</span><br><span class="line">116</span><br><span class="line">117</span><br><span class="line">118</span><br><span class="line">119</span><br><span class="line">120</span><br><span class="line">121</span><br><span class="line">122</span><br><span class="line">123</span><br><span class="line">124</span><br><span class="line">125</span><br><span class="line">126</span><br><span class="line">127</span><br><span class="line">128</span><br><span class="line">129</span><br><span class="line">130</span><br><span class="line">131</span><br><span class="line">132</span><br><span class="line">133</span><br><span class="line">134</span><br><span class="line">135</span><br><span class="line">136</span><br><span class="line">137</span><br><span class="line">138</span><br><span class="line">139</span><br><span class="line">140</span><br><span class="line">141</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//app.js</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> &#123; <span class="variable constant_">TOKENISSURE</span> &#125; <span class="keyword">from</span> <span class="string">&quot;./config/config&quot;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">var</span> http = <span class="built_in">require</span>(<span class="string">&#x27;http.js&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">App</span>(&#123;</span><br><span class="line">  <span class="attr">globalData</span>: &#123;</span><br><span class="line">    <span class="attr">token</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">userInfo</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">hasUserInfo</span>: <span class="literal">false</span>,</span><br><span class="line">    <span class="attr">userInfo1</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">lotteryTitle</span>: <span class="literal">null</span>,</span><br><span class="line">    <span class="attr">recomReferorId</span>: <span class="string">&#x27;&#x27;</span>,</span><br><span class="line">    <span class="attr">firstLoginPage</span>: <span class="string">&#x27;&#x27;</span></span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="title function_">onLaunch</span>(<span class="params">options</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(options, <span class="string">&#x27;options-----------------&#x27;</span>)</span><br><span class="line">    <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">firstLoginPage</span> = options.<span class="property">path</span></span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">token</span> = wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;token&#x27;</span>)</span><br><span class="line">      <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">userInfo</span> = wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;userInfo&#x27;</span>)</span><br><span class="line">      <span class="keyword">if</span> (<span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">token</span>) &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">hasUserInfo</span> = <span class="literal">true</span></span><br><span class="line">        <span class="comment">// 每次进入小程序需要调一下，后台记录使用</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">getCurrentPageUrl</span>()</span><br><span class="line">      &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">        <span class="keyword">if</span>(options.<span class="property">scene</span> === <span class="number">1047</span>) &#123;</span><br><span class="line">          <span class="comment">// 扫小程序码进入</span></span><br><span class="line">          <span class="keyword">let</span> queryStr = options.<span class="property">query</span>.<span class="property">scene</span></span><br><span class="line">          <span class="keyword">if</span> (queryStr) &#123;</span><br><span class="line">            <span class="keyword">let</span> query = &#123;&#125;</span><br><span class="line">            <span class="built_in">decodeURIComponent</span>(queryStr).<span class="title function_">split</span>(<span class="string">&#x27;&amp;&#x27;</span>).<span class="title function_">forEach</span>(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">              <span class="keyword">let</span> arr = item.<span class="title function_">split</span>(<span class="string">&#x27;=&#x27;</span>)</span><br><span class="line">              query[arr[<span class="number">0</span>]] = arr[<span class="number">1</span>]</span><br><span class="line">            &#125;)</span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">recomReferorId</span> = query[<span class="string">&#x27;clientId&#x27;</span>]</span><br><span class="line">          &#125;</span><br><span class="line"></span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          <span class="comment">// 没登陆跳转登陆页面</span></span><br><span class="line">          <span class="keyword">if</span> (options.<span class="property">query</span>.<span class="property">clientId</span>) &#123;</span><br><span class="line">            <span class="comment">// 存在邀请 clientId</span></span><br><span class="line">            <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">recomReferorId</span> = options.<span class="property">query</span>.<span class="property">clientId</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        wx.<span class="title function_">navigateTo</span>(&#123; <span class="attr">url</span>: <span class="string">&#x27;/pages/login/index&#x27;</span> &#125;)</span><br><span class="line">      &#125;</span><br><span class="line">    &#125; <span class="keyword">catch</span> (e) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(e)</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 展示本地存储能力</span></span><br><span class="line">    <span class="keyword">var</span> logs = wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;logs&#x27;</span>) || []</span><br><span class="line">    logs.<span class="title function_">unshift</span>(<span class="title class_">Date</span>.<span class="title function_">now</span>())</span><br><span class="line">    wx.<span class="title function_">setStorageSync</span>(<span class="string">&#x27;logs&#x27;</span>, logs)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">// 获取当页面url地址</span></span><br><span class="line">  <span class="attr">getCurrentPageUrl</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    wx.<span class="title function_">showLoading</span>(&#123;</span><br><span class="line">      <span class="attr">title</span>: <span class="string">&#x27;数据加载...&#x27;</span>,</span><br><span class="line">      <span class="attr">mask</span>: <span class="literal">true</span>,</span><br><span class="line">    &#125;)</span><br><span class="line">    <span class="keyword">let</span> data = &#123;</span><br><span class="line">      <span class="attr">clientId</span>: wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;userInfo&#x27;</span>).<span class="property">wechatId</span>,</span><br><span class="line">      <span class="attr">enterPageUrl</span>: <span class="string">`/<span class="subst">$&#123;<span class="variable language_">this</span>.globalData.firstLoginPage&#125;</span>`</span>,</span><br><span class="line">      <span class="attr">enterPageDecri</span>: <span class="string">&#x27;飞碟汽车天文馆&#x27;</span>,</span><br><span class="line">      <span class="attr">providerType</span>: <span class="number">1</span>,</span><br><span class="line">    &#125;</span><br><span class="line">    wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">      <span class="attr">url</span>: http.<span class="property">rootUrl</span> + <span class="string">&#x27;/business_enter_record/add?sign=1&amp;timestamp=&#x27;</span> + <span class="title class_">Date</span>.<span class="title function_">parse</span>(<span class="keyword">new</span> <span class="title class_">Date</span>()),</span><br><span class="line">      <span class="attr">data</span>: data,</span><br><span class="line">      <span class="attr">method</span>: <span class="string">&#x27;POST&#x27;</span>,</span><br><span class="line">      <span class="attr">header</span>: &#123;</span><br><span class="line">        <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;application/json&#x27;</span>,</span><br><span class="line">        <span class="string">&#x27;X-Request-Id&#x27;</span>: <span class="keyword">new</span> <span class="title class_">Date</span>().<span class="title function_">getTime</span>(),</span><br><span class="line">        <span class="string">&#x27;X-Token-Issuer&#x27;</span>: <span class="variable constant_">TOKENISSURE</span>,</span><br><span class="line">        <span class="title class_">Authorization</span>: wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;token&#x27;</span>),</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params">res</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (res.<span class="property">data</span>.<span class="property">result</span> == <span class="string">&#x27;SUCCEED&#x27;</span>) &#123;</span><br><span class="line">          wx.<span class="title function_">hideLoading</span>()</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">typeof</span> cb == <span class="string">&#x27;function&#x27;</span> &amp;&amp; <span class="title function_">cb</span>(res.<span class="property">data</span>)</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">          wx.<span class="title function_">hideLoading</span>()</span><br><span class="line">          <span class="keyword">return</span> <span class="keyword">typeof</span> cb == <span class="string">&#x27;function&#x27;</span> &amp;&amp; <span class="title function_">cb</span>(<span class="literal">false</span>)</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;,</span><br><span class="line">      <span class="attr">fail</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">        wx.<span class="title function_">hideLoading</span>()</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">typeof</span> cb == <span class="string">&#x27;function&#x27;</span> &amp;&amp; <span class="title function_">cb</span>(<span class="literal">false</span>)</span><br><span class="line">      &#125;,</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="title class_">GetUserToken</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">      <span class="comment">//console.log(&quot;this.globalData.userInfo.userId&quot;, this.globalData.userInfo.userId)</span></span><br><span class="line">      wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;https://nms.wuzheng.com.cn/common/xcx/getToken&#x27;</span>,</span><br><span class="line">        <span class="attr">method</span>: <span class="string">&#x27;GET&#x27;</span>,</span><br><span class="line">        <span class="attr">data</span>: &#123;</span><br><span class="line">          <span class="attr">userId</span>:wx.<span class="title function_">getStorageSync</span>(<span class="string">&#x27;userInfo&#x27;</span>).<span class="property">wechatId</span>,</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">success</span>: <span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="comment">//console.log(&quot;2&quot;, res);</span></span><br><span class="line">          <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">token</span> = res.<span class="property">data</span>.<span class="property">data</span></span><br><span class="line">          <span class="keyword">return</span> <span class="title function_">resolve</span>(res.<span class="property">data</span>.<span class="property">data</span>)</span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">fail</span>: <span class="keyword">function</span> (<span class="params">res</span>) &#123;</span><br><span class="line">          <span class="keyword">return</span> res</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="title class_">GetSystemInfo</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve</span>) =&gt;</span> &#123;</span><br><span class="line">      wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;https://nms.wuzheng.com.cn/common/xcx/systemInfo&#x27;</span>,</span><br><span class="line">        <span class="attr">method</span>: <span class="string">&#x27;GET&#x27;</span>,</span><br><span class="line">        <span class="attr">success</span>: <span class="function">(<span class="params">res</span>) =&gt;</span> &#123;</span><br><span class="line">          <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">lotteryTitle</span> = res.<span class="property">data</span>.<span class="property">data</span>.<span class="property">lotteryTitle</span></span><br><span class="line">          wx.<span class="title function_">setStorage</span>(&#123;</span><br><span class="line">            <span class="attr">key</span>: <span class="string">&#x27;programNotice&#x27;</span>,</span><br><span class="line">            <span class="attr">data</span>: res.<span class="property">data</span>.<span class="property">data</span>.<span class="property">programNotice</span>,</span><br><span class="line">            <span class="attr">success</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">              <span class="keyword">return</span> <span class="title function_">resolve</span>(res.<span class="property">data</span>.<span class="property">data</span>)</span><br><span class="line">            &#125;,</span><br><span class="line">          &#125;)</span><br><span class="line">        &#125;,</span><br><span class="line">      &#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line">  <span class="comment">// 这里配置我们需要的方法</span></span><br><span class="line">  <span class="attr">func</span>: &#123;</span><br><span class="line">    <span class="attr">reqGet</span>: http.<span class="property">reqGet</span>,</span><br><span class="line">    <span class="attr">reqPost</span>: http.<span class="property">reqPost</span>,</span><br><span class="line">    <span class="attr">postQuery</span>: http.<span class="property">postQuery</span>,</span><br><span class="line">    <span class="attr">formatRichText</span>: http.<span class="property">formatRichText</span>,</span><br><span class="line">  &#125;,</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+<p>关键代码:</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">if</span>(options.<span class="property">scene</span> === <span class="number">1047</span>) &#123;</span><br><span class="line">         <span class="comment">// 扫小程序码进入</span></span><br><span class="line">         <span class="keyword">let</span> queryStr = options.<span class="property">query</span>.<span class="property">scene</span></span><br><span class="line">         <span class="keyword">if</span> (queryStr) &#123;</span><br><span class="line">           <span class="keyword">let</span> query = &#123;&#125;</span><br><span class="line">           <span class="built_in">decodeURIComponent</span>(queryStr).<span class="title function_">split</span>(<span class="string">&#x27;&amp;&#x27;</span>).<span class="title function_">forEach</span>(<span class="function"><span class="params">item</span> =&gt;</span> &#123;</span><br><span class="line">             <span class="keyword">let</span> arr = item.<span class="title function_">split</span>(<span class="string">&#x27;=&#x27;</span>)</span><br><span class="line">             query[arr[<span class="number">0</span>]] = arr[<span class="number">1</span>]</span><br><span class="line">           &#125;)</span><br><span class="line">           <span class="variable language_">this</span>.<span class="property">globalData</span>.<span class="property">recomReferorId</span> = query[<span class="string">&#x27;clientId&#x27;</span>]</span><br><span class="line">         &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="效果如下"><a href="#效果如下" class="headerlink" title="效果如下:"></a>效果如下:</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/139ff4557a6546d29b1503ec7b0d7ff2_1737629933538.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2021/02/25/java%E5%90%8E%E5%8F%B0restTemplate%E7%94%9F%E6%88%90%E4%BA%8C%E5%B0%8F%E7%A8%8B%E5%BA%8F%E7%BB%B4%E7%A0%81%EF%BC%8C%E5%89%8D%E7%AB%AF%E6%B8%B2%E6%9F%93/" title="java后台restTemplate生成二小程序维码，前端渲染">https://hufanglei.github.io/2021/02/25/java后台restTemplate生成二小程序维码，前端渲染/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%B0%8F%E7%A8%8B%E5%BA%8F/" rel="tag"># 小程序</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2021/02/25/LowB%E4%B8%89%E4%BA%BA%E7%BB%84--%E9%80%89%E6%8B%A9%E6%8E%92%E5%BA%8F%E5%8E%9F%E7%90%86%E5%92%8C%E5%AE%9E%E7%8E%B0/" rel="prev" title="LowB三人组--选择排序原理和实现">
+                  <i class="fa fa-angle-left"></i> LowB三人组--选择排序原理和实现
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2021/02/28/LowB%E4%B8%89%E4%BA%BA%E7%BB%84--%E6%8F%92%E5%85%A5%E6%8E%92%E5%BA%8F%E5%8E%9F%E7%90%86%E5%92%8Cjava%E5%AE%9E%E7%8E%B0/" rel="next" title="LowB三人组--插入排序原理和java实现">
+                  LowB三人组--插入排序原理和java实现 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

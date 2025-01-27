@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@TOC开局一把刀，装备全靠打。我们开局先讲概念，然后执行下hadoop自带的一个wordcount程序，相当于我们java中的hello word。然后自己动手写个wordcount程序，在win10下看下效果，最后部署到服务器上看下效果。 一、MapReduce入门1.MapReduce定义Mapreduce是一个分布式运算程序的编程框架，是用户开发“基于hadoop的数据分析应用”的核心">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="hadoop之mapreduce的wordcount程序(10)">
+<meta property="og:url" content="https://hufanglei.github.io/2019/06/10/hadoop%E4%B9%8Bmapreduce%E7%9A%84wordcount%E7%A8%8B%E5%BA%8F(10)/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@TOC开局一把刀，装备全靠打。我们开局先讲概念，然后执行下hadoop自带的一个wordcount程序，相当于我们java中的hello word。然后自己动手写个wordcount程序，在win10下看下效果，最后部署到服务器上看下效果。 一、MapReduce入门1.MapReduce定义Mapreduce是一个分布式运算程序的编程框架，是用户开发“基于hadoop的数据分析应用”的核心">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6628ea137fc5eac3be03697cd2cd7575_1737628032996.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9c239768498190be6cd22bae79933010_1737628032996.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d81dc45f400d2966a83c636364246e16_1737628032996.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e035550334e7eaa085683f50b18f68c5_1737628045443.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/47ce9f36263bb2e4a28747ee4b56d8c9_1737628045443.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/393cd1ec6108c58299181f22491938e9_1737628045443.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/307a620271859c3f467298197887ee7f_1737628045443.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f94156c7ba5e65a02dbdd76f9c77cd9a_1737628045443.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e016aafca49274db9930aa15c4453d23_1737628057203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0dea4c64d770ad249493cef3ef1d234a_1737628057203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bbbf2127c826483d3d8791a45fd2ab01_1737628057203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bab7228f5f83bd27c3243a31b1441960_1737628057203.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f608c1c398b072a1d0fff3d7ee709f54_1737628057203.png">
+<meta property="article:published_time" content="2019-06-10T02:57:32.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="hadoop mapreduce">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6628ea137fc5eac3be03697cd2cd7575_1737628032996.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/06/10/hadoop%E4%B9%8Bmapreduce%E7%9A%84wordcount%E7%A8%8B%E5%BA%8F(10)/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/06/10/hadoop%E4%B9%8Bmapreduce%E7%9A%84wordcount%E7%A8%8B%E5%BA%8F(10)/","path":"2019/06/10/hadoop之mapreduce的wordcount程序(10)/","title":"hadoop之mapreduce的wordcount程序(10)"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>hadoop之mapreduce的wordcount程序(10) | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81MapReduce%E5%85%A5%E9%97%A8"><span class="nav-text">一、MapReduce入门</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-MapReduce%E5%AE%9A%E4%B9%89"><span class="nav-text">1.MapReduce定义</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-MapReduce%E4%BC%98%E7%BC%BA%E7%82%B9"><span class="nav-text">2.MapReduce优缺点</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BC%98%E7%82%B9"><span class="nav-text">优点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%BC%BA%E7%82%B9"><span class="nav-text">缺点</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-MapReduce%E6%A0%B8%E5%BF%83%E6%80%9D%E6%83%B3"><span class="nav-text">3. MapReduce核心思想</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-MapReduce%E8%BF%9B%E7%A8%8B"><span class="nav-text">4.MapReduce进程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-MapReduce%E7%BC%96%E7%A8%8B%E8%A7%84%E8%8C%83"><span class="nav-text">5.MapReduce编程规范</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81Hadoop%E5%BA%8F%E5%88%97%E5%8C%96"><span class="nav-text">二、Hadoop序列化</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%B8%BA%E4%BB%80%E4%B9%88%E8%A6%81%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="nav-text">1.为什么要序列化？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BB%80%E4%B9%88%E6%98%AF%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="nav-text">2.什么是序列化？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E4%B8%BA%E4%BB%80%E4%B9%88%E4%B8%8D%E7%94%A8Java%E7%9A%84%E5%BA%8F%E5%88%97%E5%8C%96%EF%BC%9F"><span class="nav-text">3.为什么不用Java的序列化？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%B8%BA%E4%BB%80%E4%B9%88%E5%BA%8F%E5%88%97%E5%8C%96%E5%AF%B9Hadoop%E5%BE%88%E9%87%8D%E8%A6%81%EF%BC%9F"><span class="nav-text">4.为什么序列化对Hadoop很重要？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%B8%B8%E7%94%A8%E6%95%B0%E6%8D%AE%E5%BA%8F%E5%88%97%E5%8C%96%E7%B1%BB%E5%9E%8B"><span class="nav-text">5.常用数据序列化类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E8%87%AA%E5%AE%9A%E4%B9%89bean%E5%AF%B9%E8%B1%A1%E5%AE%9E%E7%8E%B0%E5%BA%8F%E5%88%97%E5%8C%96%E6%8E%A5%E5%8F%A3%EF%BC%88Writable%EF%BC%89"><span class="nav-text">6.自定义bean对象实现序列化接口（Writable）</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81%E6%89%A7%E8%A1%8Chadoop%E8%87%AA%E5%B8%A6wordcount%E7%A8%8B%E5%BA%8F"><span class="nav-text">三、执行hadoop自带wordcount程序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%87%86%E5%A4%87%E4%B8%AAword-txt%E6%96%87%E4%BB%B6"><span class="nav-text">1.准备个word.txt文件</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%88%87%E6%8D%A2%E5%88%B0mapreduce%E4%B8%8B"><span class="nav-text">2.切换到mapreduce下</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4"><span class="nav-text">3.执行命令</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E8%87%AA%E5%B7%B1%E5%86%99%E4%B8%AAwordcount%E7%A8%8B%E5%BA%8F"><span class="nav-text">四、自己写个wordcount程序</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#WordCountMap"><span class="nav-text">WordCountMap</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WordCountReduce"><span class="nav-text">WordCountReduce</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#WordCountMain"><span class="nav-text">WordCountMain</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%BF%90%E8%A1%8C%E7%BB%93%E6%9E%9C"><span class="nav-text">运行结果</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%83%A8%E7%BD%B2%E5%88%B0hadoop%E9%9B%86%E7%BE%A4%E4%B8%8A%E6%B5%8B%E8%AF%95"><span class="nav-text">部署到hadoop集群上测试</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%93%E4%B8%AAjar%E5%8C%85"><span class="nav-text">打个jar包</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%B0%86%E6%B5%8B%E8%AF%95%E6%96%87%E4%BB%B6%E4%B8%8A%E4%BC%A0%E5%88%B0hadoop%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95%E4%B8%8A"><span class="nav-text">将测试文件上传到hadoop工作目录上</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%89%A7%E8%A1%8C%E5%91%BD%E4%BB%A4%E6%B5%8B%E8%AF%95"><span class="nav-text">执行命令测试</span></a></li></ol></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/06/10/hadoop%E4%B9%8Bmapreduce%E7%9A%84wordcount%E7%A8%8B%E5%BA%8F(10)/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="hadoop之mapreduce的wordcount程序(10) | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          hadoop之mapreduce的wordcount程序(10)
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-06-10 10:57:32" itemprop="dateCreated datePublished" datetime="2019-06-10T10:57:32+08:00">2019-06-10</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%A4%A7%E6%95%B0%E6%8D%AE/" itemprop="url" rel="index"><span itemprop="name">大数据</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@<a href="%E7%9B%AE%E5%BD%95">TOC</a><br>开局一把刀，装备全靠打。<br>我们开局先讲概念，然后执行下hadoop自带的一个wordcount程序，相当于我们java中的hello word。<br>然后自己动手写个wordcount程序，在win10下看下效果，最后部署到服务器上看下效果。</p>
+<h1 id="一、MapReduce入门"><a href="#一、MapReduce入门" class="headerlink" title="一、MapReduce入门"></a>一、MapReduce入门</h1><h2 id="1-MapReduce定义"><a href="#1-MapReduce定义" class="headerlink" title="1.MapReduce定义"></a>1.MapReduce定义</h2><p>Mapreduce是一个分布式运算程序的编程框架，是用户开发“基于hadoop的数据分析应用”的核心框架。<br>Mapreduce核心功能是将用户编写的业务逻辑代码和自带默认组件整合成一个完整的分布式运算程序，并发运行在一个hadoop集群上。</p>
+<h2 id="2-MapReduce优缺点"><a href="#2-MapReduce优缺点" class="headerlink" title="2.MapReduce优缺点"></a>2.MapReduce优缺点</h2><h3 id="优点"><a href="#优点" class="headerlink" title="优点"></a>优点</h3><ul>
+<li>1）MapReduce 易于编程。它简单的实现一些接口，就可以完成一个分布式程序，这个分布式程序可以分布到大量廉价的PC机器上运行。也就是说你写一个分布式程序，跟写一个简单的串行程序是一模一样的。就是因为这个特点使得MapReduce编程变得非常流行。</li>
+<li>2）良好的扩展性。当你的计算资源不能得到满足的时候，你可以通过简单的增加机器来扩展它的计算能力。(<em><strong>此处可以自己动手添加个datanode的实验试试，看下集群上有没有</strong></em>)<br>参考这篇文章 <a target="_blank" rel="noopener" href="https://blog.csdn.net/baidu_21349635/article/details/91949972">https://blog.csdn.net/baidu_21349635/article/details/91949972</a></li>
+<li>3）高容错性。MapReduce设计的初衷就是使程序能够部署在廉价的PC机器上，这就要求它具有很高的容错性。比如其中一台机器挂了，它可以把上面的计算任务转移到另外一个节点上运行，不至于这个任务运行失败，而且这个过程不需要人工参与，而完全是由 Hadoop内部完成的。</li>
+<li>4）适合PB级以上海量数据的离线处理。它适合离线处理而不适合在线处理。比如像毫秒级别的返回一个结果，MapReduce很难做到。</li>
+</ul>
+<h3 id="缺点"><a href="#缺点" class="headerlink" title="缺点"></a>缺点</h3><p>MapReduce不擅长做实时计算、流式计算、DAG（有向无环图）计算。</p>
+<ul>
+<li>1）实时计算。MapReduce无法像Mysql一样，在毫秒或者秒级内返回结果。</li>
+<li>2）流式计算。流式计算的输入数据是动态的，而MapReduce的输入数据集是静态的，不能动态变化。这是因为MapReduce自身的设计特点决定了数据源必须是静态的。</li>
+<li>3）DAG（有向无环图）计算。多个应用程序存在依赖关系，后一个应用程序的输入为前一个的输出。在这种情况下，MapReduce并不是不能做，而是使用后，每个MapReduce作业的输出结果都会写入到磁盘，会造成大量的磁盘IO，导致性能非常的低下。</li>
+<li>4）MapReduce编程模型只能包含一个map阶段和一个reduce阶段，如果用户的业务逻辑非常复杂，那就只能多个mapreduce程序，串行运行。</li>
+</ul>
+<h2 id="3-MapReduce核心思想"><a href="#3-MapReduce核心思想" class="headerlink" title="3. MapReduce核心思想"></a>3. MapReduce核心思想</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6628ea137fc5eac3be03697cd2cd7575_1737628032996.png" alt="在这里插入图片描述"><br>来个通俗点的图。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9c239768498190be6cd22bae79933010_1737628032996.png" alt="在这里插入图片描述"></p>
+<h2 id="4-MapReduce进程"><a href="#4-MapReduce进程" class="headerlink" title="4.MapReduce进程"></a>4.MapReduce进程</h2><p>一个完整的mapreduce程序在分布式运行时有三类实例进程：</p>
+<ul>
+<li>1）MrAppMaster：负责整个程序的过程调度及状态协调。</li>
+<li>2）MapTask：负责map阶段的整个数据处理流程。</li>
+<li>3）ReduceTask：负责reduce阶段的整个数据处理流程。</li>
+</ul>
+<h2 id="5-MapReduce编程规范"><a href="#5-MapReduce编程规范" class="headerlink" title="5.MapReduce编程规范"></a>5.MapReduce编程规范</h2><p>用户编写的程序分成三个部分：Mapper，Reducer，Driver(提交运行mr程序的客户端)</p>
+<blockquote>
+<p>1）Mapper阶段<br>（1）用户自定义的Mapper要继承自己的父类<br>（2）Mapper的输入数据是KV对的形式（KV的类型可自定义）<br>（3）Mapper中的业务逻辑写在map()方法中<br>（4）Mapper的输出数据是KV对的形式（KV的类型可自定义）<br>（5）map()方法（maptask进程）对每一个&lt;K,V&gt;调用一次</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d81dc45f400d2966a83c636364246e16_1737628032996.png" alt="在这里插入图片描述">
+	</p>
+<blockquote>
+<p>2）Reducer阶段<br>（1）用户自定义的Reducer要继承自己的父类<br>（2）Reducer的输入数据类型对应Mapper的输出数据类型，也是KV<br>（3）Reducer的业务逻辑写在reduce()方法中<br>（4）Reducetask进程对每一组相同k的&lt;k,v&gt;组调用一次reduce()方法</p>
+</blockquote>
+<p>3）Driver阶段<br>整个程序需要一个Drvier来进行提交，提交的是一个描述了各种必要信息的job对象</p>
+<h1 id="二、Hadoop序列化"><a href="#二、Hadoop序列化" class="headerlink" title="二、Hadoop序列化"></a>二、Hadoop序列化</h1><h2 id="1-为什么要序列化？"><a href="#1-为什么要序列化？" class="headerlink" title="1.为什么要序列化？"></a>1.为什么要序列化？</h2><p> 一般来说，“活的”对象只生存在内存里，关机断电就没有了。而且“活的”对象只能由本地的进程使用，不能被发送到网络上的另外一台计算机。 然而序列化可以存储“活的”对象，可以将“活的”对象发送到远程计算机。</p>
+<h2 id="2-什么是序列化？"><a href="#2-什么是序列化？" class="headerlink" title="2.什么是序列化？"></a>2.什么是序列化？</h2><p> 序列化就是把内存中的对象，转换成字节序列（或其他数据传输协议）以便于存储（持久化）和网络传输。<br>反序列化就是将收到字节序列（或其他数据传输协议）或者是硬盘的持久化数据，转换成内存中的对象。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e035550334e7eaa085683f50b18f68c5_1737628045443.png" alt="在这里插入图片描述"></p>
+<h2 id="3-为什么不用Java的序列化？"><a href="#3-为什么不用Java的序列化？" class="headerlink" title="3.为什么不用Java的序列化？"></a>3.为什么不用Java的序列化？</h2><p>Java的序列化是一个重量级序列化框架（Serializable），一个对象被序列化后，会附带很多额外的信息（各种校验信息，header，继承体系等），不便于在网络中高效传输。所以，hadoop自己开发了一套序列化机制（Writable），精简、高效。</p>
+<h2 id="4-为什么序列化对Hadoop很重要？"><a href="#4-为什么序列化对Hadoop很重要？" class="headerlink" title="4.为什么序列化对Hadoop很重要？"></a>4.为什么序列化对Hadoop很重要？</h2><p> 因为Hadoop在集群之间进行通讯或者RPC调用的时候，需要序列化，而且要求序列化要快，且体积要小，占用带宽要小。所以必须理解Hadoop的序列化机制。<br>  序列化和反序列化在分布式数据处理领域经常出现：进程通信和永久存储。然而Hadoop中各个节点的通信是通过远程调用（RPC）实现的，那么RPC序列化要求具有以下特点：</p>
+<blockquote>
+<p>1）紧凑：紧凑的格式能让我们充分利用网络带宽，而带宽是数据中心最稀缺的资<br>2）快速：进程通信形成了分布式系统的骨架，所以需要尽量减少序列化和反序列化的性能开销，这是基本的；<br>3）可扩展：协议为了满足新的需求变化，所以控制客户端和服务器过程中，需要直接引进相应的协议，这些是新协议，原序列化方式能支持新的协议报文；<br>4）互操作：能支持不同语言写的客户端和服务端进行交互；</p>
+</blockquote>
+<h2 id="5-常用数据序列化类型"><a href="#5-常用数据序列化类型" class="headerlink" title="5.常用数据序列化类型"></a>5.常用数据序列化类型</h2><p>常用的数据类型对应的hadoop数据序列化类型</p>
+<table>
+<thead>
+<tr>
+<th><strong>Java****类型</strong></th>
+<th><strong>Hadoop Writable****类型</strong></th>
+</tr>
+</thead>
+<tbody><tr>
+<td>boolean</td>
+<td>BooleanWritable</td>
+</tr>
+<tr>
+<td>byte</td>
+<td>ByteWritable</td>
+</tr>
+<tr>
+<td>int</td>
+<td>IntWritable</td>
+</tr>
+<tr>
+<td>float</td>
+<td>FloatWritable</td>
+</tr>
+<tr>
+<td>long</td>
+<td>LongWritable</td>
+</tr>
+<tr>
+<td>double</td>
+<td>DoubleWritable</td>
+</tr>
+<tr>
+<td>string</td>
+<td>Text</td>
+</tr>
+<tr>
+<td>map</td>
+<td>MapWritable</td>
+</tr>
+<tr>
+<td>array</td>
+<td>ArrayWritable</td>
+</tr>
+</tbody></table>
+<h2 id="6-自定义bean对象实现序列化接口（Writable）"><a href="#6-自定义bean对象实现序列化接口（Writable）" class="headerlink" title="6.自定义bean对象实现序列化接口（Writable）"></a>6.自定义bean对象实现序列化接口（Writable）</h2><p>1）自定义bean对象要想序列化传输，必须实现序列化接口，需要注意以下7项。<br>（1）必须实现Writable接口<br>（2）反序列化时，需要反射调用空参构造函数，所以必须有空参构造
+	</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">public FlowBean() &#123;</span><br><span class="line">		super();</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>（3）重写序列化方法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">	public void write(DataOutput out) throws IOException &#123;</span><br><span class="line">		out.writeLong(upFlow);</span><br><span class="line">		out.writeLong(downFlow);</span><br><span class="line">		out.writeLong(sumFlow);</span><br><span class="line">	&#125;</span><br></pre></td></tr></table></figure>
+
+<p>（4）重写反序列化方法</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public void readFields(DataInput in) throws IOException &#123;</span><br><span class="line">	upFlow = in.readLong();</span><br><span class="line">	downFlow = in.readLong();</span><br><span class="line">	sumFlow = in.readLong();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>（5）注意反序列化的顺序和序列化的顺序完全一致<br>（6）要想把结果显示在文件中，需要重写toString()，可用”\t”分开，方便后续用。<br>（7）如果需要将自定义的bean放在key中传输，则还需要实现comparable接口，因为mapreduce框中的shuffle过程一定会对key进行排序。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">@Override</span><br><span class="line">public int compareTo(FlowBean o) &#123;</span><br><span class="line">	// 倒序排列，从大到小</span><br><span class="line">	return this.sumFlow &gt; o.getSumFlow() ? -1 : 1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+
+<h1 id="三、执行hadoop自带wordcount程序"><a href="#三、执行hadoop自带wordcount程序" class="headerlink" title="三、执行hadoop自带wordcount程序"></a>三、执行hadoop自带wordcount程序</h1><h2 id="1-准备个word-txt文件"><a href="#1-准备个word-txt文件" class="headerlink" title="1.准备个word.txt文件"></a>1.准备个word.txt文件</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">[root@bigdata121 mod]# ls</span><br><span class="line">a  aa  b  bbb  c  d  fsimage.xml  hadoop-2.8.4  hdfs-demo-1.0-SNAPSHOT.jar  hfl.sh  jdk1.8.0_144  test  word.txt</span><br><span class="line">[root@bigdata121 mod]# cat word.txt </span><br><span class="line">java java</span><br><span class="line">hadoop</span><br><span class="line">linux </span><br><span class="line">centos</span><br><span class="line">jsp tomcat hadoop mpareduce hdfs apache</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>然后执行上传，上传到hdfs</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -<span class="keyword">put</span>  /opt/<span class="keyword">mod</span>/<span class="built_in">word</span>.txt  /<span class="built_in">word</span>.txt</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/47ce9f36263bb2e4a28747ee4b56d8c9_1737628045443.png" alt="在这里插入图片描述"></p>
+<h2 id="2-切换到mapreduce下"><a href="#2-切换到mapreduce下" class="headerlink" title="2.切换到mapreduce下"></a>2.切换到mapreduce下</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">[root@bigdata121 mapreduce]# pwd</span><br><span class="line">/opt/mod/hadoop-2.8.4/share/hadoop/mapreduce</span><br><span class="line">[root@bigdata121 mapreduce]# ls</span><br><span class="line">hadoop-mapreduce-client-app-2.8.4.jar     hadoop-mapreduce-client-hs-2.8.4.jar          hadoop-mapreduce-client-jobclient-2.8.4-tests.jar  jdiff         sources</span><br><span class="line">hadoop-mapreduce-client-common-2.8.4.jar  hadoop-mapreduce-client-hs-plugins-2.8.4.jar  hadoop-mapreduce-client-shuffle-2.8.4.jar          lib</span><br><span class="line">hadoop-mapreduce-client-core-2.8.4.jar    hadoop-mapreduce-client-jobclient-2.8.4.jar   hadoop-mapreduce-examples-2.8.4.jar                lib-examples</span><br><span class="line">[root@bigdata121 mapreduce]# </span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3-执行命令"><a href="#3-执行命令" class="headerlink" title="3.执行命令"></a>3.执行命令</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop jar hadoop-mapreduce-examples-2.8.4.jar wordcount /word.txt /wcount</span><br></pre></td></tr></table></figure>
+<p>运行完毕看下，结果<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/393cd1ec6108c58299181f22491938e9_1737628045443.png" alt="在这里插入图片描述"><br>完美!!</p>
+<h1 id="四、自己写个wordcount程序"><a href="#四、自己写个wordcount程序" class="headerlink" title="四、自己写个wordcount程序"></a>四、自己写个wordcount程序</h1><h2 id="WordCountMap"><a href="#WordCountMap" class="headerlink" title="WordCountMap"></a>WordCountMap</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hfl.wordcount;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.LongWritable;</span><br><span class="line"><span class="comment">//坑，自动导包Text很容易导成java</span></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Mapper;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WordCountMap</span> <span class="keyword">extends</span> <span class="title class_">Mapper</span>&lt;LongWritable, Text, Text, IntWritable&gt; &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">map</span><span class="params">(LongWritable key, Text value, Context context)</span> <span class="keyword">throws</span> IOException, InterruptedException &#123;</span><br><span class="line">        <span class="comment">//拿到数据,进行数据转换Text=》String</span></span><br><span class="line">        <span class="type">String</span> <span class="variable">line</span> <span class="operator">=</span> value.toString();</span><br><span class="line">        <span class="comment">//按照空格切分</span></span><br><span class="line">        String[] split = line.split(<span class="string">&quot; &quot;</span>);</span><br><span class="line">        <span class="comment">//输出数据KEYOUT, VALUEOUT</span></span><br><span class="line">        <span class="keyword">for</span> (String s : split) &#123;</span><br><span class="line">            <span class="comment">//数据转换String=》Text   int=》IntWritable</span></span><br><span class="line">            context.write(<span class="keyword">new</span> <span class="title class_">Text</span>(s), <span class="keyword">new</span> <span class="title class_">IntWritable</span>(<span class="number">1</span>));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="WordCountReduce"><a href="#WordCountReduce" class="headerlink" title="WordCountReduce"></a>WordCountReduce</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hfl.wordcount;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Reducer;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"><span class="keyword">import</span> java.util.Iterator;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WordCountReduce</span> <span class="keyword">extends</span> <span class="title class_">Reducer</span>&lt;Text, IntWritable, Text, IntWritable&gt;&#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">protected</span> <span class="keyword">void</span> <span class="title function_">reduce</span><span class="params">(Text key, Iterable&lt;IntWritable&gt; values, Context context)</span> <span class="keyword">throws</span> IOException, InterruptedException &#123;</span><br><span class="line">        <span class="type">int</span> count=<span class="number">0</span>;</span><br><span class="line">        <span class="comment">//        //方法1：初始化一个计数器</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//开始计数</span></span><br><span class="line">        <span class="comment">//   for (IntWritable value:values) &#123;</span></span><br><span class="line">        <span class="comment">//      count=count+value.get();</span></span><br><span class="line">        <span class="comment">//   &#125;</span></span><br><span class="line">        <span class="comment">//方法2: 重写源代码方法</span></span><br><span class="line">        <span class="type">Iterator</span> <span class="variable">i$</span> <span class="operator">=</span> values.iterator();</span><br><span class="line">        <span class="keyword">while</span>(i$.hasNext()) &#123;</span><br><span class="line">            <span class="type">IntWritable</span> <span class="variable">value</span> <span class="operator">=</span> (IntWritable) i$.next();</span><br><span class="line">            count += count + value.get();</span><br><span class="line">        &#125;</span><br><span class="line">        context.write(key, <span class="keyword">new</span> <span class="title class_">IntWritable</span>(count));</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="WordCountMain"><a href="#WordCountMain" class="headerlink" title="WordCountMain"></a>WordCountMain</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">package</span> com.hfl.wordcount;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.conf.Configuration;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.fs.Path;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.IntWritable;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.io.Text;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.Job;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.input.FileInputFormat;</span><br><span class="line"><span class="keyword">import</span> org.apache.hadoop.mapreduce.lib.output.FileOutputFormat;</span><br><span class="line"><span class="keyword">import</span> java.io.IOException;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">WordCountMain</span> &#123;</span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> <span class="keyword">throws</span> IOException, ClassNotFoundException, InterruptedException &#123;</span><br><span class="line">        <span class="comment">//args=new String[]&#123;&quot;F:\\input\\wcword.txt&quot;,&quot;F:\\input\\wcword1&quot;&#125;;</span></span><br><span class="line"></span><br><span class="line">        <span class="comment">//获取配置文件</span></span><br><span class="line">        <span class="type">Configuration</span> <span class="variable">conf</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">Configuration</span>();</span><br><span class="line">        <span class="comment">//创建job任务</span></span><br><span class="line">        <span class="type">Job</span> <span class="variable">job</span> <span class="operator">=</span> Job.getInstance(conf);</span><br><span class="line">        job.setJarByClass(WordCountMain.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//指定Map类和map的输出类型 Text, IntWritable</span></span><br><span class="line">        job.setMapperClass(WordCountMap.class);</span><br><span class="line">        job.setMapOutputKeyClass(Text.class);</span><br><span class="line">        job.setMapOutputValueClass(IntWritable.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//指定Reducer类和reduce的输出数据类型 Text,IntWritable</span></span><br><span class="line">        job.setReducerClass(WordCountReduce.class);</span><br><span class="line">        job.setOutputKeyClass(Text.class);</span><br><span class="line">        job.setOutputValueClass(IntWritable.class);</span><br><span class="line"></span><br><span class="line">        <span class="comment">//指定数据输入的路径和输出的路径</span></span><br><span class="line">        FileInputFormat.setInputPaths(job,<span class="keyword">new</span> <span class="title class_">Path</span>(args[<span class="number">0</span>]));</span><br><span class="line">        FileOutputFormat.setOutputPath(job,<span class="keyword">new</span> <span class="title class_">Path</span>(args[<span class="number">1</span>]));</span><br><span class="line"></span><br><span class="line">        <span class="comment">//提交任务</span></span><br><span class="line"><span class="comment">//        job.setJar(&quot;WordCount.jar&quot;);</span></span><br><span class="line">        job.waitForCompletion(<span class="literal">true</span>);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>F:\input\wcword.txt</p>
+<figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">Raise your <span class="built_in">words</span>, <span class="keyword">not</span> your voice.</span><br><span class="line"> It <span class="keyword">is</span> rain <span class="keyword">that</span> makes <span class="keyword">the</span> flowers grow, <span class="keyword">not</span> thunder.</span><br></pre></td></tr></table></figure>
+<h2 id="运行结果"><a href="#运行结果" class="headerlink" title="运行结果"></a>运行结果</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/307a620271859c3f467298197887ee7f_1737628045443.png" alt="在这里插入图片描述"></p>
+<h2 id="部署到hadoop集群上测试"><a href="#部署到hadoop集群上测试" class="headerlink" title="部署到hadoop集群上测试"></a>部署到hadoop集群上测试</h2><h3 id="打个jar包"><a href="#打个jar包" class="headerlink" title="打个jar包"></a>打个jar包</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f94156c7ba5e65a02dbdd76f9c77cd9a_1737628045443.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e016aafca49274db9930aa15c4453d23_1737628057203.png" alt="在这里插入图片描述"><br>放在集群的一个目录上<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0dea4c64d770ad249493cef3ef1d234a_1737628057203.png" alt="在这里插入图片描述"></p>
+<h3 id="将测试文件上传到hadoop工作目录上"><a href="#将测试文件上传到hadoop工作目录上" class="headerlink" title="将测试文件上传到hadoop工作目录上"></a>将测试文件上传到hadoop工作目录上</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bbbf2127c826483d3d8791a45fd2ab01_1737628057203.png" alt="在这里插入图片描述"></p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop fs -put /opt/mod/wordcount.txt /wordcount3</span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/bab7228f5f83bd27c3243a31b1441960_1737628057203.png" alt="在这里插入图片描述"></p>
+<h3 id="执行命令测试"><a href="#执行命令测试" class="headerlink" title="执行命令测试"></a>执行命令测试</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">hadoop jar /opt/mod/hdfs-demo-1.0-SNAPSHOT.jar com.hfl.wordcount.WordCountMain /wordcount3 /wordcount3-reslut</span><br></pre></td></tr></table></figure>
+<p>查看结果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f608c1c398b072a1d0fff3d7ee709f54_1737628057203.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>大功告成！！收工。</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/06/10/hadoop%E4%B9%8Bmapreduce%E7%9A%84wordcount%E7%A8%8B%E5%BA%8F(10)/" title="hadoop之mapreduce的wordcount程序(10)">https://hufanglei.github.io/2019/06/10/hadoop之mapreduce的wordcount程序(10)/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/hadoop-mapreduce/" rel="tag"># hadoop mapreduce</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/06/09/hadoop%E4%B9%8BHDFS%E5%B7%A5%E4%BD%9C%E6%9C%BA%E5%88%B6(9)/" rel="prev" title="hadoop之HDFS工作机制(9)">
+                  <i class="fa fa-angle-left"></i> hadoop之HDFS工作机制(9)
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/06/10/%E5%A4%9A%E7%BA%BF%E7%A8%8B%E7%BC%96%E7%A8%8B%E6%A0%B8%E5%BF%83%E6%8A%80%E6%9C%AF-java%E5%A4%9A%E7%BA%BF%E7%A8%8B%E6%8A%80%E8%83%BD%EF%BC%881%EF%BC%89/" rel="next" title="多线程编程核心技术-java多线程技能（1）">
+                  多线程编程核心技术-java多线程技能（1） <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[TOC] AQSAQS原理AQS：AbstractQuenedSynchronizer抽象的队列式同步器。是除了java自带的synchronized关键字之外的锁机制。AQS的全称为（AbstractQueuedSynchronizer），这个类在java.util.concurrent.locks包 AQS的核心思想是，&#x3D;&#x3D;如果被请求的共享资源空闲，则将当前请求资源">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="java并发原理实战(10）--AQS 和公平锁分析">
+<meta property="og:url" content="https://hufanglei.github.io/2020/01/29/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(10%EF%BC%89--AQS%20%E5%92%8C%E5%85%AC%E5%B9%B3%E9%94%81%E5%88%86%E6%9E%90/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[TOC] AQSAQS原理AQS：AbstractQuenedSynchronizer抽象的队列式同步器。是除了java自带的synchronized关键字之外的锁机制。AQS的全称为（AbstractQueuedSynchronizer），这个类在java.util.concurrent.locks包 AQS的核心思想是，&#x3D;&#x3D;如果被请求的共享资源空闲，则将当前请求资源">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e79fba4be9400ef28937c5f63ffdbc91_1737625751352.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e62b3476c6d5d298fea3c3586494a9e_1737625751352.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ba77fc1bd883ad67900b164bac1df69a_1737625751352.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6798568f789744086d7c8a49933f7cb5_1737625751352.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a4f1c2adf6724fbc3c3fde8c2f2d4be_1737625751352.png">
+<meta property="article:published_time" content="2020-01-29T05:12:29.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e79fba4be9400ef28937c5f63ffdbc91_1737625751352.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/01/29/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(10%EF%BC%89--AQS%20%E5%92%8C%E5%85%AC%E5%B9%B3%E9%94%81%E5%88%86%E6%9E%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/01/29/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(10%EF%BC%89--AQS%20%E5%92%8C%E5%85%AC%E5%B9%B3%E9%94%81%E5%88%86%E6%9E%90/","path":"2020/01/29/java并发原理实战(10）--AQS 和公平锁分析/","title":"java并发原理实战(10）--AQS 和公平锁分析"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>java并发原理实战(10）--AQS 和公平锁分析 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#AQS"><span class="nav-text">AQS</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#AQS%E5%BA%95%E5%B1%82%E4%BD%BF%E7%94%A8%E4%BA%86%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F"><span class="nav-text">AQS底层使用了模板方法模式</span></a></li><li class="nav-item nav-level-2"><a class="nav-link"><span class="nav-text"></span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#-1"><span class="nav-text"></span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ReentrantLock%E9%94%81%E7%9A%84%E5%AE%9E%E7%8E%B0%E5%88%86%E6%9E%90"><span class="nav-text">ReentrantLock锁的实现分析</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AC%E5%B9%B3%E9%94%81%E5%92%8C%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81"><span class="nav-text">公平锁和非公平锁</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AC%E5%B9%B3%E9%94%81FairSync"><span class="nav-text">公平锁FairSync</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9D%9E%E5%85%AC%E5%B9%B3%E9%94%81NonfairSync"><span class="nav-text">非公平锁NonfairSync</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ReentrantLock%E7%AD%89%E5%BE%85%E9%98%9F%E5%88%97%E4%B8%AD%E5%85%83%E7%B4%A0%E7%9A%84%E5%94%A4%E9%86%92"><span class="nav-text">ReentrantLock等待队列中元素的唤醒</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E9%94%81%E9%99%8D%E7%BA%A7%E3%80%81%E9%94%81%E5%8D%87%E7%BA%A7"><span class="nav-text">锁降级、锁升级</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%BA%BF%E7%A8%8B%E5%AE%89%E5%85%A8%E6%80%A7%E9%97%AE%E9%A2%98%E6%80%BB%E7%BB%93"><span class="nav-text">线程安全性问题总结</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/01/29/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(10%EF%BC%89--AQS%20%E5%92%8C%E5%85%AC%E5%B9%B3%E9%94%81%E5%88%86%E6%9E%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="java并发原理实战(10）--AQS 和公平锁分析 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          java并发原理实战(10）--AQS 和公平锁分析
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-01-29 13:12:29" itemprop="dateCreated datePublished" datetime="2020-01-29T13:12:29+08:00">2020-01-29</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%B9%B6%E5%8F%91%E7%BC%96%E7%A8%8B/" itemprop="url" rel="index"><span itemprop="name">并发编程</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>7.4k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>7 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h1 id="AQS"><a href="#AQS" class="headerlink" title="AQS"></a>AQS</h1><p><strong>AQS原理</strong><br>AQS：AbstractQuenedSynchronizer抽象的队列式同步器。是除了java自带的synchronized关键字之外的锁机制。<br>AQS的全称为（AbstractQueuedSynchronizer），这个类在java.util.concurrent.locks包</p>
+<p><strong>AQS的核心思想</strong>是，&#x3D;&#x3D;如果被请求的共享资源空闲，则将当前请求资源的线程设置为有效的工作线程，并将共享资源设置为锁定状态，如果被请求的共享资源被占用，那么就需要一套线程阻塞等待以及被唤醒时锁分配的机制，这个机制AQS是用CLH队列锁实现的，即将暂时获取不到锁的线程加入到队列中。<br>CLH（Craig，Landin，and Hagersten）队列是一个虚拟的双向队列，虚拟的双向队列即不存在队列实例，仅存在节点之间的关联关系。&#x3D;&#x3D;<br><strong>AQS是将每一条请求共享资源的线程封装成一个CLH锁队列的一个结点（Node），来实现锁的分配。</strong></p>
+<p>用大白话来说，AQS就是基于CLH队列，用volatile修饰共享变量state，线程通过CAS去改变状态符，成功则获取锁成功，失败则进入等待队列，等待被唤醒。</p>
+<p>**注意：AQS是自旋锁：**在等待唤醒的时候，经常会使用自旋（while(!cas())）的方式，不停地尝试获取锁，直到被其他线程获取成功</p>
+<p><strong>实现了AQS的锁有：自旋锁、互斥锁、读锁写锁、条件产量、信号量、栅栏都是AQS的衍生物</strong><br>AQS实现的具体方式如下：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e79fba4be9400ef28937c5f63ffdbc91_1737625751352.png" alt="在这里插入图片描述"><br>如图示，AQS维护了一个volatile int state和一个FIFO线程等待队列，多线程争用资源被阻塞的时候就会进入这个队列。state就是共享资源，其访问方式有如下三种：<br>getState();setState();compareAndSetState();</p>
+<p>AQS 定义了两种资源共享方式：<br>1.<strong>Exclusive</strong>：独占，只有一个线程能执行，如ReentrantLock<br>2.<strong>Share</strong>：共享，多个线程可以同时执行，如Semaphore、CountDownLatch、ReadWriteLock，CyclicBarrier</p>
+<p>不同的自定义的同步器争用共享资源的方式也不同。</p>
+<h2 id="AQS底层使用了模板方法模式"><a href="#AQS底层使用了模板方法模式" class="headerlink" title="AQS底层使用了模板方法模式"></a>AQS底层使用了模板方法模式</h2><p>同步器的设计是基于模板方法模式的，如果需要自定义同步器一般的方式是这样（模板方法模式很经典的一个应用）：</p>
+<ol>
+<li>使用者继承AbstractQueuedSynchronizer并重写指定的方法。（这些重写方法很简单，无非是对于共享资源state的获取和释放）</li>
+<li>将AQS组合在自定义同步组件的实现中，并调用其模板方法，而这些模板方法会调用使用者重写的方法。<br>这和我们以往通过实现接口的方式有很大区别，这是模板方法模式很经典的一个运用。</li>
+</ol>
+<p>自定义同步器在实现的时候只需要实现共享资源state的获取和释放方式即可，至于具体线程等待队列的维护，AQS已经在顶层实现好了。自定义同步器实现的时候主要实现下面几种方法：<br>isHeldExclusively()：该线程是否正在独占资源。只有用到condition才需要去实现它。<br>tryAcquire(int)：独占方式。尝试获取资源，成功则返回true，失败则返回false。<br>tryRelease(int)：独占方式。尝试释放资源，成功则返回true，失败则返回false。<br>tryAcquireShared(int)：共享方式。尝试获取资源。负数表示失败；0表示成功，但没有剩余可用资源；正数表示成功，且有剩余资源。<br>tryReleaseShared(int)：共享方式。尝试释放资源，如果释放后允许唤醒后续等待结点返回true，否则返回false。</p>
+<p>ReentrantLock为例，（可重入独占式锁）：state初始化为0，表示未锁定状态，A线程lock()时，会调用tryAcquire()独占锁并将state+1.之后其他线程再想tryAcquire的时候就会失败，直到A线程unlock（）到state&#x3D;0为止，其他线程才有机会获取该锁。A释放锁之前，自己也是可以重复获取此锁（state累加），这就是可重入的概念。<br>注意：获取多少次锁就要释放多少次锁，保证state是能回到零态的。</p>
+<p>以CountDownLatch为例，任务分N个子线程去执行，state就初始化 为N，N个线程并行执行，每个线程执行完之后countDown（）一次，state就会CAS减一。当N子线程全部执行完毕，state&#x3D;0，会unpark()主调用线程，主调用线程就会从await()函数返回，继续之后的动作。</p>
+<p>一般来说，自定义同步器要么是独占方法，要么是共享方式，他们也只需实现tryAcquire-tryRelease、tryAcquireShared-tryReleaseShared中的一种即可。但AQS也支持自定义同步器同时<strong>实现独占和共享两种方式，如ReentrantReadWriteLock。</strong><br>　在acquire() acquireShared()两种方式下，线程在等待队列中都是忽略中断的，<strong>acquireInterruptibly()&#x2F;acquireSharedInterruptibly()是支持响应中断</strong>的。</p>
+<p>参考文章:</p>
+<p>&lt;<a target="_blank" rel="noopener" href="https://blog.csdn.net/mulinsen77/article/details/84583716">https://blog.csdn.net/mulinsen77/article/details/84583716</a>&gt;</p>
+<h2 id=""><a href="#" class="headerlink" title=""></a></h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e62b3476c6d5d298fea3c3586494a9e_1737625751352.png" alt="在这里插入图片描述"></p>
+<h2 id="-1"><a href="#-1" class="headerlink" title=""></a></h2><p>java语言中有许多原生线程安全的数据结构，比如ArrayBlockingQueue、CopyOnWriteArrayList、LinkedBlockingQueue，它们线程安全的实现方式并非通过synchronized关键字，而是通过java.util.concurrent.locks.ReentrantLock来实现。<br>ReentrantLock的实现是基于其内部类FairSync(公平锁)和NonFairSync(非公平锁)实现的。 其可重入性是基于Thread.currentThread()实现的: 如果当前线程已经获得了执行序列中的锁， 那执行序列之后的所有方法都可以获得这个锁。</p>
+<p>公平锁：</p>
+<p>公平和非公平锁的队列都基于锁内部维护的一个双向链表，表结点Node的值就是每一个请求当前锁的线程。公平锁则在于每次都是依次从队首取值。<br>锁的实现方式是基于如下几点：<br>表结点Node和状态state的volatile关键字。<br>sum.misc.Unsafe.compareAndSet的原子操作(见附录)。</p>
+<p>非公平锁：</p>
+<p>在等待锁的过程中， 如果有任意新的线程妄图获取锁，都是有很大的几率直接获取到锁的。</p>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock锁都不会使得线程中断，除非开发者自己设置了中断位。</span><br><span class="line">ReentrantLock获取锁里面有看似自旋的代码，但是它不是自旋锁。</span><br><span class="line">ReentrantLock公平与非公平锁都是属于排它锁。</span><br></pre></td></tr></table></figure>
+
+<p>ReentrantLock的可重入性分析</p>
+<p>这里有一篇对锁介绍甚为详细的文章 <a target="_blank" rel="noopener" href="https://blog.csdn.net/u013256816/article/details/51204385">朱小厮的博客-Java中的锁.</a><br>synchronized的可重入性</p>
+<p>参考这篇文章： <a target="_blank" rel="noopener" href="https://blog.csdn.net/aigoogle/article/details/29893667">Java内置锁synchronized的可重入性</a></p>
+<p>java线程是基于“每线程（per-thread）”，而不是基于“每调用（per-invocation）”的（java中线程获得对象锁的操作是以每线程为粒度的，per-invocation互斥体获得对象锁的操作是以每调用作为粒度的）</p>
+<p>ReentrantLock的可重入性</p>
+<p>前言里面提到，ReentrantLock重入性是基于Thread.currentThread()实现的: 如果当前线程已经获得了锁， 那该线程下的所有方法都可以获得这个锁。ReentrantLock的锁依赖只有 NonfairSync和FairSync两个实现类， 他们的锁获取方式大同小异。</p>
+<figure class="highlight actionscript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">可重入性的实现基于下面代码片段的 <span class="keyword">else</span> <span class="keyword">if</span> 语句</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span> <span class="keyword">protected</span> <span class="keyword">final</span> <span class="function"><span class="keyword">boolean</span> <span class="title">tryAcquire</span><span class="params">(<span class="keyword">int</span> acquires)</span> </span>&#123; </span><br><span class="line"> <span class="number">2</span> <span class="keyword">final</span> Thread current = Thread.currentThread(); </span><br><span class="line"> <span class="number">3</span> <span class="keyword">int</span> c = getState(); </span><br><span class="line"> <span class="function">4 <span class="title">if</span> <span class="params">(c == <span class="number">0</span>)</span> </span>&#123;</span><br><span class="line"> <span class="number">5</span>  ... <span class="comment">// 尝试获取锁成功 </span></span><br><span class="line"> <span class="number">6</span> &#125; </span><br><span class="line"> <span class="number">7</span> <span class="keyword">else</span> <span class="keyword">if</span> (current == getExclusiveOwnerThread()) &#123; </span><br><span class="line"> <span class="number">8</span> <span class="comment">// 是当前线程，直接获取到锁。实现可重入性。</span></span><br><span class="line"> <span class="number">9</span>  <span class="keyword">int</span> nextc = c + acquires; </span><br><span class="line"><span class="number">10</span> <span class="keyword">if</span> (nextc &lt; <span class="number">0</span>) <span class="keyword">throw</span> <span class="keyword">new</span> Error(<span class="string">&quot;Maximum lock count exceeded&quot;</span>); setState(nextc); </span><br><span class="line"><span class="number">11</span> <span class="keyword">return</span> <span class="keyword">true</span>; </span><br><span class="line"><span class="number">12</span> &#125; </span><br><span class="line"><span class="number">13</span> <span class="keyword">return</span> <span class="keyword">false</span>; </span><br><span class="line"><span class="number">14</span> &#125;</span><br></pre></td></tr></table></figure>
+
+
+
+<p>此处有两个值需要关心：</p>
+<figure class="highlight pf"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span>  /**</span><br><span class="line"> <span class="number">2</span>      * The current owner of exclusive mode synchronization.</span><br><span class="line"> <span class="number">3</span>      * 持有该锁的当前线程</span><br><span class="line"> <span class="number">4</span>      */ private transient Thread exclusiveOwnerThread; -----------------两个值不在同一个类---------------- /**</span><br><span class="line"> <span class="number">5</span>      * The synchronization <span class="keyword">state</span>.</span><br><span class="line"> <span class="number">6</span>      * <span class="number">0</span>： 初始状态-无任何线程得到了锁</span><br><span class="line"> <span class="number">7</span>      * &gt; <span class="number">0</span>: 被线程持有， 具体值表示被当前线程持有的执行次数</span><br><span class="line"> <span class="number">8</span>      * </span><br><span class="line"> <span class="number">9</span>      * 这个字段在解锁的时候也需要用到。</span><br><span class="line"><span class="number">10</span>      * 注意这个字段的修饰词: volatile</span><br><span class="line"><span class="number">11</span>      */ private volatile int <span class="keyword">state</span>;</span><br></pre></td></tr></table></figure>
+
+<h1 id="ReentrantLock锁的实现分析"><a href="#ReentrantLock锁的实现分析" class="headerlink" title="ReentrantLock锁的实现分析"></a>ReentrantLock锁的实现分析</h1><h2 id="公平锁和非公平锁"><a href="#公平锁和非公平锁" class="headerlink" title="公平锁和非公平锁"></a>公平锁和非公平锁</h2><p><code>ReentrantLock</code> 的公平锁和非公平锁都委托了 <code>AbstractQueuedSynchronizer#acquire</code> 去请求获取。</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">1 </span>public final void acquire(<span class="keyword">int</span> arg) &#123; </span><br><span class="line"><span class="symbol">2 </span><span class="keyword">if</span> (!tryAcquire(arg) &amp;&amp; </span><br><span class="line"><span class="symbol">3 </span>    acquireQueued(addWaiter(Node.EXCLUSIVE), arg)) </span><br><span class="line"><span class="symbol">4 </span>    selfInterrupt(); </span><br><span class="line"><span class="symbol">5 </span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>tryAcquire 是一个抽象方法，是公平与非公平的实现原理所在。<br>addWaiter 是将当前线程结点加入等待队列之中。公平锁在锁释放后会严格按照等到队列去取后续值，而非公平锁在对于新晋线程有很大优势。<br>acquireQueued 在多次循环中尝试获取到锁或者将当前线程阻塞。<br>selfInterrupt 如果线程在阻塞期间发生了中断，调用 Thread.currentThread().interrupt() 中断当前线程。</p>
+<figure class="highlight axapta"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ReentrantLock 对线程的阻塞是基于 LockSupport.park(<span class="keyword">this</span>); (见 AbstractQueuedSynchronizer<span class="meta">#parkAndCheckInterrupt)。 先决条件是当前节点有限次尝试获取锁失败。</span></span><br></pre></td></tr></table></figure>
+
+<p>公平锁和非公平锁在说的获取上都使用到了 volatile 关键字修饰的state字段， 这是保证多线程环境下锁的获取与否的核心。<br>但是当并发情况下多个线程都读取到 state &#x3D;&#x3D; 0时，则必须用到CAS技术，一门CPU的原子锁技术，可通过CPU对共享变量加锁的形式，实现数据变更的原子操作。<br>volatile 和 CAS的结合是并发抢占的关键。</p>
+<h2 id="公平锁FairSync"><a href="#公平锁FairSync" class="headerlink" title="公平锁FairSync"></a>公平锁FairSync</h2><p>公平锁的实现机理在于每次有线程来抢占锁的时候，都会检查一遍有没有等待队列，如果有， 当前线程会执行如下步骤：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">1 </span><span class="keyword">if</span> (!hasQueuedPredecessors() &amp;&amp;</span><br><span class="line"><span class="symbol">2 </span>    compareAndSetState(<span class="number">0</span>, acquires)) &#123;</span><br><span class="line"><span class="symbol">3 </span>    setExclusiveOwnerThread(current);</span><br><span class="line"><span class="symbol">4 </span>    <span class="keyword">return</span> true;</span><br><span class="line"><span class="symbol">5 </span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>其中<code>hasQueuedPredecessors</code>是用于检查是否有等待队列的。</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">1 </span>public final boolean hasQueuedPredecessors() &#123; </span><br><span class="line"><span class="symbol">2 </span>    Node t = tail; // <span class="keyword">Read</span> fields in reverse initialization order </span><br><span class="line"><span class="symbol">3 </span>    Node h = head; </span><br><span class="line"><span class="symbol">4 </span>    Node s; </span><br><span class="line"><span class="symbol">5 </span>    <span class="keyword">return</span> h != t &amp;&amp; ((s = h.<span class="keyword">next</span>) == null || s.thread !=     </span><br><span class="line"><span class="symbol">6 </span>    Thread.currentThread()); </span><br><span class="line"><span class="symbol">7 </span>&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="非公平锁NonfairSync"><a href="#非公平锁NonfairSync" class="headerlink" title="非公平锁NonfairSync"></a>非公平锁NonfairSync</h2><p>非公平锁在实现的时候多次强调随机抢占：</p>
+<figure class="highlight basic"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="symbol">1 </span><span class="keyword">if</span> (c == <span class="number">0</span>) &#123;</span><br><span class="line"><span class="symbol">2 </span>    <span class="keyword">if</span> (compareAndSetState(<span class="number">0</span>, acquires)) &#123;</span><br><span class="line"><span class="symbol">3 </span>        setExclusiveOwnerThread(current);</span><br><span class="line"><span class="symbol">4 </span>        <span class="keyword">return</span> true;</span><br><span class="line"><span class="symbol">5 </span>    &#125;</span><br><span class="line"><span class="symbol">6 </span>&#125;</span><br></pre></td></tr></table></figure>
+
+<p>与公平锁的区别在于新晋获取锁的进程会有多次机会去抢占锁。如果被加入了等待队列后则跟公平锁没有区别。<br>ReentrantLock锁的释放</p>
+<p>ReentrantLock锁的释放是逐级释放的，也就是说在 可重入性 场景中，必须要等到场景内所有的加锁的方法都释放了锁， 当前线程持有的锁才会被释放！<br>释放的方式很简单， state字段减一即可：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span> <span class="keyword">protected</span> <span class="keyword">final</span> <span class="function"><span class="keyword">boolean</span> <span class="title">tryRelease</span><span class="params">(<span class="keyword">int</span> releases)</span> </span>&#123; </span><br><span class="line"> <span class="number">2</span> <span class="comment">//  releases = 1 int c = getState() - releases; </span></span><br><span class="line"> <span class="number">3</span> <span class="keyword">if</span> (Thread.currentThread() != getExclusiveOwnerThread()) <span class="keyword">throw</span> <span class="keyword">new</span> IllegalMonitorStateException(); </span><br><span class="line"> <span class="number">4</span>     <span class="keyword">boolean</span> free = <span class="keyword">false</span>;</span><br><span class="line"> <span class="function">5        <span class="title">if</span> <span class="params">(c == <span class="number">0</span>)</span> </span>&#123;</span><br><span class="line"> <span class="number">6</span>        free = <span class="keyword">true</span>; </span><br><span class="line"> <span class="function">7        <span class="title">setExclusiveOwnerThread</span><span class="params">(<span class="keyword">null</span>)</span></span>;</span><br><span class="line"> <span class="number">8</span>     &#125; </span><br><span class="line"> <span class="function">9     <span class="title">setState</span><span class="params">(c)</span></span>; </span><br><span class="line"><span class="number">10</span>     <span class="keyword">return</span> free; </span><br><span class="line"><span class="number">11</span> &#125;</span><br></pre></td></tr></table></figure>
+
+
+<h2 id="ReentrantLock等待队列中元素的唤醒"><a href="#ReentrantLock等待队列中元素的唤醒" class="headerlink" title="ReentrantLock等待队列中元素的唤醒"></a>ReentrantLock等待队列中元素的唤醒</h2><p>当当前拥有锁的线程释放锁之后， 且非公平锁无线程抢占，就开始线程唤醒的流程。<br>通过<code>tryRelease</code>释放锁成功，调用<code>LockSupport.unpark(s.thread);</code> 终止线程阻塞。<br>见代码：</p>
+<figure class="highlight aspectj"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"> <span class="number">1</span>     <span class="keyword">private</span> <span class="function"><span class="keyword">void</span> <span class="title">unparkSuccessor</span><span class="params">(Node node)</span> </span>&#123; </span><br><span class="line"> <span class="number">2</span>         <span class="comment">// 强行回写将被唤醒线程的状态 </span></span><br><span class="line"> <span class="number">3</span>         <span class="keyword">int</span> ws = node.waitStatus; </span><br><span class="line"> <span class="number">4</span>         <span class="keyword">if</span> (ws &lt; <span class="number">0</span>) </span><br><span class="line"> <span class="function">5             <span class="title">compareAndSetWaitStatus</span><span class="params">(node, ws, <span class="number">0</span>)</span></span>; </span><br><span class="line"> <span class="number">6</span>         Node s = node.next; </span><br><span class="line"> <span class="number">7</span>         <span class="comment">// s为h的下一个Node, 一般情况下都是非Null的 </span></span><br><span class="line"> <span class="function">8         <span class="title">if</span> <span class="params">(s == <span class="keyword">null</span> || s.waitStatus &gt; <span class="number">0</span>)</span> </span>&#123; </span><br><span class="line"> <span class="number">9</span>             s = <span class="keyword">null</span>; </span><br><span class="line"><span class="number">10</span>             <span class="comment">// 否则按照FIFO原则寻找最先入队列的并且没有被Cancel的Node </span></span><br><span class="line"><span class="function">11             <span class="title">for</span> <span class="params">(Node t = tail; t != <span class="keyword">null</span> &amp;&amp; t != node; t = t.prev)</span></span>&#123; </span><br><span class="line"><span class="number">12</span>                 <span class="keyword">if</span> (t.waitStatus &lt;= <span class="number">0</span>)</span><br><span class="line"><span class="number">13</span>                     s = t; </span><br><span class="line"><span class="number">14</span>                 <span class="comment">// 再唤醒它 </span></span><br><span class="line"><span class="number">15</span>                 <span class="keyword">if</span> (s != <span class="keyword">null</span>)</span><br><span class="line"><span class="function">16                     LockSupport.<span class="title">unpark</span><span class="params">(s.thread)</span></span>; </span><br><span class="line"><span class="number">17</span>             &#125;</span><br><span class="line"><span class="number">18</span>         &#125;</span><br><span class="line"><span class="number">19</span>     &#125;</span><br></pre></td></tr></table></figure>
+
+<p>参考文章:&lt;<a target="_blank" rel="noopener" href="https://www.cnblogs.com/little-fly/p/10365109.html">https://www.cnblogs.com/little-fly/p/10365109.html</a>&gt;</p>
+<h1 id="锁降级、锁升级"><a href="#锁降级、锁升级" class="headerlink" title="锁降级、锁升级"></a>锁降级、锁升级</h1><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ba77fc1bd883ad67900b164bac1df69a_1737625751352.png" alt="在这里插入图片描述"></p>
+<p>锁降级指的是写锁降级成为读锁。如果当前线程拥有写锁，然后将其释放，最后再获取读锁，这种分段完成的过程不能称之为锁降级。锁降级是指把持住（当前拥有的）写锁，再获取到读锁，随后释放（先前拥有的）写锁的过程。</p>
+<p>接下来看一个锁降级的示例。因为数据不常变化，所以多个线程可以并发地进行数据处<br>理，当数据变更后，如果当前线程感知到数据变化，则进行数据的准备工作，同时其他处理线程被阻塞，直到当前线程完成数据的准备工作，如代码清单5-19所示。<br>代码清单5-19　processData方法</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">processData</span>()</span> &#123;</span><br><span class="line">readLock.<span class="keyword">lock</span>();</span><br><span class="line"><span class="keyword">if</span> (!update) &#123;</span><br><span class="line">   	 <span class="comment">// 必须先释放读锁</span></span><br><span class="line">    readLock.unlock();</span><br><span class="line">    <span class="comment">// 锁降级从写锁获取到开始</span></span><br><span class="line">    writeLock.<span class="keyword">lock</span>();</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">    <span class="keyword">if</span> (!update) &#123;</span><br><span class="line">        <span class="comment">// 准备数据的流程（略）</span></span><br><span class="line">        update = <span class="literal">true</span>;</span><br><span class="line">    &#125;</span><br><span class="line">    readLock.<span class="keyword">lock</span>();</span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">    	writeLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">// 锁降级完成，写锁降级为读锁</span></span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">    	<span class="comment">// 使用数据的流程（略）</span></span><br><span class="line">    &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">   	 readLock.unlock();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>上述示例中，当数据发生变更后，update变量（布尔类型且volatile修饰）被设置为false，此时所有访问processData()方法的线程都能够感知到变化，但只有一个线程能够获取到写锁，其他线程会被阻塞在读锁和写锁的lock()方法上。当前线程获取写锁完成数据准备之后，再获取<br>读锁，随后释放写锁，完成锁降级。<br>锁降级中读锁的获取是否必要呢？答案是必要的。主要是为了保证数据的可见性，如果当前线程不获取读锁而是直接释放写锁，假设此刻另一个线程（记作线程T）获取了写锁并修改了数据，那么当前线程无法感知线程T的数据更新。如果当前线程获取读锁，即遵循锁降级的步骤，则线程T将会被阻塞，直到当前线程使用数据并释放读锁之后，线程T才能获取写锁进行数据更新。<br>RentrantReadWriteLock不支持锁升级（把持读锁、获取写锁，最后释放读锁的过程）。目的也是保证数据可见性，如果读锁已被多个线程获取，其中任意线程成功获取了写锁并更新了数据，则其更新对其他获取到读锁的线程是不可见的。</p>
+<h1 id="线程安全性问题总结"><a href="#线程安全性问题总结" class="headerlink" title="线程安全性问题总结"></a>线程安全性问题总结</h1><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6798568f789744086d7c8a49933f7cb5_1737625751352.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a4f1c2adf6724fbc3c3fde8c2f2d4be_1737625751352.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/01/29/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(10%EF%BC%89--AQS%20%E5%92%8C%E5%85%AC%E5%B9%B3%E9%94%81%E5%88%86%E6%9E%90/" title="java并发原理实战(10）--AQS 和公平锁分析">https://hufanglei.github.io/2020/01/29/java并发原理实战(10）--AQS 和公平锁分析/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/01/27/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(9)--%E6%89%8B%E5%8A%A8%E5%AE%9E%E7%8E%B0%E4%B8%80%E4%B8%AA%E5%8F%AF%E9%87%8D%E5%85%A5%E9%94%81/" rel="prev" title="java并发原理实战(9)--手动实现一个可重入锁">
+                  <i class="fa fa-angle-left"></i> java并发原理实战(9)--手动实现一个可重入锁
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/02/02/java%E5%B9%B6%E5%8F%91%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(11)--%E7%BA%BF%E7%A8%8B%E9%97%B4%E9%80%9A%E4%BF%A1/" rel="next" title="java并发原理实战(11)--线程间通信">
+                  java并发原理实战(11)--线程间通信 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[TOC] 目录本篇文章主要讨论enable前缀的注解的使用方法和实现原理：主要内容如下: 一、前言在springboot中很多enable开头的注解，如@EnableConfigurationProperties,@EnableAsync等，这些注解的作用就是：启动一个新特性，现在演示2个例子。 二、作用和案例1.@EnableConfigurationProperties入口函数上的注解">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="springboot原理实战(8)--enable前缀注解之开启特性的原理和案例">
+<meta property="og:url" content="https://hufanglei.github.io/2020/03/12/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(8)--enable%E5%89%8D%E7%BC%80%E6%B3%A8%E8%A7%A3%E4%B9%8B%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%A1%88%E4%BE%8B/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[TOC] 目录本篇文章主要讨论enable前缀的注解的使用方法和实现原理：主要内容如下: 一、前言在springboot中很多enable开头的注解，如@EnableConfigurationProperties,@EnableAsync等，这些注解的作用就是：启动一个新特性，现在演示2个例子。 二、作用和案例1.@EnableConfigurationProperties入口函数上的注解">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14aad8f536e5b41baa597058f0c60d51_1737625217523.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c468a10b8c0edfca2f6f8e9b3d8649c3_1737625227967.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/65e59a4a21d6b6e2a0a1caedd3fe29ec_1737625227967.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7442f8e5d677fc99152959cc658c9f8e_1737625227967.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/efd1047c4eb1d786995ba0d9bc136d20_1737625227967.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/274f1a0345b7598502aa67b1040e2046_1737625227968.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c754116968fe6972b514c5f9c6b35d8b_1737625237013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/46af17e80e7d3af8a786a7e3a95d8c07_1737625237013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/29710eb6b8956895f8c183d82350d8af_1737625237013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1d1b7714f3f7a5ee7314d4f15d14d879_1737625237013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5fe8c365aa93f211ee84ef6fa8195432_1737625237013.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3a90c1a7deea605190f84341236a61a8_1737625249268.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/60b8cb5e82f07e7dd9a11fef6151c5be_1737625249268.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14de6e8b346a1313c61eced7cba9d760_1737625249268.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/21b39684f507fdfe8f7bb4c71d083ef2_1737625249268.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e8ae4cc1c406f701edce70e49e5b0481_1737625249268.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c1d99d86e93a3037671487ceeca9c9b6_1737625261136.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/95e9728057b28aa0d306048148c9b933_1737625261136.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0fd8c1a3ce1780507d59ab854a4b3b07_1737625261136.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e7aaf4a6579a72de8d5c363a8dc82c02_1737625261136.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a0c8c9bb695bae0016871294bc2178f_1737631713820.png">
+<meta property="article:published_time" content="2020-03-12T13:33:45.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="spring boot">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14aad8f536e5b41baa597058f0c60d51_1737625217523.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/03/12/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(8)--enable%E5%89%8D%E7%BC%80%E6%B3%A8%E8%A7%A3%E4%B9%8B%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%A1%88%E4%BE%8B/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/03/12/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(8)--enable%E5%89%8D%E7%BC%80%E6%B3%A8%E8%A7%A3%E4%B9%8B%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%A1%88%E4%BE%8B/","path":"2020/03/12/springboot原理实战(8)--enable前缀注解之开启特性的原理和案例/","title":"springboot原理实战(8)--enable前缀注解之开启特性的原理和案例"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>springboot原理实战(8)--enable前缀注解之开启特性的原理和案例 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%89%8D%E8%A8%80"><span class="nav-text">一、前言</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E4%BD%9C%E7%94%A8%E5%92%8C%E6%A1%88%E4%BE%8B"><span class="nav-text">二、作用和案例</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-EnableConfigurationProperties"><span class="nav-text">1.@EnableConfigurationProperties</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-EnableAync%E5%AE%9E%E7%8E%B0%E5%BC%82%E6%AD%A5%E6%96%B9%E6%B3%95"><span class="nav-text">2.@EnableAync实现异步方法</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%89%E3%80%81enable-%E7%AD%89%E6%B3%A8%E8%A7%A3%E8%83%BD%E5%A4%9F%E5%AE%9E%E7%8E%B0%E7%9A%84%E5%8E%9F%E7%90%86"><span class="nav-text">三、enable*等注解能够实现的原理</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E4%BD%BF%E7%94%A8import%E5%AF%BC%E5%85%A5%E4%B8%80%E4%B8%AAbean%E6%88%96%E8%80%85%E9%85%8D%E7%BD%AEbean"><span class="nav-text">1.使用import导入一个bean或者配置bean</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E4%BD%BF%E7%94%A8-import%E5%AF%BC%E5%85%A5%E4%B8%80%E4%B8%AAbean%E5%89%8D%E5%8A%A0%E7%82%B9%E8%87%AA%E5%B7%B1%E7%9A%84%E9%80%BB%E8%BE%91"><span class="nav-text">2.使用@import导入一个bean前加点自己的逻辑</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A0-%E5%AE%9E%E7%8E%B0%E4%BA%86ImportBeanDefinitionRegistrar%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-text">①.实现了ImportBeanDefinitionRegistrar接口的处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A1-%E5%AE%9E%E7%8E%B0%E4%BA%86ImportSelector%E6%8E%A5%E5%8F%A3%E7%9A%84%E5%A4%84%E7%90%86%E5%99%A8"><span class="nav-text">②.实现了ImportSelector接口的处理器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E2%91%A2%E6%A1%88%E4%BE%8B%EF%BC%9A"><span class="nav-text">③案例：</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#a-%E5%AE%9E%E7%8E%B0ImportSelector%E5%AF%BC%E5%85%A5%E7%B1%BB%E5%B9%B6%E5%9C%A8%E5%AF%BC%E5%85%A5%E7%B1%BB%E6%97%B6%E4%B8%80%E7%82%B9%E9%80%BB%E8%BE%91"><span class="nav-text">a.实现ImportSelector导入类并在导入类时一点逻辑</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#b-%E5%AE%9E%E7%8E%B0ImportBeanDefinitionRegistrar%E5%AF%BC%E5%85%A5%E7%B1%BB"><span class="nav-text">b.实现ImportBeanDefinitionRegistrar导入类</span></a></li></ol></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%9B%9B%E3%80%81%E6%89%8B%E5%8A%A8%E5%AE%9E%E7%8E%B0%E4%B8%AAenable-%E6%B3%A8%E8%A7%A3%E6%A1%88%E4%BE%8B"><span class="nav-text">四、手动实现个enable*注解案例</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/03/12/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(8)--enable%E5%89%8D%E7%BC%80%E6%B3%A8%E8%A7%A3%E4%B9%8B%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%A1%88%E4%BE%8B/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="springboot原理实战(8)--enable前缀注解之开启特性的原理和案例 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          springboot原理实战(8)--enable前缀注解之开启特性的原理和案例
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-03-12 21:33:45" itemprop="dateCreated datePublished" datetime="2020-03-12T21:33:45+08:00">2020-03-12</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/spring%E5%AE%B6%E6%97%8F/" itemprop="url" rel="index"><span itemprop="name">spring家族</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>11k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>10 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p>本篇文章主要讨论enable前缀的注解的使用方法和实现原理：<br>主要内容如下:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14aad8f536e5b41baa597058f0c60d51_1737625217523.png" alt="在这里插入图片描述"></p>
+<h1 id="一、前言"><a href="#一、前言" class="headerlink" title="一、前言"></a>一、前言</h1><p>在springboot中很多enable开头的注解，如<code>@EnableConfigurationProperties</code>,<code>@EnableAsync</code>等，这些注解的作用就是：启动一个新特性，现在演示2个例子。</p>
+<h1 id="二、作用和案例"><a href="#二、作用和案例" class="headerlink" title="二、作用和案例"></a>二、作用和案例</h1><h2 id="1-EnableConfigurationProperties"><a href="#1-EnableConfigurationProperties" class="headerlink" title="1.@EnableConfigurationProperties"></a>1.@EnableConfigurationProperties</h2><p>入口函数上的注解，默认使用的是<code>@SpringBootConfiguration</code>,其实我们也可以使用<code>@EnableAutoConfiguration  + @ComponentScan</code>,甚至是<code>@EnableConfigurationProperties +@ComponentScan</code>来注入bean，详细我们可以举个例子，看下:<br>application.properties</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">tomcat.host=192.168.157.1</span><br><span class="line">tomcat.port=8080</span><br></pre></td></tr></table></figure>
+<p>TomcatProperties 配置类</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootConfiguration</span></span><br><span class="line"><span class="meta">@ConfigurationProperties(prefix = &quot;tomcat&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">TomcatProperties</span> &#123;</span><br><span class="line">    <span class="keyword">private</span> String host;</span><br><span class="line">    <span class="keyword">private</span> Integer port;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">toString</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> <span class="string">&quot;TomcatProperties&#123;&quot;</span> +</span><br><span class="line">                <span class="string">&quot;tomcat.host=&#x27;&quot;</span> + host + <span class="string">&#x27;\&#x27;&#x27;</span> +</span><br><span class="line">                <span class="string">&quot;, tomcat.port=&quot;</span> + port +</span><br><span class="line">                <span class="string">&#x27;&#125;&#x27;</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> String <span class="title function_">getHost</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> host;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setHost</span><span class="params">(String host)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.host = host;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> Integer <span class="title function_">getPort</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> port;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPort</span><span class="params">(Integer port)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.port = port;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo5Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//案例1;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(Demo5Application.class, args);</span><br><span class="line">        System.out.println(context.getBean(TomcatProperties.class));</span><br><span class="line">        context.close();</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c468a10b8c0edfca2f6f8e9b3d8649c3_1737625227967.png" alt="在这里插入图片描述"><br>改变1：@SpringBootApplication改成 @ComponentScan和@EnableAutoConfiguration看下效果:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableAutoConfiguration</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo5Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//案例1;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(Demo5Application.class, args);</span><br><span class="line">        System.out.println(context.getBean(TomcatProperties.class));</span><br><span class="line">        context.close();        </span><br><span class="line">    &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果：也可以注入进来配置文件的属性！<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/65e59a4a21d6b6e2a0a1caedd3fe29ec_1737625227967.png" alt="在这里插入图片描述"><br>改变2：上面的注解再次把@EnableAutoConfiguration换成@EnableConfigurationProperties</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@EnableConfigurationProperties</span></span><br><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo5Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="comment">//案例1;</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(Demo5Application.class, args);</span><br><span class="line">        System.out.println(context.getBean(TomcatProperties.class));</span><br><span class="line">        context.close();</span><br><span class="line">     &#125;  </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>再次运行：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7442f8e5d677fc99152959cc658c9f8e_1737625227967.png" alt="在这里插入图片描述"><br>结果显示都可以将属性注入进来，说明一个问题，上面的注解都可以把<code>TomcatProperties</code>这样的配置类对应的配置属性注入进来。<br>这几个注解都具有这个特性：可以把配置文件的属性注入到bean里面去。<br>注意的是：需要配合配置类上的<code>@ConfigurationProperties</code>使用。</p>
+<h2 id="2-EnableAync实现异步方法"><a href="#2-EnableAync实现异步方法" class="headerlink" title="2.@EnableAync实现异步方法"></a>2.@EnableAync实现异步方法</h2><p>@EnableAsync 作用: 启用异步方法，一般是和@Async一起使用.<br>举例说明:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Jeep</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;======&quot;</span> + i);</span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo5Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(Demo5Application.class, args);</span><br><span class="line">        context.getBean(Runnable.class).run();</span><br><span class="line">        System.out.println(<span class="string">&quot;-------end-------------&quot;</span>);</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/efd1047c4eb1d786995ba0d9bc136d20_1737625227967.png" alt="在这里插入图片描述"><br>打印的end是main里面的方法说明是同步执行的，我们来修改下代码:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Jeep</span> <span class="keyword">implements</span> <span class="title class_">Runnable</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Async</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">run</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="keyword">for</span> (<span class="type">int</span> <span class="variable">i</span> <span class="operator">=</span> <span class="number">1</span>; i &lt;= <span class="number">10</span>; i++) &#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;======&quot;</span> + i);</span><br><span class="line">                TimeUnit.SECONDS.sleep(<span class="number">1</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">            e.printStackTrace();</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@EnableAsync</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Demo5Application</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(Demo5Application.class, args);</span><br><span class="line">        context.getBean(Runnable.class).run();</span><br><span class="line">        System.out.println(<span class="string">&quot;-------end-------------&quot;</span>);</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>运行结果，先执行了main，方法，然后慢慢执行，说明是异步执行的。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/274f1a0345b7598502aa67b1040e2046_1737625227968.png" alt="在这里插入图片描述"><br>enable*等注解既然这么好用，那么是如何实现的呢?接着分析:</p>
+<h1 id="三、enable-等注解能够实现的原理"><a href="#三、enable-等注解能够实现的原理" class="headerlink" title="三、enable*等注解能够实现的原理"></a>三、enable*等注解能够实现的原理</h1><p>我们看下@EnableAsync。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c754116968fe6972b514c5f9c6b35d8b_1737625237013.png" alt="在这里插入图片描述"><br>发现有个@Import注解。<br>@EnableConfigurationProperties注解：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/46af17e80e7d3af8a786a7e3a95d8c07_1737625237013.png" alt="在这里插入图片描述"><br>也有个注解@Import。<br>再看下@Import，有个value属性，可以指定多个类或者配置类<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/29710eb6b8956895f8c183d82350d8af_1737625237013.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1d1b7714f3f7a5ee7314d4f15d14d879_1737625237013.png" alt="在这里插入图片描述"><br>也就是说明：能够自动启用的原因和这个<code>@Import的注解</code>和<code>它里面的value属性</code>有关。<br>@Import的注解可以导入某个bean（在value属性中指定）或配置类（在value属性中指定)到容器中，而且value属性指定的类有某些特定的功能，我们只要用@import导入就可了。</p>
+<h2 id="1-使用import导入一个bean或者配置bean"><a href="#1-使用import导入一个bean或者配置bean" class="headerlink" title="1.使用import导入一个bean或者配置bean"></a>1.使用import导入一个bean或者配置bean</h2><p>我们就试试这个import的能不能帮我们导入一个bean或者配置类：<br>首先定义2个bean和一个配置bean，都没加@Component:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">User</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Role</span> &#123;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyConfiguration</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> Runnable <span class="title function_">createRunnable</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> () -&gt; &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Bean</span></span><br><span class="line">    <span class="keyword">public</span> Runnable <span class="title function_">createRunnable2</span><span class="params">()</span>&#123;</span><br><span class="line">        <span class="keyword">return</span> () -&gt; &#123;&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>入口中导入这3个bean：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@Import(&#123;User.class, Role.class, MyConfiguration.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">App</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(App.class, args);</span><br><span class="line">        System.out.println(context.getBean(User.class));</span><br><span class="line">        System.out.println(context.getBean(Role.class));</span><br><span class="line">        System.out.println(context.getBeansOfType(Runnable.class));</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>看下执行结果：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5fe8c365aa93f211ee84ef6fa8195432_1737625237013.png" alt="在这里插入图片描述"><br>全部打印出来了，说明import已经帮我们注入了。</p>
+<h2 id="2-使用-import导入一个bean前加点自己的逻辑"><a href="#2-使用-import导入一个bean前加点自己的逻辑" class="headerlink" title="2.使用@import导入一个bean前加点自己的逻辑"></a>2.使用@import导入一个bean前加点自己的逻辑</h2><p>刚才我们实践了import导入类了，再进一步考虑下，能不能在导入类前加入自己的逻辑，以前学过直接实现beanDefination等接口，可是这样的话会影响所有的bean。能不能缩小点范围，只影响我们需要导入的类呢？<br>可以的。<code>思路就是可以定义一个注解，在需要加载的bean上添加注解就可以过滤了。</code><br>注解里面用@import导入一些加载bean的处理器，在处理器方法中进行我们自己的逻辑。<br>这里提到了2点:一个是注解，注解就是我们之前用的enable前缀作为开头的注解。一个处理器。我们看下springboot源码中:<br>有2类：</p>
+<h3 id="①-实现了ImportBeanDefinitionRegistrar接口的处理器"><a href="#①-实现了ImportBeanDefinitionRegistrar接口的处理器" class="headerlink" title="①.实现了ImportBeanDefinitionRegistrar接口的处理器"></a>①.实现了ImportBeanDefinitionRegistrar接口的处理器</h3><ul>
+<li>看下@EnableConfigurationProperties注解<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3a90c1a7deea605190f84341236a61a8_1737625249268.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/60b8cb5e82f07e7dd9a11fef6151c5be_1737625249268.png" alt="在这里插入图片描述"></li>
+</ul>
+<h3 id="②-实现了ImportSelector接口的处理器"><a href="#②-实现了ImportSelector接口的处理器" class="headerlink" title="②.实现了ImportSelector接口的处理器"></a>②.实现了ImportSelector接口的处理器</h3><p>看下:@EnableAsync<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14de6e8b346a1313c61eced7cba9d760_1737625249268.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/21b39684f507fdfe8f7bb4c71d083ef2_1737625249268.png" alt="在这里插入图片描述"><br>主要是利用importSelector的selectImports方法:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e8ae4cc1c406f701edce70e49e5b0481_1737625249268.png" alt="在这里插入图片描述"></p>
+<h3 id="③案例："><a href="#③案例：" class="headerlink" title="③案例："></a>③案例：</h3><p>知道了这两类接口的原理。我们来几个案例：</p>
+<h4 id="a-实现ImportSelector导入类并在导入类时一点逻辑"><a href="#a-实现ImportSelector导入类并在导入类时一点逻辑" class="headerlink" title="a.实现ImportSelector导入类并在导入类时一点逻辑"></a>a.实现ImportSelector导入类并在导入类时一点逻辑</h4><p>MyImportSelector<br><code>selectImports方法的返回值，必须是一个class（全称），该class会被spring容器所托管起来</code></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//selectImports方法的返回值，必须是一个class（全称），该class会被spring容器所托管起来</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyImportSelector</span> <span class="keyword">implements</span> <span class="title class_">ImportSelector</span> &#123;</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> String[] selectImports(AnnotationMetadata importingClassMetadata) &#123;</span><br><span class="line">        System.out.println(importingClassMetadata.getAnnotationAttributes(EnableLog.class.getName()));</span><br><span class="line">        <span class="comment">/**</span></span><br><span class="line"><span class="comment">         * 这里可以获取直接的详细信息，然后根据信息去动态的返回需要被Spring容器管理的bean</span></span><br><span class="line"><span class="comment">         */</span></span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">String</span>[]&#123;<span class="string">&quot;com.springboot.demo5.User&quot;</span>,Role.class.getName(),MyConfiguration.class.getName()&#125;;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>这个处理器，加入了3个类，并在这3个类注入的时候加点逻辑。<br>自定义注解@EnableLog</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import(&#123;MyImportSelector.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableLog &#123;</span><br><span class="line">    String <span class="title function_">name</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>测试入口类:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@EnableLog(name=&quot;my springboot&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">App2</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(App2.class, args);</span><br><span class="line">        System.out.println(context.getBean(User.class));</span><br><span class="line">        System.out.println(context.getBean(Role.class));</span><br><span class="line">        System.out.println(context.getBeansOfType(Runnable.class));</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到通过@EnableLog注解，我们注入了bean，并且打印了我们添加的业务代码：</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c1d99d86e93a3037671487ceeca9c9b6_1737625261136.png" alt="在这里插入图片描述"></p>
+<h4 id="b-实现ImportBeanDefinitionRegistrar导入类"><a href="#b-实现ImportBeanDefinitionRegistrar导入类" class="headerlink" title="b.实现ImportBeanDefinitionRegistrar导入类"></a>b.实现ImportBeanDefinitionRegistrar导入类</h4><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * registerBeanDefinitions方法的参数有一个BeanDefinitionRegistry，</span></span><br><span class="line"><span class="comment"> * BeanDefinitionRegistry 可以用来往spring容器中注入bean</span></span><br><span class="line"><span class="comment"> * 如此，我们就可以在registerBeanDefinitions方法里面动态的注入bean</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MyImportBeanDefinitionRegister</span> <span class="keyword">implements</span> <span class="title class_">ImportBeanDefinitionRegistrar</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> &#123;</span><br><span class="line">        <span class="type">BeanDefinitionBuilder</span> <span class="variable">bdb</span> <span class="operator">=</span> BeanDefinitionBuilder.rootBeanDefinition(User.class);</span><br><span class="line">        registry.registerBeanDefinition(<span class="string">&quot;user&quot;</span>, bdb.getBeanDefinition());</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanDefinitionBuilder</span> <span class="variable">bdb2</span> <span class="operator">=</span> BeanDefinitionBuilder.rootBeanDefinition(Role.class);</span><br><span class="line">        registry.registerBeanDefinition(<span class="string">&quot;role&quot;</span>,  bdb2.getBeanDefinition());</span><br><span class="line"></span><br><span class="line">        <span class="type">BeanDefinitionBuilder</span> <span class="variable">bdb3</span> <span class="operator">=</span> BeanDefinitionBuilder.rootBeanDefinition(MyConfiguration.class);</span><br><span class="line">        registry.registerBeanDefinition(MyConfiguration.class.getName(),  bdb3.getBeanDefinition());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import(&#123;MyImportBeanDefinitionRegister.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableLog &#123;</span><br><span class="line">    String <span class="title function_">name</span><span class="params">()</span> <span class="keyword">default</span> <span class="string">&quot;&quot;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>测试下：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@EnableLog(name=&quot;my springboot&quot;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">App2</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(App2.class, args);</span><br><span class="line">        System.out.println(context.getBean(User.class));</span><br><span class="line">        System.out.println(context.getBean(Role.class));</span><br><span class="line">        System.out.println(context.getBeansOfType(Runnable.class));</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>看下结果，同样注入了bean:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/95e9728057b28aa0d306048148c9b933_1737625261136.png" alt="在这里插入图片描述"></p>
+<h1 id="四、手动实现个enable-注解案例"><a href="#四、手动实现个enable-注解案例" class="headerlink" title="四、手动实现个enable*注解案例"></a>四、手动实现个enable*注解案例</h1><p>案例:我们手动实现个注解，主要在某个包下，我们就打印包下的所有类的权限定名：<br>准备2个包，和2个bean<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0fd8c1a3ce1780507d59ab854a4b3b07_1737625261136.png" alt="在这里插入图片描述"></p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Cat</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Component</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">Dog</span> &#123;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>EchoImportBeanDefinitionRegistrar</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.support.BeanDefinitionBuilder;</span><br><span class="line"><span class="keyword">import</span> org.springframework.beans.factory.support.BeanDefinitionRegistry;</span><br><span class="line"><span class="keyword">import</span> org.springframework.context.annotation.ImportBeanDefinitionRegistrar;</span><br><span class="line"><span class="keyword">import</span> org.springframework.core.type.AnnotationMetadata;</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> java.util.Arrays;</span><br><span class="line"><span class="keyword">import</span> java.util.List;</span><br><span class="line"><span class="keyword">import</span> java.util.Map;</span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EchoImportBeanDefinitionRegistrar</span> <span class="keyword">implements</span> <span class="title class_">ImportBeanDefinitionRegistrar</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">registerBeanDefinitions</span><span class="params">(AnnotationMetadata importingClassMetadata, BeanDefinitionRegistry registry)</span> &#123;</span><br><span class="line">        Map&lt;String, Object&gt; attr = importingClassMetadata.getAnnotationAttributes(EnableEcho.class.getName());</span><br><span class="line">        String[] packAttr = (String[]) attr.get(<span class="string">&quot;packages&quot;</span>);</span><br><span class="line">        List&lt;String&gt; packages = Arrays.asList(packAttr);</span><br><span class="line">        System.out.println(<span class="string">&quot;packages: &quot;</span>+ packages);</span><br><span class="line">        <span class="type">BeanDefinitionBuilder</span> <span class="variable">bdb</span> <span class="operator">=</span> BeanDefinitionBuilder.rootBeanDefinition(EchoBeanPostProcessor.class);</span><br><span class="line">        bdb.addPropertyValue(<span class="string">&quot;packages&quot;</span>,packages);</span><br><span class="line">        registry.registerBeanDefinition(EchoBeanPostProcessor.class.getName(), bdb.getBeanDefinition());</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>EchoBeanPostProcessor</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">EchoBeanPostProcessor</span> <span class="keyword">implements</span> <span class="title class_">BeanPostProcessor</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> List&lt;String&gt; packages;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">postProcessBeforeInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        <span class="keyword">for</span> (String pack: packages)&#123;</span><br><span class="line">            <span class="keyword">if</span> (bean.getClass().getName().startsWith(pack))&#123;</span><br><span class="line">                System.out.println(<span class="string">&quot;echo bean : &quot;</span> + bean.getClass().getName());</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> Object <span class="title function_">postProcessAfterInitialization</span><span class="params">(Object bean, String beanName)</span> <span class="keyword">throws</span> BeansException &#123;</span><br><span class="line">        <span class="keyword">return</span> bean;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> List&lt;String&gt; <span class="title function_">getPackages</span><span class="params">()</span> &#123;</span><br><span class="line">        <span class="keyword">return</span> packages;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">setPackages</span><span class="params">(List&lt;String&gt; packages)</span> &#123;</span><br><span class="line">        <span class="built_in">this</span>.packages = packages;</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>@EnableEcho</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@Retention(RetentionPolicy.RUNTIME)</span></span><br><span class="line"><span class="meta">@Target(ElementType.TYPE)</span></span><br><span class="line"><span class="meta">@Documented</span></span><br><span class="line"><span class="meta">@Import(&#123;EchoImportBeanDefinitionRegistrar.class&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="meta">@interface</span> EnableEcho &#123;</span><br><span class="line">    String[] packages() ;</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>测试：</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@ComponentScan</span></span><br><span class="line"><span class="meta">@EnableLog(name=&quot;my springboot&quot;)</span></span><br><span class="line"><span class="meta">@EnableEcho(packages = &#123;&quot;com.springboot.demo5.bean&quot;,&quot;com.springboot.demo5.vo&quot;&#125;)</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">App3</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">        <span class="type">ConfigurableApplicationContext</span> <span class="variable">context</span> <span class="operator">=</span> SpringApplication.run(App3.class, args);</span><br><span class="line">        context.close();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>运行结果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e7aaf4a6579a72de8d5c363a8dc82c02_1737625261136.png" alt="在这里插入图片描述"><br>结果显示如预期。</p>
+<hr>
+<p>回顾下：本篇主要介绍了enable前缀注解的使用和原理，主要根据import导入，importSelector或者ImportBeanDefinitionRegistrar实现类为参数，结合我们可以根据enable注解上的参数来控制操作bean，或者在注入bean前加入我们自己的逻辑。</p>
+<hr>
+<p>个人微信公号：<br>搜索： 怒放de每一天<br>不定时推送相关文章，期待和大家一起成长！！<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6a0c8c9bb695bae0016871294bc2178f_1737631713820.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/03/12/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(8)--enable%E5%89%8D%E7%BC%80%E6%B3%A8%E8%A7%A3%E4%B9%8B%E5%BC%80%E5%90%AF%E7%89%B9%E6%80%A7%E7%9A%84%E5%8E%9F%E7%90%86%E5%92%8C%E6%A1%88%E4%BE%8B/" title="springboot原理实战(8)--enable前缀注解之开启特性的原理和案例">https://hufanglei.github.io/2020/03/12/springboot原理实战(8)--enable前缀注解之开启特性的原理和案例/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/spring-boot/" rel="tag"># spring boot</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/03/11/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(7)--%E4%BD%BF%E7%94%A8Conditional%E5%AE%9E%E7%8E%B0%E6%8C%89%E6%9D%A1%E4%BB%B6%E6%B3%A8%E5%85%A5bean/" rel="prev" title="springboot原理实战(7)--使用Conditional实现按条件注入bean">
+                  <i class="fa fa-angle-left"></i> springboot原理实战(7)--使用Conditional实现按条件注入bean
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/03/15/springboot%E5%8E%9F%E7%90%86%E5%AE%9E%E6%88%98(9)--@EnableAutoConfigration%E6%B3%A8%E8%A7%A3%E4%BD%BF%E7%94%A8%E5%92%8C%E5%8E%9F%E7%90%86/" rel="next" title="springboot原理实战(9)--@EnableAutoConfigration注解使用和原理">
+                  springboot原理实战(9)--@EnableAutoConfigration注解使用和原理 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc]  “前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。点击跳转到网站。”  一、基本使用elastic-job的任务类型分为三种：  a. Simple类型作业,意为简单实现，未经任何封装的类型。需实现SimpleJob接口。该接口仅提供单一方法用于覆盖，此方法将定时执行。与Quartz原生接口相似，但提供了弹性扩缩容和分片等功能。 b. Data">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="elastic-job 定时任务集成">
+<meta property="og:url" content="https://hufanglei.github.io/2020/05/24/elastic-job%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%9B%86%E6%88%90/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc]  “前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。点击跳转到网站。”  一、基本使用elastic-job的任务类型分为三种：  a. Simple类型作业,意为简单实现，未经任何封装的类型。需实现SimpleJob接口。该接口仅提供单一方法用于覆盖，此方法将定时执行。与Quartz原生接口相似，但提供了弹性扩缩容和分片等功能。 b. Data">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/47379dcec923ffb3a63d5a1195a75293_1737630727471.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1e87cf2a6f53320ef719946676b68101_1737630739898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a65c605049268cb8fc43edc0377b1325_1737630739898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a9fa3d151200117c44e4d3ae67df836e_1737630739898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/03679a63ddbc005031043d57626bfb75_1737630739898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9f1f5b3234d6fcdc4ad67bc0e7213c36_1737630739898.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/050fa8e4e3ba307b73f881a7a9bb0b31_1737630754371.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f5c8bd1f17b186cf9ba65211763e1080_1737630754371.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2412b34c27826589144fe8f2e44cb078_1737630754371.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f402c02f27d53709070fc4ad191cae06_1737630754371.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f794e183a5564887dc94aa4660e0d3f3_1737630767645.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1003d19d583d869e4e79dcfc81c9a4dd_1737630767645.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/undefined/img/2025-1-13/42409b1dbd9a6b7ff63471ea0769592d_1737631173950.png">
+<meta property="article:published_time" content="2020-05-24T09:30:25.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="定时任务 elastic-job">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/47379dcec923ffb3a63d5a1195a75293_1737630727471.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/05/24/elastic-job%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%9B%86%E6%88%90/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/05/24/elastic-job%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%9B%86%E6%88%90/","path":"2020/05/24/elastic-job 定时任务集成/","title":"elastic-job 定时任务集成"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>elastic-job 定时任务集成 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80%E3%80%81%E5%9F%BA%E6%9C%AC%E4%BD%BF%E7%94%A8"><span class="nav-text">一、基本使用</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E6%AD%A5%E6%B7%BB%E5%8A%A0%E4%BE%9D%E8%B5%96%EF%BC%9A"><span class="nav-text">第一步添加依赖：</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E6%AD%A5-%E5%A2%9E%E5%8A%A0Zookeeper%E6%B3%A8%E5%86%8C%E4%B8%AD%E5%BF%83%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-text">第二步:增加Zookeeper注册中心的配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%89%E6%AD%A5-%E5%BC%80%E5%90%AFElastic-Job%E8%87%AA%E5%8A%A8%E9%85%8D%E7%BD%AE"><span class="nav-text">第三步:开启Elastic-Job自动配置</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E5%9B%9B%E6%AD%A5-%E9%85%8D%E7%BD%AE%E4%BB%BB%E5%8A%A1"><span class="nav-text">第四步 配置任务</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C%E3%80%81%E6%89%A9%E5%B1%95%E5%8A%9F%E8%83%BD"><span class="nav-text">二、扩展功能</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E6%83%B3%E5%9C%A8%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6%E8%AE%BE%E7%BD%AE%E4%BB%BB%E5%8A%A1%E5%8F%82%E6%95%B0%E6%80%8E%E4%B9%88%E5%86%99"><span class="nav-text">1.想在配置文件设置任务参数怎么写?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E6%AF%8F%E6%AC%A1%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E6%97%A5%E5%BF%97%E5%A6%82%E4%BD%95%E8%AE%B0%E5%BD%95"><span class="nav-text">2.每次任务执行日志如何记录?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E6%83%B3%E6%89%A7%E8%A1%8C%E4%B8%9A%E5%8A%A1%E8%84%9A%E6%9C%AC%E4%BB%BB%E5%8A%A1%E5%A6%82%E4%BD%95%E6%93%8D%E4%BD%9C"><span class="nav-text">3.想执行业务脚本任务如何操作?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BB%BB%E5%8A%A1%E6%89%A7%E8%A1%8C%E5%89%8D%E5%90%8E%E5%A6%82%E4%BD%95%E6%B7%BB%E5%8A%A0%E7%9B%91%E5%90%AC%E4%BA%8B%E4%BB%B6"><span class="nav-text">4.任务执行前后如何添加监听事件?</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%BB%BB%E5%8A%A1%E4%B8%9A%E5%8A%A1%E6%89%A7%E8%A1%8C%E5%A4%B1%E8%B4%A5%E5%A6%82%E4%BD%95%E8%87%AA%E5%AE%9A%E4%B9%89%E5%BC%82%E5%B8%B8%E5%A4%84%E7%90%86"><span class="nav-text">5.任务业务执行失败如何自定义异常处理?</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/05/24/elastic-job%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%9B%86%E6%88%90/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="elastic-job 定时任务集成 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          elastic-job 定时任务集成
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-05-24 17:30:25" itemprop="dateCreated datePublished" datetime="2020-05-24T17:30:25+08:00">2020-05-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/spring%E5%AE%B6%E6%97%8F/" itemprop="url" rel="index"><span itemprop="name">spring家族</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>12k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>11 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[toc]</p>
+<blockquote>
+<p>“前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。<a target="_blank" rel="noopener" href="https://www.captainai.net/i690">点击跳转到网站</a>。”</p>
+</blockquote>
+<h1 id="一、基本使用"><a href="#一、基本使用" class="headerlink" title="一、基本使用"></a>一、基本使用</h1><p>elastic-job的任务类型分为三种：</p>
+<ul>
+<li>a. Simple类型作业,意为简单实现，未经任何封装的类型。需实现SimpleJob接口。该接口仅提供单一方法用于覆盖，此方法将定时执行。与Quartz原生接口相似，但提供了弹性扩缩容和分片等功能。</li>
+<li>b. Dataflow类型用于处理数据流，需实现DataflowJob接口。该接口提供2个方法可供覆盖，分别用于抓取(fetchData)和处理(processData)数据。</li>
+<li>c.Script类型作业意为脚本类型作业，支持shell，python，perl等所有类型脚本。只需通过控制台或代码配置scriptCommandLine即可，无需编码。执行脚本路径可包含参数，参数传递完毕后，作业框架会自动追加最后一个参数为作业运行时信息。</li>
+</ul>
+<p>本文档提供的jar包是对elastic-job进行了二次封装，封装成了springboot的starter启动器，使用更加简单。后续开发引入我们自定义的starter完成定时任务功能即可。</p>
+<p>先以最简单的SimpleJob类型说明如何使用集成：</p>
+<h2 id="第一步添加依赖："><a href="#第一步添加依赖：" class="headerlink" title="第一步添加依赖："></a>第一步添加依赖：</h2><figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--elastic-job的starter集成--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.wuzheng<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>spring-boot-elastic-job-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.0.4<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://gitee.com/hufanglei/elastic-job-learn/tree/master/spring-boot-elastic-job-starter">点击此处查看starter源码</a>，可以自己下载到本地或私服，引入依赖</p>
+</blockquote>
+<h2 id="第二步-增加Zookeeper注册中心的配置"><a href="#第二步-增加Zookeeper注册中心的配置" class="headerlink" title="第二步:增加Zookeeper注册中心的配置"></a>第二步:增加Zookeeper注册中心的配置</h2><figure class="highlight dns"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elastic.job.zk.serverLists=<span class="number">192.168.0.121</span>:<span class="number">2181,192.168</span>.<span class="number">0.122:2181</span>,<span class="number">192.168.0.129</span>:<span class="number">2181</span></span><br><span class="line">elastic.job.zk.namespace=yourself namespace</span><br></pre></td></tr></table></figure>
+<p>Zookeeper配置的前缀是elastic.job.zk，详细的属性配置请查看<a target="_blank" rel="noopener" href="https://gitee.com/hufanglei/elastic-job-learn/blob/master/spring-boot-elastic-job-starter/src/main/java/com/wuzheng/elasticjob/autoconfigure/ZookeeperProperties.java">ZookeeperProperties</a></p>
+<h2 id="第三步-开启Elastic-Job自动配置"><a href="#第三步-开启Elastic-Job自动配置" class="headerlink" title="第三步:开启Elastic-Job自动配置"></a>第三步:开启Elastic-Job自动配置</h2><p>开启自动配置只需要在Spring Boot的启动类上增加@EnableElasticJob注解</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">import</span> java.util.concurrent.CountDownLatch;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.autoconfigure.SpringBootApplication;</span><br><span class="line"><span class="keyword">import</span> org.springframework.boot.builder.SpringApplicationBuilder;</span><br><span class="line"><span class="keyword">import</span> com.cxytiandi.elasticjob.annotation.EnableElasticJob;</span><br><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * ElasticJob Spring Boot集成案例</span></span><br><span class="line"><span class="comment"> * </span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hfl</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@SpringBootApplication</span></span><br><span class="line"><span class="meta">@EnableElasticJob</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">JobApplication</span> &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title function_">main</span><span class="params">(String[] args)</span> &#123;</span><br><span class="line">		SpringApplication.run(JobApplication.class, args);</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="第四步-配置任务"><a href="#第四步-配置任务" class="headerlink" title="第四步 配置任务"></a>第四步 配置任务</h2><figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line">@ElasticJobConf(<span class="type">name</span> = &quot;MySimpleJob&quot;, cron = &quot;0/10 * * * * ?&quot;, </span><br><span class="line">	shardingItemParameters = &quot;0=0,1=1&quot;, description = &quot;简单任务&quot;)</span><br><span class="line"><span class="built_in">public</span> <span class="keyword">class</span> MySimpleJob implements SimpleJob &#123;</span><br><span class="line"></span><br><span class="line">	<span class="built_in">public</span> <span class="type">void</span> <span class="keyword">execute</span>(ShardingContext context) &#123;</span><br><span class="line">		String shardParamter = context.getShardingParameter();</span><br><span class="line">		<span class="keyword">System</span>.<span class="keyword">out</span>.println(&quot;分片参数：&quot;+shardParamter);</span><br><span class="line">		<span class="type">int</span> <span class="keyword">value</span> = <span class="type">Integer</span>.parseInt(shardParamter);</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">3</span>; i++) &#123;</span><br><span class="line">			<span class="keyword">if</span> (i % <span class="number">2</span> == <span class="keyword">value</span>) &#123;</span><br><span class="line">				String <span class="type">time</span> = <span class="built_in">new</span> SimpleDateFormat(&quot;HH:mm:ss&quot;).format(<span class="built_in">new</span> <span class="type">Date</span>());</span><br><span class="line">				<span class="keyword">System</span>.<span class="keyword">out</span>.println(<span class="type">time</span> + &quot;:开始执行简单任务&quot; + i);</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<blockquote>
+<p>任务的配置只需要在任务类上增加一个ElasticJobConf注解，注解中有很多属性，这些属性都是任务的配置，详细的属性配置如下链接：<br><a target="_blank" rel="noopener" href="https://gitee.com/hufanglei/elastic-job-learn/blob/master/spring-boot-elastic-job-starter/src/main/java/com/wuzheng/elasticjob/annotation/ElasticJobConf.java">ElasticJobConf.java</a></p>
+</blockquote>
+<p>测试下，启动自己的任务所在微服务，看下效果<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/47379dcec923ffb3a63d5a1195a75293_1737630727471.png" alt="在这里插入图片描述"></p>
+<p>自此，最简单的小demo其实已经完成了，但是实际中还有一些高级功能需要了解，在此也一并说明下：</p>
+<h1 id="二、扩展功能"><a href="#二、扩展功能" class="headerlink" title="二、扩展功能"></a>二、扩展功能</h1><p>扩展包括:</p>
+<ul>
+<li>1.想在配置文件设置任务参数怎么写?</li>
+<li>2.每次任务执行日志如何记录?</li>
+<li>3.想执行业务脚本任务如何操作?</li>
+<li>4.任务执行前后如何添加监听事件?</li>
+<li>5.任务业务执行失败如何自定义异常处理?</li>
+<li>6.动态作业怎么实现?</li>
+</ul>
+<p>下面具体说明：</p>
+<h2 id="1-想在配置文件设置任务参数怎么写"><a href="#1-想在配置文件设置任务参数怎么写" class="headerlink" title="1.想在配置文件设置任务参数怎么写?"></a>1.想在配置文件设置任务参数怎么写?</h2><p>这个问题即application.properties中如何配置任务信息?</p>
+<p>使用注解是比较方便，但是在属性文件中配置任务的参数信息更灵活，也便于以后使用appolo或者necos等工具进行集中配置文件管理。</p>
+<p>我们可以同时指定注解方法，也可以同时在属性文件中设置，但是当属性文件中配置了任务的信息，优先级就比注解中的高。具体做法如下:</p>
+<p>首先还是在任务类上加@ElasticJobConf(name &#x3D; “MySimpleJob”)注解，只需要增加一个name即可，任务名是唯一的。</p>
+<p>剩下的配置都可以在属性文件中进行配置，格式为elastic.job.任务名.配置属性&#x3D;属性值</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">elastic.job.MySimpleJob.cron</span>=<span class="number">0</span>/<span class="number">10</span> * * * * ?</span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.overwrite</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.shardingTotalCount</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.shardingItemParameters</span>=<span class="number">0</span>=<span class="number">0</span>,<span class="number">1</span>=<span class="number">1</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.jobParameter</span>=test</span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.failover</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.misfire</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.description</span>=simple job</span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.monitorExecution</span>=<span class="literal">false</span></span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.listener</span>=com.cxytiandi.job.core.MessageElasticJobListener</span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.jobExceptionHandler</span>=com.cxytiandi.job.core.CustomJobExceptionHandler</span><br><span class="line"><span class="attr">elastic.job.MySimpleJob.disabled</span>=<span class="literal">true</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1e87cf2a6f53320ef719946676b68101_1737630739898.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a65c605049268cb8fc43edc0377b1325_1737630739898.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/a9fa3d151200117c44e4d3ae67df836e_1737630739898.png" alt="在这里插入图片描述"></p>
+<h2 id="2-每次任务执行日志如何记录"><a href="#2-每次任务执行日志如何记录" class="headerlink" title="2.每次任务执行日志如何记录?"></a>2.每次任务执行日志如何记录?</h2><p>elastic-job已经为我们提供了事件追踪数据源功能，可以将每一次的任务执行情况，任务执行轨迹，任务执行历史持久化到数据库或者其他日志收集框架中，下面演示如何保存到数据库中：</p>
+<p>事件追踪功能在注解中也只需要配置eventTraceRdbDataSource&#x3D;你的数据源 就可以使用了，数据源用什么连接池无限制，唯一需要注意的一点是你的数据源必须在spring-boot-elastic-job-starter之前创建，因为spring-boot-elastic-job-starter中依赖了你的数据源，下面我以druid作为连接池来进行讲解。</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">dependency</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">groupId</span>&gt;</span>com.alibaba<span class="tag">&lt;/<span class="name">groupId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">artifactId</span>&gt;</span>druid-spring-boot-starter<span class="tag">&lt;/<span class="name">artifactId</span>&gt;</span></span><br><span class="line">	<span class="tag">&lt;<span class="name">version</span>&gt;</span>1.1.2<span class="tag">&lt;/<span class="name">version</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">dependency</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<p>配置连接池属性：</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">spring<span class="selector-class">.datasource</span><span class="selector-class">.druid</span><span class="selector-class">.log</span>.url=jdbc:mysql:<span class="comment">//localhost:3306/event_log</span></span><br><span class="line">spring<span class="selector-class">.datasource</span><span class="selector-class">.druid</span><span class="selector-class">.log</span>.username=root</span><br><span class="line">spring<span class="selector-class">.datasource</span><span class="selector-class">.druid</span><span class="selector-class">.log</span>.password=<span class="number">123456</span></span><br><span class="line">spring<span class="selector-class">.datasource</span><span class="selector-class">.druid</span><span class="selector-class">.log</span>.driver-class-name=com<span class="selector-class">.mysql</span><span class="selector-class">.jdbc</span>.Driver</span><br></pre></td></tr></table></figure>
+
+<p>然后在项目中定义一个配置类，配置连接池，手动配置的原因是连接池可以在elastic-job-starter之前被初始化。</p>
+<figure class="highlight less"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable">@Configuration</span></span><br><span class="line">public class BeanConfig &#123;</span><br><span class="line">	</span><br><span class="line">	<span class="comment">/**</span></span><br><span class="line"><span class="comment">	 * 任务执行事件数据源</span></span><br><span class="line"><span class="comment">	 * @return</span></span><br><span class="line"><span class="comment">	 */</span></span><br><span class="line">	<span class="variable">@Bean</span>(<span class="string">&quot;datasource&quot;</span>)</span><br><span class="line">	<span class="variable">@ConfigurationProperties</span>(<span class="string">&quot;spring.datasource.druid.log&quot;</span>)</span><br><span class="line">	public DataSource <span class="built_in">dataSourceTwo</span>()&#123;</span><br><span class="line">	    <span class="selector-tag">return</span> <span class="selector-tag">DruidDataSourceBuilder</span><span class="selector-class">.create</span>()<span class="selector-class">.build</span>();</span><br><span class="line">	&#125;</span><br><span class="line">	</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>然后在注解中增加数据源的配置eventTraceRdbDataSource 即可：<br>注解配置方式如下:</p>
+<figure class="highlight jboss-cli"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">@ElasticJobConf<span class="params">(<span class="attr">name</span> = &quot;MySimpleJob&quot;, <span class="attr">cron</span> = &quot;0/10 * * * * ?&quot;, </span></span><br><span class="line"><span class="params">	<span class="attr">shardingItemParameters</span> = &quot;<span class="attr">0</span>=0,<span class="attr">1</span>=1&quot;, <span class="attr">description</span> = &quot;简单任务&quot;, <span class="attr">eventTraceRdbDataSource</span> = &quot;datasource&quot;)</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/03679a63ddbc005031043d57626bfb75_1737630739898.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9f1f5b3234d6fcdc4ad67bc0e7213c36_1737630739898.png" alt="在这里插入图片描述"><br>也可以通过官方提供的可视化工具看到任务执行情况<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/050fa8e4e3ba307b73f881a7a9bb0b31_1737630754371.png" alt="在这里插入图片描述"></p>
+<p><code>注意: 经测试:</code></p>
+<p><code>1：经测试: 该功能Mysql数据库的话只支持5.7，Mysql5.8并不会生效</code></p>
+<p><code>2： 数据库名必须是elastic_job_log 才会自动创建这2张表，其他数据库名请手动添加job_execution_log，job_status_trace_log这2张表（后面附2张表建表sql）</code></p>
+<p><code>3：zookeepr注册中心必须能够连到mysql</code></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">CREATE TABLE</span> `job_execution_log` (</span><br><span class="line">  `id` <span class="type">varchar</span>(<span class="number">40</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">  `job_name` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;作业名称&#x27;</span>,</span><br><span class="line">  `task_id` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务名称,每次作业运行生成新任务&#x27;</span>,</span><br><span class="line">  `hostname` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;主机名称&#x27;</span>,</span><br><span class="line">  `ip` <span class="type">varchar</span>(<span class="number">50</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;主机IP&#x27;</span>,</span><br><span class="line">  `sharding_item` <span class="type">int</span> <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;分片项&#x27;</span>,</span><br><span class="line">  `execution_source` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;作业执行来源。可选值为NORMAL_TRIGGER, MISFIRE, FAILOVER&#x27;</span>,</span><br><span class="line">  `failure_cause` <span class="type">varchar</span>(<span class="number">4000</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;执行失败原因&#x27;</span>,</span><br><span class="line">  `is_success` <span class="type">int</span> <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;是否执行成功&#x27;</span>,</span><br><span class="line">  `start_time` <span class="type">timestamp</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;作业开始执行时间&#x27;</span>,</span><br><span class="line">  `complete_time` <span class="type">timestamp</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;作业结束执行时间&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (`id`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8 COMMENT<span class="operator">=</span><span class="string">&#x27;历史轨迹表&#x27;</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">CREATE TABLE</span> `job_status_trace_log` (</span><br><span class="line">  `id` <span class="type">varchar</span>(<span class="number">40</span>) <span class="keyword">NOT NULL</span>,</span><br><span class="line">  `job_name` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;作业名称&#x27;</span>,</span><br><span class="line">  `original_task_id` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;原任务id&#x27;</span>,</span><br><span class="line">  `task_id` <span class="type">varchar</span>(<span class="number">255</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务id&#x27;</span>,</span><br><span class="line">  `slave_id` <span class="type">varchar</span>(<span class="number">50</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;执行作业服务器的名称，Lite版本为服务器的IP地址，Cloud版本为Mesos执行机主键&#x27;</span>,</span><br><span class="line">  `source` <span class="type">varchar</span>(<span class="number">50</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务执行源，可选值为CLOUD_SCHEDULER, CLOUD_EXECUTOR, LITE_EXECUTOR&#x27;</span>,</span><br><span class="line">  `execution_type` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务执行类型，可选值为NORMAL_TRIGGER, MISFIRE, FAILOVER&#x27;</span>,</span><br><span class="line">  `sharding_item` <span class="type">varchar</span>(<span class="number">100</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;分片项集合，多个分片项以逗号分隔&#x27;</span>,</span><br><span class="line">  `state` <span class="type">varchar</span>(<span class="number">20</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">NOT NULL</span> COMMENT <span class="string">&#x27;任务执行状态，可选值为TASK_STAGING, TASK_RUNNING, TASK_FINISHED, TASK_KILLED, TASK_LOST, TASK_FAILED, TASK_ERROR&#x27;</span>,</span><br><span class="line">  `message` <span class="type">varchar</span>(<span class="number">4000</span>) <span class="keyword">CHARACTER SET</span> utf8 <span class="keyword">COLLATE</span> utf8_general_ci <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;相关信息&#x27;</span>,</span><br><span class="line">  `creation_time` <span class="type">timestamp</span> <span class="keyword">NULL</span> <span class="keyword">DEFAULT</span> <span class="keyword">NULL</span> COMMENT <span class="string">&#x27;记录创建时间&#x27;</span>,</span><br><span class="line">  <span class="keyword">PRIMARY KEY</span> (`id`),</span><br><span class="line">  KEY `TASK_ID_STATE_INDEX` (`task_id`,`state`)</span><br><span class="line">) ENGINE<span class="operator">=</span>InnoDB <span class="keyword">DEFAULT</span> CHARSET<span class="operator">=</span>utf8 COMMENT<span class="operator">=</span><span class="string">&#x27;历史状态表&#x27;</span>;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="3-想执行业务脚本任务如何操作"><a href="#3-想执行业务脚本任务如何操作" class="headerlink" title="3.想执行业务脚本任务如何操作?"></a>3.想执行业务脚本任务如何操作?</h2><p>elastic-job提供了Script任务类型.<br>由于Script任务的执行逻辑是在具体的脚本中，是通过scriptCommandLine来指定执行脚本的路径。我这边为了统一的去发现项目中的任务列表，还是需要建一个脚本的Java类，加上ElasticJobConf注解，只是不需要写逻辑而已，示例如下：</p>
+<figure class="highlight haxe"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 脚本任务不需要写逻辑，逻辑在被执行的脚本中，这边只是定义一个任务而已</span></span><br><span class="line"><span class="comment"> *</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@ElasticJobConf</span>(name = <span class="string">&quot;MyScriptJob&quot;</span>)</span><br><span class="line"><span class="keyword">public</span> <span class="title class_"><span class="keyword">class</span> <span class="title">MyScriptJob</span> <span class="keyword"><span class="keyword">implements</span> <span class="type">ScriptJob</span></span> </span>&#123;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">public</span> void execute(ShardingContext context) &#123;</span><br><span class="line">		</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p>配置：</p>
+<figure class="highlight ini"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">elastic.job.MyScriptJob.cron</span>=<span class="number">0</span>/<span class="number">10</span> * * * * ?</span><br><span class="line"><span class="attr">elastic.job.MyScriptJob.overwrite</span>=<span class="literal">true</span></span><br><span class="line"><span class="attr">elastic.job.MyScriptJob.scriptCommandLine</span>=D:\\<span class="number">1</span>.bat</span><br></pre></td></tr></table></figure>
+<p>1.bat脚本内容如下:</p>
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">@echo</span> ------【脚本任务】Sharding <span class="attribute">Context</span>: %*</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f5c8bd1f17b186cf9ba65211763e1080_1737630754371.png" alt="在这里插入图片描述"></p>
+<h2 id="4-任务执行前后如何添加监听事件"><a href="#4-任务执行前后如何添加监听事件" class="headerlink" title="4.任务执行前后如何添加监听事件?"></a>4.任务执行前后如何添加监听事件?</h2><p>首先书写自己的监听事件:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 作业监听器, 执行前后发送钉钉消息进行通知</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> hfl</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">MessageElasticJobListener</span> <span class="keyword">implements</span> <span class="title class_">ElasticJobListener</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">beforeJobExecuted</span><span class="params">(ShardingContexts shardingContexts)</span> &#123;</span><br><span class="line">        <span class="type">String</span> <span class="variable">date</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>).format(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">        <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> date + <span class="string">&quot; 【五征定时任务-&quot;</span> + shardingContexts.getJobName() + <span class="string">&quot;】任务开始执行====&quot;</span> + JsonUtils.toJson(shardingContexts);</span><br><span class="line"><span class="comment">//        DingDingMessageUtil.sendTextMessage(msg);</span></span><br><span class="line">        System.out.println(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">afterJobExecuted</span><span class="params">(ShardingContexts shardingContexts)</span> &#123;</span><br><span class="line">    	<span class="type">String</span> <span class="variable">date</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">SimpleDateFormat</span>(<span class="string">&quot;yyyy-MM-dd HH:mm:ss&quot;</span>).format(<span class="keyword">new</span> <span class="title class_">Date</span>());</span><br><span class="line">        <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> date + <span class="string">&quot; 【五征定时任务-&quot;</span> + shardingContexts.getJobName() + <span class="string">&quot;】任务执行结束====&quot;</span> + JsonUtils.toJson(shardingContexts);</span><br><span class="line"><span class="comment">//        DingDingMessageUtil.sendTextMessage(msg);</span></span><br><span class="line">        System.out.println(msg);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>然后在配置文件中job参数上添加listener参数:</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elastic<span class="selector-class">.job</span><span class="selector-class">.MySimpleJob</span>.listener=com<span class="selector-class">.wuzheng</span><span class="selector-class">.job</span><span class="selector-class">.core</span><span class="selector-class">.MessageElasticJobListener</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2412b34c27826589144fe8f2e44cb078_1737630754371.png" alt="在这里插入图片描述"></p>
+<p>运行MySimpleJob看下执行结果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f402c02f27d53709070fc4ad191cae06_1737630754371.png" alt="在这里插入图片描述"><br>可以看到任务前后执行了我们自己的逻辑.</p>
+<h2 id="5-任务业务执行失败如何自定义异常处理"><a href="#5-任务业务执行失败如何自定义异常处理" class="headerlink" title="5.任务业务执行失败如何自定义异常处理?"></a>5.任务业务执行失败如何自定义异常处理?</h2><p>和监听器配置一样，第一步书写自定义异常，第二步配置job参数指定自定义异常类。</p>
+<figure class="highlight typescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 自定义异常处理，在任务异常时使用钉钉发送通知</span></span><br><span class="line"><span class="comment"> * <span class="doctag">@author</span> <span class="variable">hfl</span></span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title class_">CustomJobExceptionHandler</span> <span class="keyword">implements</span> <span class="title class_">JobExceptionHandler</span> &#123;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">private</span> <span class="title class_">Logger</span> logger = <span class="title class_">LoggerFactory</span>.<span class="title function_">getLogger</span>(<span class="title class_">CustomJobExceptionHandler</span>.<span class="property">class</span>);</span><br><span class="line"></span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="keyword">public</span> <span class="built_in">void</span> <span class="title function_">handleException</span>(<span class="params"><span class="title class_">String</span> jobName, <span class="title class_">Throwable</span> cause</span>) &#123;</span><br><span class="line">        logger.<span class="title function_">error</span>(<span class="title class_">String</span>.<span class="title function_">format</span>(<span class="string">&quot;Job &#x27;%s&#x27; exception occur in job processing&quot;</span>, jobName), cause);</span><br><span class="line">        <span class="title class_">DingDingMessageUtil</span>.<span class="title function_">sendTextMessage</span>(<span class="string">&quot;【&quot;</span>+jobName+<span class="string">&quot;】任务异常。&quot;</span> + cause.<span class="title function_">getMessage</span>());</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>异常参数设置</p>
+<figure class="highlight stylus"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">elastic<span class="selector-class">.job</span><span class="selector-class">.MySimpleJob</span>.jobExceptionHandler=com<span class="selector-class">.wuzheng</span><span class="selector-class">.job</span><span class="selector-class">.core</span><span class="selector-class">.CustomJobExceptionHandler</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>我们自定义个异常测试下（System.out.println(2&#x2F;0);）</p>
+<figure class="highlight pgsql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line">@ElasticJobConf(<span class="type">name</span> = &quot;MySimpleJob&quot;)</span><br><span class="line"><span class="built_in">public</span> <span class="keyword">class</span> MySimpleJob implements SimpleJob &#123;</span><br><span class="line"></span><br><span class="line">	@Override</span><br><span class="line">	<span class="built_in">public</span> <span class="type">void</span> <span class="keyword">execute</span>(ShardingContext context) &#123;</span><br><span class="line">		<span class="keyword">System</span>.<span class="keyword">out</span>.println(<span class="number">2</span>/<span class="number">0</span>);</span><br><span class="line">		String shardParamter = context.getShardingParameter();</span><br><span class="line">		<span class="keyword">System</span>.<span class="keyword">out</span>.println(&quot;分片参数：&quot;+shardParamter);</span><br><span class="line">		<span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">2</span>; i++) &#123;</span><br><span class="line">				String <span class="type">time</span> = <span class="built_in">new</span> SimpleDateFormat(&quot;HH:mm:ss&quot;).format(<span class="built_in">new</span> <span class="type">Date</span>());</span><br><span class="line">				<span class="keyword">System</span>.<span class="keyword">out</span>.println(<span class="type">time</span> + &quot;:开始执行简单任务&quot; + i);</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line">```			</span><br><span class="line">看下效果：</span><br><span class="line"></span><br><span class="line">已经指向了我们自定义的异常的类及其类里面的异常处理逻辑代码：</span><br><span class="line">![在这里插入图片描述](https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/<span class="number">2025</span><span class="number">-1</span><span class="number">-13</span>/<span class="number">126</span>de654b196d25e6764566f3ed6978f_1737630754371.png)</span><br><span class="line"> ## <span class="number">6.</span>动态作业怎么实现?</span><br><span class="line">以上的定时任务基本都是这个流程:首先配置job参数，然后编写业务job，最后启动定时任务所在的微服务，这样该微服务下的所有定时任务job都统一注册进zookeeper注册中心了，然后自动就会启动这些定时任务。</span><br><span class="line">如果有个定时任务，不想微服务启动的时候让其启用，而是想动态的注册任务参数并控制何时启用。这个需求实现也很简单，我们封装的elastic-job的starter就已提供实现。</span><br><span class="line">自定义的starter提供了restful的<span class="number">2</span>个接口，一个注册任务接口: /job；一个删除任务接口:/job/remove?jobName=任务名。</span><br><span class="line">&gt; 首先书写自己的任务</span><br></pre></td></tr></table></figure>
+<p>package com.wuzheng.job.demo.dynamic;</p>
+<p>import com.dangdang.ddframe.job.api.ShardingContext;<br>import com.dangdang.ddframe.job.api.simple.SimpleJob;</p>
+<p>&#x2F;**</p>
+<ul>
+<li>动态添加任务演示</li>
+<li>@author hfl</li>
+<li></li>
+</ul>
+<p> *&#x2F;<br>public class DynamicJob implements SimpleJob {</p>
+<pre><code>@Override
+public void execute(ShardingContext shardingContext) &#123;
+	// 可以根据JobParameter来对不同的数据进行操作
+	System.out.println(shardingContext.getJobParameter());
+	System.out.println(shardingContext.getShardingParameter());
+&#125;
+</code></pre>
+<p>}</p>
+<figure class="highlight autohotkey"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line">&gt; 置好之后，启动这个定时任务微服务项目并不会启用这个任务，因为我们没有任务参数，也没在job上加@ElasticJobConf注解，扫描不到这个任务，但是通过REST API可以动态的注册任务，API列表如下：</span><br><span class="line"></span><br><span class="line">/job</span><br><span class="line">添加任务是POST请求，数据格式为JSON体提交，格式如下：</span><br><span class="line">```json</span><br><span class="line">&#123;</span><br><span class="line"><span class="string">&quot;jobName&quot;</span>:<span class="string">&quot;DynamicJob333&quot;</span>,</span><br><span class="line"><span class="string">&quot;cron&quot;</span>:<span class="string">&quot;0/10 * * * * ?&quot;</span>,</span><br><span class="line"><span class="string">&quot;jobType&quot;</span>:<span class="string">&quot;SIMPLE&quot;</span>,</span><br><span class="line"><span class="string">&quot;jobClass&quot;</span>:<span class="string">&quot;com.wuzheng.job.demo.dynamic.DynamicJob&quot;</span>,</span><br><span class="line"><span class="string">&quot;jobParameter&quot;</span>:<span class="string">&quot;2222222&quot;</span>,</span><br><span class="line"><span class="string">&quot;shardingTotalCount&quot;</span>:<span class="number">1</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><a target="_blank" rel="noopener" href="https://gitee.com/hufanglei/elastic-job-learn/blob/master/spring-boot-elastic-job-starter/src/main/java/com/wuzheng/elasticjob/dynamic/bean/Job.java">点击查看完整字段地址</a></p>
+<blockquote>
+<p>注意：jobClass必须事先存在于服务中<br>使用postman测试:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f794e183a5564887dc94aa4660e0d3f3_1737630767645.png" alt="在这里插入图片描述"></p>
+</blockquote>
+<p>去控制台参看,显示已经成功注册到zookeeper中心，作业状态正常!<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1003d19d583d869e4e79dcfc81c9a4dd_1737630767645.png" alt="在这里插入图片描述"></p>
+<p>&#x2F;job&#x2F;remove 删除任务是GET请求，参数只要任务名称即可，比如：&#x2F;job&#x2F;remove?jobName&#x3D;任务名。可以用于任务完成之后清空注册中心的任务信息。</p>
+<p>以上所有demo的源码下载地址请点击：<a target="_blank" rel="noopener" href="https://gitee.com/hufanglei/elastic-job-learn/tree/master/spring-boot-elastic-job-example">https://gitee.com/hufanglei/elastic-job-learn/tree/master/spring-boot-elastic-job-example</a>。</p>
+<hr>
+<p>个人微信公众号：<br>搜索： 怒放de每一天<br>不定时推送相关文章，期待和大家一起成长！！<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/undefined/img/2025-1-13/42409b1dbd9a6b7ff63471ea0769592d_1737631173950.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/05/24/elastic-job%20%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1%E9%9B%86%E6%88%90/" title="elastic-job 定时任务集成">https://hufanglei.github.io/2020/05/24/elastic-job 定时任务集成/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%AE%9A%E6%97%B6%E4%BB%BB%E5%8A%A1-elastic-job/" rel="tag"># 定时任务 elastic-job</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/05/23/%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F%E5%AE%9E%E6%88%98%E5%9C%BA%E6%99%AF%E5%92%8C%E6%9C%AC%E8%B4%A8/" rel="prev" title="适配器模式实战场景和本质">
+                  <i class="fa fa-angle-left"></i> 适配器模式实战场景和本质
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/05/24/%E9%93%BE%E8%B7%AF%E7%9B%91%E6%8E%A7(skywalking)%E9%9B%86%E6%88%90/" rel="next" title="链路监控(skywalking)集成">
+                  链路监控(skywalking)集成 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

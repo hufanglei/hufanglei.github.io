@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@TOC 背景 在docker在使用中，发现其命令中有几组有趣的命令，总是成对出现的，功能看似差不多，但是又有一丝丝差别，今天介绍几种，来波找茬！  1.COPY  vs ADDCOPY、ADD主体功能类似：从指定位置src拷贝文件到Docker镜像dest。 COPY &lt;src&gt;... &lt;dest&gt; ADD &lt;src&gt;... &lt;dest&gt; CO">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="dockerfile 几组易混命令找茬">
+<meta property="og:url" content="https://hufanglei.github.io/2022/03/28/dockerfile%20%E5%87%A0%E7%BB%84%E6%98%93%E6%B7%B7%E5%91%BD%E4%BB%A4%E6%89%BE%E8%8C%AC/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@TOC 背景 在docker在使用中，发现其命令中有几组有趣的命令，总是成对出现的，功能看似差不多，但是又有一丝丝差别，今天介绍几种，来波找茬！  1.COPY  vs ADDCOPY、ADD主体功能类似：从指定位置src拷贝文件到Docker镜像dest。 COPY &lt;src&gt;... &lt;dest&gt; ADD &lt;src&gt;... &lt;dest&gt; CO">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1fb6db8b0c8c5abd1e1d8652c9001870_1737629330837.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f793673c0dac276d34b33e56aa4eafaa_1737631899169.png">
+<meta property="article:published_time" content="2022-03-28T05:23:09.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="docker dockerfile">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1fb6db8b0c8c5abd1e1d8652c9001870_1737629330837.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2022/03/28/dockerfile%20%E5%87%A0%E7%BB%84%E6%98%93%E6%B7%B7%E5%91%BD%E4%BB%A4%E6%89%BE%E8%8C%AC/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2022/03/28/dockerfile%20%E5%87%A0%E7%BB%84%E6%98%93%E6%B7%B7%E5%91%BD%E4%BB%A4%E6%89%BE%E8%8C%AC/","path":"2022/03/28/dockerfile 几组易混命令找茬/","title":"dockerfile 几组易混命令找茬"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>dockerfile 几组易混命令找茬 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%83%8C%E6%99%AF"><span class="nav-text">背景</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-COPY-vs-ADD"><span class="nav-text">1.COPY  vs ADD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-ARG-vs-ENV"><span class="nav-text">2.ARG vs ENV</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-RUN-vs-ENTRYPOINT-vs-CMD"><span class="nav-text">3.RUN  vs ENTRYPOINT vs CMD</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-p-%E5%92%8C-P"><span class="nav-text">4.-p 和-P</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#P%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">-P的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#p%E7%9A%84%E4%BD%BF%E7%94%A8"><span class="nav-text">-p的使用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%9F%A5%E7%9C%8B%E7%AB%AF%E5%8F%A3%E6%98%A0%E5%B0%84%E9%85%8D%E7%BD%AE"><span class="nav-text">查看端口映射配置</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-dockerfile%E4%B8%AD%E7%9A%84volume%E5%92%8C-docker-run-v"><span class="nav-text">5.dockerfile中的volume和 docker run -v</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2022/03/28/dockerfile%20%E5%87%A0%E7%BB%84%E6%98%93%E6%B7%B7%E5%91%BD%E4%BB%A4%E6%89%BE%E8%8C%AC/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="dockerfile 几组易混命令找茬 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          dockerfile 几组易混命令找茬
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2022-03-28 13:23:09" itemprop="dateCreated datePublished" datetime="2022-03-28T13:23:09+08:00">2022-03-28</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/docker-%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">docker 运维</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>2.8k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>3 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@<a href="dockerfile%E5%AE%B9%E6%98%93%E5%BC%84%E6%B7%B7%E7%9A%84%E5%87%A0%E7%BB%84%E5%91%BD%E4%BB%A4">TOC</a></p>
+<h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><blockquote>
+<p>在docker在使用中，发现其命令中有几组有趣的命令，总是成对出现的，功能看似差不多，但是又有一丝丝差别，今天介绍几种，来波找茬！</p>
+</blockquote>
+<h2 id="1-COPY-vs-ADD"><a href="#1-COPY-vs-ADD" class="headerlink" title="1.COPY  vs ADD"></a>1.COPY  vs ADD</h2><p>COPY、ADD主体功能类似：从指定位置src拷贝文件到Docker镜像dest。</p>
+<p><code>COPY &lt;src&gt;... &lt;dest&gt;</code></p>
+<p><code>ADD &lt;src&gt;... &lt;dest&gt;</code></p>
+<p>COPY只允许从Docker Engine主机上拷贝文件到Docker镜像文件；<br>ADD也能完成以上工作，但是ADD支持另外两种src：</p>
+<p>文件源可以是URL</p>
+<p>可以从src直接解压tar文件到目的地</p>
+<p><code>ADD http://foo.com/bar.go /tmp/main.go</code></p>
+<p>从指定地址下载文件，添加到镜像文件系统的&#x2F;tmp&#x2F;main.go位置</p>
+<p><code>ADD http://foo.com/bar.go /tmp/</code></p>
+<p>因为以&#x2F;结尾，将会引用url中的文件名添加到指定的目录下</p>
+<p><code>ADD /foo.tar.gz /tmp/</code></p>
+<p>自动解压主机文件到指定目录</p>
+<p>****<code>特别注意</code>***</p>
+<blockquote>
+<p>URL下载和自动解压功能不能同时生效：<code>任何通过URL下载的压缩包文件不会自动解压</code>。<br> 如果<code>拷贝本地文件到镜像，通常使用COPY</code>，因为含义更明确<br><code> ADD支持URL文件、自动解压到指定目录</code>，这2个特性也很棒</p>
+</blockquote>
+<h2 id="2-ARG-vs-ENV"><a href="#2-ARG-vs-ENV" class="headerlink" title="2.ARG vs ENV"></a>2.ARG vs ENV</h2><p>ARG、ENV也让人很疑惑的，都是Dockerfile中定义变量的指令。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1fb6db8b0c8c5abd1e1d8652c9001870_1737629330837.png" alt="在这里插入图片描述"></p>
+<p>ARG用于镜像构建阶段，ENV用于将来运行的容器。</p>
+<p>生成镜像后，ARG值不可用，正在运行的容器将无法访问ARG变量值。</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ARG  VAR_NAME 5</span><br></pre></td></tr></table></figure>
+
+<p> 构建镜像时，可提供<code>--build-arg  VAR_NAME=6 </code>修改ARG值。</p>
+<p>ENV主要是为容器环境变量提供默认值，正在运行的容器可访问环境变量(这是将配置传递给应用的好方法)：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ENV VAR_NAME_2 6</span><br></pre></td></tr></table></figure>
+
+<p> 启动容器时，可通过<code>docker run -e &quot;VAR_NAME_2=7&quot;或docker-compose.yml</code>提供新的环境变量值来覆盖Dockerfile中设置的ENV值。</p>
+<blockquote>
+<p><code>一个小技巧</code>：构建镜像时不能使用命令行参数重写ENV，但是你可以使用ARG动态为ENV设置默认值：</p>
+</blockquote>
+<p> You can set VAR_A while building the image or leave it at the default</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ARG VAR_A 5</span><br></pre></td></tr></table></figure>
+
+<p>VAR_B gets the (overridden) value of VAR_A</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">ENV VAR_B $VAR_A</span><br></pre></td></tr></table></figure>
+<h2 id="3-RUN-vs-ENTRYPOINT-vs-CMD"><a href="#3-RUN-vs-ENTRYPOINT-vs-CMD" class="headerlink" title="3.RUN  vs ENTRYPOINT vs CMD"></a>3.RUN  vs ENTRYPOINT vs CMD</h2><blockquote>
+<p>RUN 在新层中执行命令并产生新镜像，主要用于安装新软件包。</p>
+</blockquote>
+<p>ENTRYPOINT 执行程序的启动命令，当您想将容器作为可执行文件运行时使用。</p>
+<p>CMD和ENTRYPOINT 都可以提供程序的启动命令；CMD另一个作用是为执行中的容器提供默认值</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CMD [&quot;executable&quot;,&quot;param1&quot;,&quot;param2&quot;] (可执行形式,最常见) </span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CMD command param1 param2 (脚本形式)</span><br></pre></td></tr></table></figure>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CMD echo &quot;Hello world&quot;</span><br></pre></td></tr></table></figure>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">run -it &lt;image&gt; 输出 Hello world</span><br></pre></td></tr></table></figure>
+<p>但是当容器以命令启动，<code>docker run -it &lt;image&gt;  /bin/bash</code>, CMD会被忽略，bash解析器将会运行：</p>
+<blockquote>
+<p>root@98e4bed87725:&#x2F;#</p>
+</blockquote>
+ <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">CMD [&quot;param1&quot;,&quot;param2&quot;] </span><br><span class="line">(作为ENTRYPOINT指令默认值，此时必须提供ENTRYPOINT指令，且ENTRYPOINT也必须以Json Array形式)</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>ENTRYPOINT [“&#x2F;bin&#x2F;echo”, “Hello”]<br>CMD [“world”]</p>
+</blockquote>
+<p><code> run -it &lt;image&gt;</code> 将会输出 Hello world<br><code>run -it &lt;image&gt; earth</code>将会输出 Hello earth<br>打算构建一个可执行的且常驻的镜像，最好选用ENTRYPOINT；<br>如果需要提供默认命令参数(可在容器运行时从命令行覆盖)，请选择CMD。</p>
+<hr>
+<p>总结:<br>cmd和entripoint的区别就是  <code>cmd不可以覆盖，entripoiint可以被覆盖和追加.</code><br>这个覆盖是 docker run时后面加的 命令 和 cmd&#x2F;entripoint的shell命令是否覆盖</p>
+<h2 id="4-p-和-P"><a href="#4-p-和-P" class="headerlink" title="4.-p 和-P"></a>4.-p 和-P</h2><p>这2个命令不是在dockerfile中的，是在运行程序的时候，都可以做docker端口映射，在docker run启动一个容器时，有时候用-p 8080:8080 或者直接-P 不加端口号，这里有什么区别?</p>
+<h3 id="P的使用"><a href="#P的使用" class="headerlink" title="-P的使用"></a>-P的使用</h3><p>-P将容器内部开放的网络端口随机映射到宿主机的一个端口上；、</p>
+<h3 id="p的使用"><a href="#p的使用" class="headerlink" title="-p的使用"></a>-p的使用</h3><p>-p指定要映射的端口，一个指定端口上只可以绑定一个容器。</p>
+<p>使用方式有以下几种:<br><code>1） IP:HOSTPORT:CONTAINERPORT：指定ip、指定宿主机port、指定容器port</code></p>
+<ul>
+<li>适用于映射到指定地址的指定端口,例如将容器的5000端口映射到指定地址127.0.0.1的5000端口上：</li>
+</ul>
+<blockquote>
+<p>-p 8081:8080  是把容器的8080和映射到宿主机的8081上</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d -p 127.0.0.1:8081:8080 tomat /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><code>2） IP::CONTAINERPORT：指定ip、未指定宿主机port（随机）、指定容器port</code></p>
+<blockquote>
+<p>适用于映射到指定地址的任意端口<br> 将容器的9000端口映射到127.0.0.1的任意端口上：<br> <figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it -d -p 127.0.0.1::9000  tomcat   /bin/bash</span><br></pre></td></tr></table></figure></p>
+</blockquote>
+<p><code>3）HOSTPORT:CONTAINERPORT ：未指定ip、指定宿主机port、指定容器port</code></p>
+<blockquote>
+<p>适用于将容器指定端口指定映射到宿主机的一个端口上（映射所有接口地址）,将容器的80端口映射到宿主机的8000端口上：</p>
+</blockquote>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -itd -p 8000:80 nginx /bin/bash</span><br></pre></td></tr></table></figure>
+
+<p><em><strong><code>特别说明</code></strong></em></p>
+<h3 id="查看端口映射配置"><a href="#查看端口映射配置" class="headerlink" title="查看端口映射配置"></a>查看端口映射配置</h3><p>可以使用</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker port CONTAINER_ID</span><br></pre></td></tr></table></figure>
+
+<h2 id="5-dockerfile中的volume和-docker-run-v"><a href="#5-dockerfile中的volume和-docker-run-v" class="headerlink" title="5.dockerfile中的volume和 docker run -v"></a>5.dockerfile中的volume和 docker run -v</h2><p>dockerfile中的volumn只是容器中的对外映射目录，会在宿主机上随机生成一个目录。<br>docker run -v 可以指定 主机目录:容器目录</p>
+<hr>
+<p>开通了个微信公众号：<br>搜索： <code>怒放de每一天</code><br>后续可能不定时推送相关文章，期待和大家一起成长！！</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f793673c0dac276d34b33e56aa4eafaa_1737631899169.png" alt="在这里插入图片描述"></p>
+<p>文章摘自:<br><a target="_blank" rel="noopener" href="https://blog.csdn.net/qq_30236895/article/details/106610714">https://blog.csdn.net/qq_30236895&#x2F;article&#x2F;details&#x2F;106610714</a><br><a target="_blank" rel="noopener" href="https://www.cnblogs.com/wholj/p/10551999.html">https://www.cnblogs.com/wholj/p/10551999.html</a></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2022/03/28/dockerfile%20%E5%87%A0%E7%BB%84%E6%98%93%E6%B7%B7%E5%91%BD%E4%BB%A4%E6%89%BE%E8%8C%AC/" title="dockerfile 几组易混命令找茬">https://hufanglei.github.io/2022/03/28/dockerfile 几组易混命令找茬/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/docker-dockerfile/" rel="tag"># docker dockerfile</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2022/03/27/Kubernetes%E5%B8%B8%E7%94%A8%E6%93%8D%E4%BD%9C%E5%91%BD%E4%BB%A4/" rel="prev" title="Kubernetes常用操作命令">
+                  <i class="fa fa-angle-left"></i> Kubernetes常用操作命令
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2022/03/29/elasticsearch%E4%BD%BF%E7%94%A8%20scroll%20%E6%BB%9A%E5%8A%A8%E5%88%86%E9%A1%B5%E5%AE%9E%E6%88%98%E5%AE%9E%E4%BE%8B/" rel="next" title="elasticsearch使用 scroll 滚动分页实战实例">
+                  elasticsearch使用 scroll 滚动分页实战实例 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

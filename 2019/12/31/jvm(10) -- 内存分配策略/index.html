@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc] 内存分配策略0.概述 1.内存分配优先进入eden区域  -verbose:gc -XX:+PrintGCDetails -XX:+UseSerialGC   java -version  多核，2个G以上的cpu都认为是server vm。 操作1:  操作2: 说明大对象直接在老年代分配内存。 操作3: 设置vm参数:  -verbose:gc-XX:+PrintGCDet">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="jvm(10) -- 内存分配策略">
+<meta property="og:url" content="https://hufanglei.github.io/2019/12/31/jvm(10)%20--%20%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc] 内存分配策略0.概述 1.内存分配优先进入eden区域  -verbose:gc -XX:+PrintGCDetails -XX:+UseSerialGC   java -version  多核，2个G以上的cpu都认为是server vm。 操作1:  操作2: 说明大对象直接在老年代分配内存。 操作3: 设置vm参数:  -verbose:gc-XX:+PrintGCDet">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5302b6f0f59515bf2d5778ec2e18b55b_1737626721164.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d5cbb6ccfd8d7f475eafc3004c34d35e_1737626721164.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4bcf62062e86d4d242cd72072968c29c_1737626732380.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d558635eeca3a03023f2db3c58d3cc4a_1737626732380.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ba0c252412efc3e30f76d10fff60f25_1737626732380.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/20b85ddf2507877968664157dfaa26d6_1737626732380.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e30906fce084958f507e47f9a187da9_1737626732380.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/545be6ba3b930b1d21edbeeddcd9d04e_1737626744506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/71736ab68aab457a9b76727c17440f2e_1737626744506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad300314d67fee46259c75ce8da5bebb_1737626744506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/dd76c00b3b1cd0bd67ceeb55093d0681_1737626744506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad931f59fc7ae32257f848f417201c26_1737626744506.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f832ccb31cce3c8ff6dfc07d025d4428_1737626755625.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f46046cff815e068156335e1996cc35e_1737626755625.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/882240e4392a451f9c047e82ecf8e783_1737626755625.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ed1c10ddf4b3aab0b761ae031ed596e_1737626755625.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/db5a3c33a3652eafb9b87136e86d2ef0_1737626755625.png">
+<meta property="article:published_time" content="2019-12-31T07:00:51.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="jvm">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5302b6f0f59515bf2d5778ec2e18b55b_1737626721164.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/12/31/jvm(10)%20--%20%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/12/31/jvm(10)%20--%20%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/","path":"2019/12/31/jvm(10) -- 内存分配策略/","title":"jvm(10) -- 内存分配策略"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>jvm(10) -- 内存分配策略 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5"><span class="nav-text">内存分配策略</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#0-%E6%A6%82%E8%BF%B0"><span class="nav-text">0.概述</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E4%BC%98%E5%85%88%E8%BF%9B%E5%85%A5eden%E5%8C%BA%E5%9F%9F"><span class="nav-text">1.内存分配优先进入eden区域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E5%A4%A7%E5%AF%B9%E8%B1%A1%E7%9B%B4%E6%8E%A5%E8%BF%9B%E5%85%A5%E8%80%81%E5%B9%B4%E4%BB%A3"><span class="nav-text">2.大对象直接进入老年代</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E9%95%BF%E6%9C%9F%E5%AD%98%E6%B4%BB%E7%9A%84%E5%AF%B9%E8%B1%A1%E7%9B%B4%E6%8E%A5%E8%BF%9B%E5%85%A5%E8%80%81%E5%B9%B4%E4%BB%A3"><span class="nav-text">3.长期存活的对象直接进入老年代</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E7%A9%BA%E9%97%B4%E5%88%86%E9%85%8D%E6%8B%85%E4%BF%9D"><span class="nav-text">4.空间分配担保</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%E5%92%8C%E6%A0%88%E4%B8%8A%E5%88%86%E9%85%8D"><span class="nav-text">5.逃逸分析和栈上分配</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%A6%82%E4%BD%95%E6%9F%A5%E7%9C%8B%E9%80%83%E9%80%B8%E5%88%86%E6%9E%90%E7%9A%84%E7%AD%9B%E9%80%89%E7%BB%93%E6%9E%9C"><span class="nav-text">如何查看逃逸分析的筛选结果</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-TLAB-%E7%BA%BF%E7%A8%8B%E6%9C%AC%E5%9C%B0%E5%88%86%E9%85%8D%E7%BC%93%E5%AD%98"><span class="nav-text">6.TLAB 线程本地分配缓存</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/12/31/jvm(10)%20--%20%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="jvm(10) -- 内存分配策略 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          jvm(10) -- 内存分配策略
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-12-31 15:00:51" itemprop="dateCreated datePublished" datetime="2019-12-31T15:00:51+08:00">2019-12-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/jvm/" itemprop="url" rel="index"><span itemprop="name">jvm</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+
+<p>@[toc]</p>
+<h1 id="内存分配策略"><a href="#内存分配策略" class="headerlink" title="内存分配策略"></a>内存分配策略</h1><h2 id="0-概述"><a href="#0-概述" class="headerlink" title="0.概述"></a>0.概述</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5302b6f0f59515bf2d5778ec2e18b55b_1737626721164.png" alt="在这里插入图片描述"></p>
+<h2 id="1-内存分配优先进入eden区域"><a href="#1-内存分配优先进入eden区域" class="headerlink" title="1.内存分配优先进入eden区域"></a>1.内存分配优先进入eden区域</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d5cbb6ccfd8d7f475eafc3004c34d35e_1737626721164.png" alt="在这里插入图片描述"></p>
+<blockquote>
+<p><code>-verbose:gc -XX:+PrintGCDetails -XX:+UseSerialGC</code><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4bcf62062e86d4d242cd72072968c29c_1737626732380.png" alt="在这里插入图片描述"></p>
+</blockquote>
+<blockquote>
+<p>java -version</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d558635eeca3a03023f2db3c58d3cc4a_1737626732380.png" alt="在这里插入图片描述"><br>多核，2个G以上的cpu都认为是server vm。</p>
+<p>操作1:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ba0c252412efc3e30f76d10fff60f25_1737626732380.png" alt="在这里插入图片描述"></p>
+<p>操作2:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/20b85ddf2507877968664157dfaa26d6_1737626732380.png" alt="在这里插入图片描述"></p>
+<p>说明大对象直接在老年代分配内存。</p>
+<p>操作3:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e30906fce084958f507e47f9a187da9_1737626732380.png" alt="在这里插入图片描述"><br>设置vm参数:</p>
+<blockquote>
+<p>-verbose:gc<br>-XX:+PrintGCDetails<br>-XX:+UseSerialGC<br>-Xms20M<br>-Xmx20M<br>-Xmn10M<br>-XX:SurvivorRatio&#x3D;8</p>
+</blockquote>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/545be6ba3b930b1d21edbeeddcd9d04e_1737626744506.png" alt="在这里插入图片描述"><br>堆一共才20M大小，给他40M，肯定会内存溢出。</p>
+<p>操作4:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/71736ab68aab457a9b76727c17440f2e_1737626744506.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad300314d67fee46259c75ce8da5bebb_1737626744506.png" alt="在这里插入图片描述"></p>
+<p>内存担保，eden区只能存8M，先存3个2M到eden，后面的4M来了，存不了，得放survior区，一个suvivior才1m，于是向老年代借空间，把原来的6m存在老年代。</p>
+<p>这个4m根据eden优先原则，存在eden区。</p>
+<h2 id="2-大对象直接进入老年代"><a href="#2-大对象直接进入老年代" class="headerlink" title="2.大对象直接进入老年代"></a>2.大对象直接进入老年代</h2><p>虚拟机提供了一个-XX:PretenureSizeThreshold参数，令大于这个设置值的对象直接在老年代分配。</p>
+<p>PretenureSizeThreshold参数只对Serial和ParNew两款收集器有效，Parallel Scavenge收集器不认识这个参数，Parallel Scavenge收集器一般并不需要设置。如果遇到必须使用此参数的场合，可以考虑ParNew加CMS的收集器组合。</p>
+<p>操作:</p>
+<p>指定前:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/dd76c00b3b1cd0bd67ceeb55093d0681_1737626744506.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ad931f59fc7ae32257f848f417201c26_1737626744506.png" alt="在这里插入图片描述"></p>
+<blockquote>
+<p>指定多大内存到老年代<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f832ccb31cce3c8ff6dfc07d025d4428_1737626755625.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f46046cff815e068156335e1996cc35e_1737626755625.png" alt="在这里插入图片描述"></p>
+</blockquote>
+<h2 id="3-长期存活的对象直接进入老年代"><a href="#3-长期存活的对象直接进入老年代" class="headerlink" title="3.长期存活的对象直接进入老年代"></a>3.长期存活的对象直接进入老年代</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/882240e4392a451f9c047e82ecf8e783_1737626755625.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ed1c10ddf4b3aab0b761ae031ed596e_1737626755625.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/db5a3c33a3652eafb9b87136e86d2ef0_1737626755625.png" alt="在这里插入图片描述"><br>通过上面的参数设置，到底多大的年龄进入老年代。</p>
+<h2 id="4-空间分配担保"><a href="#4-空间分配担保" class="headerlink" title="4.空间分配担保"></a>4.空间分配担保</h2><p>在发生Minor GC 之前，虚拟机会先检查老年代最大可用连续空间是否大于新生代所有对象大小总和，如果条件成立，那么Minor GC可以确保是安全的。如果不成立，虚拟机会查看HandlePromotionFailure设置的值是否允许担保失败。如果允许，那么虚拟机会检查老年代最大可用连续空间是否大于历次晋升到老年代对象大小的平均值，如果大于，将会尝试进行一次Minor GC；如果小于，或者HandlePromotionFailure设置不允许冒险，这时会进行一次Full GC。</p>
+<p>JDK 6 Update 24 之后，HandlePromotionFailure参数不会再影响到虚拟机空间分配担保的策略，规则变为只要老年代的连续空间大于新生代对象总大小或者大于历次晋升对象大小的平均值就会进行Minor GC ，否则将进行Full GC。</p>
+<h2 id="5-逃逸分析和栈上分配"><a href="#5-逃逸分析和栈上分配" class="headerlink" title="5.逃逸分析和栈上分配"></a>5.逃逸分析和栈上分配</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/blueheart20/article/details/52050545">https://blog.csdn.net/blueheart20/article/details/52050545</a></p>
+<p>讲的比较好</p>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/fuguoliang/p/9753061.html">https://www.cnblogs.com/fuguoliang/p/9753061.html</a></p>
+<p>发生逃逸的不要用栈上分配。</p>
+<h4 id="如何查看逃逸分析的筛选结果"><a href="#如何查看逃逸分析的筛选结果" class="headerlink" title="如何查看逃逸分析的筛选结果"></a>如何查看逃逸分析的筛选结果</h4><p>参考:链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f1e5e03ed2f8">https://www.jianshu.com/p/f1e5e03ed2f8</a></p>
+<p>可以通过配置 -XX:+PrintEscapeAnalysis 开启打印逃逸分析筛选结果</p>
+<p>栈上分配需要有一定的前提</p>
+<ul>
+<li>开启逃逸分析 (-XX:+DoEscapeAnalysis)</li>
+</ul>
+<p>逃逸分析的作用就是分析对象的作用域是否会逃逸出方法之外，再server虚拟机模式下才可以开启（jdk1.6默认开启）</p>
+<ul>
+<li>开启标量替换 (-XX:+EliminateAllocations)</li>
+</ul>
+<p>标量替换的作用是允许将对象根据属性打散后分配再栈上，默认该配置为开启</p>
+<h2 id="6-TLAB-线程本地分配缓存"><a href="#6-TLAB-线程本地分配缓存" class="headerlink" title="6.TLAB 线程本地分配缓存"></a>6.TLAB 线程本地分配缓存</h2><p>全称叫做：Thread Local Allocation Buffer 即线程本地分配缓存</p>
+<p>那么能不能构造一种线程私有的堆空间，哪怕这块堆空间特别小，但是只要有，就可以每个线程在分配对象到堆空间时，先分配到自己所属的那一块堆空间中，<strong>避免同步</strong>带来的效率问题，从而<strong>提高分配效率</strong>。</p>
+<p>参考链接：<a target="_blank" rel="noopener" href="https://www.jianshu.com/p/f1e5e03ed2f8">https://www.jianshu.com/p/f1e5e03ed2f8</a></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/12/31/jvm(10)%20--%20%E5%86%85%E5%AD%98%E5%88%86%E9%85%8D%E7%AD%96%E7%95%A5/" title="jvm(10) -- 内存分配策略">https://hufanglei.github.io/2019/12/31/jvm(10) -- 内存分配策略/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/jvm/" rel="tag"># jvm</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/12/31/jvm(9)%20--%20cms%E6%94%B6%E9%9B%86%E5%99%A8%E3%80%81G1%E6%94%B6%E9%9B%86%E5%99%A8/" rel="prev" title="jvm(9) -- cms收集器、G1收集器">
+                  <i class="fa fa-angle-left"></i> jvm(9) -- cms收集器、G1收集器
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/01/01/%E8%BF%9B%E9%98%B6%E8%AE%BE%E8%AE%A1%E6%A8%A1%E5%BC%8F(3)%20--%20%E9%80%82%E9%85%8D%E5%99%A8%E6%A8%A1%E5%BC%8F/" rel="next" title="进阶设计模式(3) -- 适配器模式">
+                  进阶设计模式(3) -- 适配器模式 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

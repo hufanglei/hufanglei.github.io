@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@TOC 目录公司目前用到文件上传，考虑到费用等情况，可以在公司自己的服务器上搭建一下。本人记录minio的使用情况。  “前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。点击跳转到网站。”  1.安装12345678docker run -p 9000:9000 -p 9090:9090 \ --name minio \ -d --restart&#x3D;alway">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="minio 使用docker安装和入门案例demo">
+<meta property="og:url" content="https://hufanglei.github.io/2023/01/31/minio%20%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bdemo/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@TOC 目录公司目前用到文件上传，考虑到费用等情况，可以在公司自己的服务器上搭建一下。本人记录minio的使用情况。  “前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。点击跳转到网站。”  1.安装12345678docker run -p 9000:9000 -p 9090:9090 \ --name minio \ -d --restart&#x3D;alway">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e8ffc5ef2b0772d692f9cf78a10eb117_1737628524430.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7c7c84f451b5af57f956bce6a12a7c4b_1737628524430.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d90f02918c9f82e20ed47f3d445e1ec7_1737628536623.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c34497bdcd1321a07c5719bf8e237f49_1737628536623.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/860e3a9dbc16c29310ea2154225deaef_1737628536623.png">
+<meta property="article:published_time" content="2023-01-31T07:41:54.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="java docker linux">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e8ffc5ef2b0772d692f9cf78a10eb117_1737628524430.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2023/01/31/minio%20%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bdemo/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2023/01/31/minio%20%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bdemo/","path":"2023/01/31/minio 使用docker安装和入门案例demo/","title":"minio 使用docker安装和入门案例demo"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>minio 使用docker安装和入门案例demo | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E7%9B%AE%E5%BD%95"><span class="nav-text">目录</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E5%AE%89%E8%A3%85"><span class="nav-text">1.安装</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E9%A1%B5%E9%9D%A2web%E8%AE%BF%E9%97%AE"><span class="nav-text">2.页面web访问</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-%E5%9C%A8%E7%95%8C%E9%9D%A2%E4%B8%8A%E4%BC%A0"><span class="nav-text">3.在界面上传</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E4%BD%BF%E7%94%A8api%E4%B8%8A%E4%BC%A0"><span class="nav-text">4.使用api上传</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E4%BD%BF%E7%94%A8api%E4%B8%8B%E8%BD%BD"><span class="nav-text">5.使用api下载</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2023/01/31/minio%20%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bdemo/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="minio 使用docker安装和入门案例demo | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          minio 使用docker安装和入门案例demo
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2023-01-31 15:41:54" itemprop="dateCreated datePublished" datetime="2023-01-31T15:41:54+08:00">2023-01-31</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/java%E5%9F%BA%E7%A1%80-docker-%E8%BF%90%E7%BB%B4/" itemprop="url" rel="index"><span itemprop="name">java基础 docker 运维</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>4.7k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>4 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@<a href="minio">TOC</a></p>
+<h1 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h1><p>公司目前用到文件上传，考虑到费用等情况，可以在公司自己的服务器上搭建一下。本人记录minio的使用情况。</p>
+<blockquote>
+<p>“前些天发现了一个巨牛的人工智能学习网站，通俗易懂，风趣幽默，忍不住分享一下给大家。<a target="_blank" rel="noopener" href="https://www.captainai.net/i690">点击跳转到网站</a>。”</p>
+</blockquote>
+<h2 id="1-安装"><a href="#1-安装" class="headerlink" title="1.安装"></a>1.安装</h2><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">docker run -p 9000:9000 -p 9090:9090 \</span><br><span class="line"> --name minio \</span><br><span class="line"> -d --restart=always \</span><br><span class="line"> -e &quot;MINIO_ROOT_USER=minioadmin&quot; \</span><br><span class="line"> -e &quot;MINIO_ROOT_PASSWORD=minioadmin&quot; \</span><br><span class="line"> -v /mydata/minio/data:/data \</span><br><span class="line"> minio/minio server \</span><br><span class="line"> /data --console-address &quot;:9090&quot; -address &quot;:9000&quot;</span><br></pre></td></tr></table></figure>
+
+<blockquote>
+<p>MinIO 部署开始使用默认的根凭据minioadmin:minioadmin。您可以使用 MinIO 控制台测试部署，这是一个内置于 MinIO 服务器的嵌入式对象浏览器。将主机上运行的 Web 浏览器指向<a href="http://127.0.0.1:9000并使用根凭据登录。您可以使用浏览器创建存储桶、上传对象以及浏览">http://127.0.0.1:9000并使用根凭据登录。您可以使用浏览器创建存储桶、上传对象以及浏览</a> MinIO 服务器的内容。<br>注意：要使用持久存储部署 MinIO，您必须使用该podman -v选项将本地持久目录从主机操作系统映射到容器。例如，-v &#x2F;mnt&#x2F;data:&#x2F;data将主机操作系统驱动器映射&#x2F;mnt&#x2F;data到&#x2F;data容器上。</p>
+</blockquote>
+<blockquote>
+<p>要覆盖MinIO的自动生成的密钥，您可以将Access和Secret密钥设为环境变量。 MinIO允许常规字符串作为Access和Secret密钥。</p>
+</blockquote>
+<blockquote>
+<p> &#x2F;mydata&#x2F;minio&#x2F;data &#x2F;&#x2F; 数据卷存放路径（自行添加）</p>
+</blockquote>
+<h2 id="2-页面web访问"><a href="#2-页面web访问" class="headerlink" title="2.页面web访问"></a>2.页面web访问</h2><p>浏览器中访问<br>http:ip&#x2F;9000  或者 http:ip&#x2F;9090 都可以。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e8ffc5ef2b0772d692f9cf78a10eb117_1737628524430.png" alt="在这里插入图片描述"><br>密码就是：</p>
+<blockquote>
+<p>-e “MINIO_ROOT_USER&#x3D;<code>minioadmin</code>“ <br> -e “MINIO_ROOT_PASSWORD&#x3D;<code>minioadmin</code>“ \</p>
+</blockquote>
+<p>docker启动时时候指定的 。</p>
+<h2 id="3-在界面上传"><a href="#3-在界面上传" class="headerlink" title="3.在界面上传"></a>3.在界面上传</h2><ul>
+<li><p>先创建个bucket。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7c7c84f451b5af57f956bce6a12a7c4b_1737628524430.png" alt="在这里插入图片描述"></p>
+</li>
+<li><p>点击上传<br> <img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d90f02918c9f82e20ed47f3d445e1ec7_1737628536623.png"><br>列表的文件是我刚上传的。900多M差不多几十秒上传完毕。</p>
+</li>
+</ul>
+<h2 id="4-使用api上传"><a href="#4-使用api上传" class="headerlink" title="4.使用api上传"></a>4.使用api上传</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@PostMapping(value = &#123;&quot;/uploadFile&quot;&#125;)</span></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;上传文件,支持批量上传&quot;)</span></span><br><span class="line">    <span class="meta">@ApiImplicitParam(name = &quot;files&quot;,value = &quot;文件对象&quot;,dataType = &quot;File&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> ApiResult <span class="title function_">uploadFile</span><span class="params">(<span class="meta">@RequestParam(&quot;files&quot;)</span> List&lt;MultipartFile&gt; files)</span> &#123;</span><br><span class="line">        log.info(files.toString());</span><br><span class="line">        <span class="keyword">if</span> (CollectionUtils.isEmpty(files)) &#123;</span><br><span class="line">            <span class="keyword">return</span> ApiResult.error(<span class="string">&quot;未选择文件！&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        List&lt;MinioResponseDTO&gt; MinioResponseDTOList = <span class="keyword">new</span> <span class="title class_">ArrayList</span>&lt;&gt;();</span><br><span class="line">        <span class="keyword">for</span> (MultipartFile file : files) &#123;</span><br><span class="line">            <span class="type">String</span> <span class="variable">originalFilename</span> <span class="operator">=</span> file.getOriginalFilename();</span><br><span class="line"><span class="comment">//            获取文件拓展名</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">extName</span> <span class="operator">=</span> FileUtil.extName(originalFilename);</span><br><span class="line">            log.info(<span class="string">&quot;文件拓展名:&quot;</span> + extName);</span><br><span class="line"><span class="comment">//            生成新的文件名，存入到minio</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">millSeconds</span> <span class="operator">=</span> Instant.now().toEpochMilli();</span><br><span class="line">            <span class="type">String</span> <span class="variable">minioFileName</span> <span class="operator">=</span> millSeconds + RandomStringUtils.randomNumeric(<span class="number">12</span>) + <span class="string">&quot;.&quot;</span> + extName;</span><br><span class="line">            <span class="type">String</span> <span class="variable">contentType</span> <span class="operator">=</span> file.getContentType();</span><br><span class="line">            log.info(<span class="string">&quot;文件mime:&#123;&#125;&quot;</span>, contentType);</span><br><span class="line"><span class="comment">//            返回文件大小,单位字节</span></span><br><span class="line">            <span class="type">long</span> <span class="variable">size</span> <span class="operator">=</span> file.getSize();</span><br><span class="line">            log.info(<span class="string">&quot;文件大小：&quot;</span> + size);</span><br><span class="line">            <span class="keyword">try</span> &#123;</span><br><span class="line">                <span class="type">String</span> <span class="variable">bucketName</span> <span class="operator">=</span> minioConfig.getBucketName();</span><br><span class="line">                minioClientUtils.putObject(bucketName, file, minioFileName);</span><br><span class="line">                <span class="type">String</span> <span class="variable">fileUrl</span> <span class="operator">=</span> minioClientUtils.getObjectUrl(bucketName, minioFileName);</span><br><span class="line">                <span class="type">MinioFile</span> <span class="variable">minioFile</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MinioFile</span>();</span><br><span class="line">                minioFile.setOriginalFileName(originalFilename);</span><br><span class="line">                minioFile.setFileExtName(extName);</span><br><span class="line">                minioFile.setFileName(minioFileName);</span><br><span class="line">                minioFile.setFileSize(size);</span><br><span class="line">                minioFile.setMime(contentType);</span><br><span class="line">                minioFile.setIsDelete(NumberUtils.INTEGER_ZERO);</span><br><span class="line">                minioFile.setFileUrl(fileUrl);</span><br><span class="line">                <span class="type">boolean</span> <span class="variable">insert</span> <span class="operator">=</span> minioFile.insert();</span><br><span class="line">                <span class="keyword">if</span> (insert) &#123;<span class="comment">//文件地址写入数据库</span></span><br><span class="line">                    <span class="type">MinioResponseDTO</span> <span class="variable">minioResponseDTO</span> <span class="operator">=</span> <span class="keyword">new</span> <span class="title class_">MinioResponseDTO</span>();</span><br><span class="line">                    minioResponseDTO.setFileId(minioFile.getId());</span><br><span class="line">                    minioResponseDTO.setOriginalFileName(originalFilename);</span><br><span class="line">                    minioResponseDTO.setFileUrl(fileUrl);</span><br><span class="line">                    MinioResponseDTOList.add(minioResponseDTO);</span><br><span class="line">                &#125;</span><br><span class="line">            &#125; <span class="keyword">catch</span> (Exception e) &#123;</span><br><span class="line">                log.error(<span class="string">&quot;上传文件出错:&#123;&#125;&quot;</span>, e);</span><br><span class="line">                <span class="keyword">return</span> ApiResult.error(<span class="string">&quot;上传文件出错&quot;</span>);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> ApiResult.success(MinioResponseDTOList);</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c34497bdcd1321a07c5719bf8e237f49_1737628536623.png" alt="在这里插入图片描述"></p>
+<h2 id="5-使用api下载"><a href="#5-使用api下载" class="headerlink" title="5.使用api下载"></a>5.使用api下载</h2><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">@GetMapping(&quot;/download&quot;)</span></span><br><span class="line">    <span class="meta">@ApiOperation(value = &quot;下载文件&quot;)</span></span><br><span class="line">    <span class="keyword">public</span> <span class="keyword">void</span> <span class="title function_">downloadFile</span><span class="params">(<span class="meta">@RequestParam(&quot;fileUrl&quot;)</span> String fileUrl, HttpServletResponse response)</span> <span class="keyword">throws</span> IOException &#123;</span><br><span class="line">        <span class="keyword">if</span> (StringUtils.isBlank(fileUrl))&#123;</span><br><span class="line">            response.setHeader(<span class="string">&quot;Content-type&quot;</span>,<span class="string">&quot;text/html;charset=UTF-8&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">msg</span> <span class="operator">=</span> <span class="string">&quot;文件下载失败&quot;</span>;</span><br><span class="line">            <span class="type">OutputStream</span> <span class="variable">ps</span> <span class="operator">=</span> response.getOutputStream();</span><br><span class="line">            ps.write(msg.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">            <span class="comment">//拿到文件路径</span></span><br><span class="line">            <span class="type">String</span> <span class="variable">url</span> <span class="operator">=</span> fileUrl.split(<span class="string">&quot;9000/&quot;</span>)[<span class="number">1</span>];</span><br><span class="line">            <span class="comment">//获取文件对象</span></span><br><span class="line">            <span class="type">InputStream</span> <span class="variable">object</span> <span class="operator">=</span> minioClientUtils.getObject(MinioConstant.FSP_DEV, url.substring(url.indexOf(<span class="string">&quot;/&quot;</span>) + <span class="number">1</span>));</span><br><span class="line">            <span class="type">byte</span>[] bytes = <span class="keyword">new</span> <span class="title class_">byte</span>[<span class="number">1024</span>];</span><br><span class="line">            <span class="type">int</span> <span class="variable">len</span> <span class="operator">=</span> <span class="number">0</span>;</span><br><span class="line">            response.reset();</span><br><span class="line">            response.setHeader(<span class="string">&quot;Content-Disposition&quot;</span>,<span class="string">&quot;attachment/filename=&quot;</span>+</span><br><span class="line">                    URLEncoder.encode(url.substring(url.lastIndexOf(<span class="string">&quot;/&quot;</span>)+<span class="number">1</span>),<span class="string">&quot;UTF-8&quot;</span>));</span><br><span class="line">            response.setContentType(<span class="string">&quot;application/octet-stream&quot;</span>);<span class="comment">//将文件下载到浏览器</span></span><br><span class="line"><span class="comment">//            response.setContentType(&quot;image/jpeg&quot;);//浏览器直接展示图片</span></span><br><span class="line">            response.setCharacterEncoding(<span class="string">&quot;UTF-8&quot;</span>);</span><br><span class="line">            <span class="type">OutputStream</span> <span class="variable">stream</span> <span class="operator">=</span> response.getOutputStream();</span><br><span class="line">            <span class="keyword">while</span> ((len = object.read(bytes))&gt;<span class="number">0</span>)&#123;</span><br><span class="line">                stream.write(bytes,<span class="number">0</span>,len);</span><br><span class="line">            &#125;</span><br><span class="line">            stream.close();</span><br><span class="line">        &#125;<span class="keyword">catch</span> (Exception e)&#123;</span><br><span class="line">            response.setHeader(<span class="string">&quot;Content-type&quot;</span>,<span class="string">&quot;text/html;charset=UTF-8&quot;</span>);</span><br><span class="line">            <span class="type">String</span> <span class="variable">data</span> <span class="operator">=</span> <span class="string">&quot;文件下载失败&quot;</span>;</span><br><span class="line">            <span class="type">OutputStream</span> <span class="variable">ps</span> <span class="operator">=</span> response.getOutputStream();</span><br><span class="line">            ps.write(data.getBytes(StandardCharsets.UTF_8));</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+
+<p>直接在浏览器输入 :<br> <code>http://localhost:8081/download?fileUrl=http://192.168.196.100:9000/fsp-dev/1675150054071022817109203.csv</code><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/860e3a9dbc16c29310ea2154225deaef_1737628536623.png" alt="在这里插入图片描述"></p>
+<p>源码地址:<br><a target="_blank" rel="noopener" href="https://github.com/hufanglei/minio-demo.git">https://github.com/hufanglei/minio-demo.git</a></p>
+<hr>
+<p>大功告成，完!!</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2023/01/31/minio%20%E4%BD%BF%E7%94%A8docker%E5%AE%89%E8%A3%85%E5%92%8C%E5%85%A5%E9%97%A8%E6%A1%88%E4%BE%8Bdemo/" title="minio 使用docker安装和入门案例demo">https://hufanglei.github.io/2023/01/31/minio 使用docker安装和入门案例demo/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/java-docker-linux/" rel="tag"># java docker linux</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2023/01/19/react17+ts%20%E5%AD%A6%E4%B9%A0/" rel="prev" title="react17+ts 学习">
+                  <i class="fa fa-angle-left"></i> react17+ts 学习
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2023/02/21/centos7%20%E5%BC%80%E6%9C%BA%E8%87%AA%E5%90%AF%E5%8A%A8%E8%87%AA%E5%AE%9A%E4%B9%89%E8%84%9A%E6%9C%AC/" rel="next" title="centos7 开机自启动自定义脚本">
+                  centos7 开机自启动自定义脚本 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

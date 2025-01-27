@@ -1,0 +1,612 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc]  最近公司有个需求，提前让数据库表结构在excel模板中设计，然后再建对应的数据库DB。字段少好说，无脑录入即可，但是，我遇到个100多个字段的，实在忍不了，最终入门了VBA编程，自己写脚本生成了sql语句。减少了需要无用重复劳动。  VBA基础首先学习下vba的基础。 一.了解VBA1.进入vba alt + f11 文件 - 选项 - 自定义功能区 - 勾选开发工具  2.认">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="excel VBA编程入门，自定义excel数据库模板生成sql语句">
+<meta property="og:url" content="https://hufanglei.github.io/2020/05/22/excel%20VBA%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89excel%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90sql%E8%AF%AD%E5%8F%A5/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc]  最近公司有个需求，提前让数据库表结构在excel模板中设计，然后再建对应的数据库DB。字段少好说，无脑录入即可，但是，我遇到个100多个字段的，实在忍不了，最终入门了VBA编程，自己写脚本生成了sql语句。减少了需要无用重复劳动。  VBA基础首先学习下vba的基础。 一.了解VBA1.进入vba alt + f11 文件 - 选项 - 自定义功能区 - 勾选开发工具  2.认">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c67fc50242c1ffb521958ed3ff2b8e6f_1737630834259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b4705d2119ff65c9dc43474417922736_1737630834259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c8550000803f5ab716525c25d19a5318_1737630834259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0f7e98671ff843384d38b72a47acbf06_1737630834259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f007969d1515c1435ebc5d78a06084af_1737630834259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e3be707d769a927196cee7f6cfad3918_1737630845995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d30cbcfc321f2b2a59e686adbf383114_1737630845995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/514391df9260d8e1a3372bfd049bf736_1737630845995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14d4d8cc4925292679f87c16b29bc017_1737630845995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7543edb2f6d8a42ba8909bf7ce2e02cb_1737630845995.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5923be3813997c804e2dcfa6c42f1cd1_1737630860895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9d41bde57384bdcef6f3275f75f0f5b0_1737630860895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/192d1ae99ae31b589ec37546fbbcbbb9_1737630860895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ed16dc948956d389a03bc14a03242884_1737630860895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0fe91f8b2dc0a9bee65cca5c0d0f8f93_1737630860895.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/da2f47251ee3cc7b9308e6ec8265ab4c_1737630870901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0568446e22e66b0d9d8f11259f1b586c_1737630870901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c55631077ea95e2c48c1441f83d484d4_1737630870901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/34a20a49c7a9d44236d888752d12d49e_1737630870901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/46a39c35472656dc9038dc4fcf98a0a0_1737630870901.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9063fcc100fbbeab3120cfa816d84d5f_1737630881461.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4be01e845cb1e152dad084c7f9a69c63_1737630881461.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8c4a0502ddf5ddae02c0acd71ce9f981_1737630881461.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7197504f9c263e6a154a4733554cd27_1737630881461.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e88e190f4d8ee63890d61aa7d1a12ff_1737630881461.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/abd8ffade0d26009f24a3f2f50b52dd2_1737630896527.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/30d7ce340b49e92fe35eb42a7744c1c2_1737630896527.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/undefined/img/2025-1-13/42409b1dbd9a6b7ff63471ea0769592d_1737631173950.png">
+<meta property="article:published_time" content="2020-05-22T14:07:42.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="vba excel编程">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c67fc50242c1ffb521958ed3ff2b8e6f_1737630834259.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/05/22/excel%20VBA%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89excel%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90sql%E8%AF%AD%E5%8F%A5/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/05/22/excel%20VBA%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89excel%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90sql%E8%AF%AD%E5%8F%A5/","path":"2020/05/22/excel VBA编程入门，自定义excel数据库模板生成sql语句/","title":"excel VBA编程入门，自定义excel数据库模板生成sql语句"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>excel VBA编程入门，自定义excel数据库模板生成sql语句 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#VBA%E5%9F%BA%E7%A1%80"><span class="nav-text">VBA基础</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%B8%80-%E4%BA%86%E8%A7%A3VBA"><span class="nav-text">一.了解VBA</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-%E8%BF%9B%E5%85%A5vba"><span class="nav-text">1.进入vba</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%AE%A4%E8%AF%86%E5%AE%8F"><span class="nav-text">2.认识宏</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E4%BA%8C-VBA%E7%BC%96%E7%A8%8B"><span class="nav-text">二. VBA编程</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-hello-world"><span class="nav-text">1.hello world</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-%E8%B0%83%E5%87%BA%E7%AB%8B%E5%8D%B3%E7%AA%97%E5%8F%A3%E5%92%8C%E6%9C%AC%E5%9C%B0%E7%AA%97%E5%8F%A3"><span class="nav-text">2.调出立即窗口和本地窗口</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-debug%E6%98%BE%E7%A4%BA"><span class="nav-text">3.debug显示</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#4-%E6%B3%A8%E9%87%8A"><span class="nav-text">4.注释</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E6%95%B0%E6%8D%AE%E7%B1%BB%E5%9E%8B"><span class="nav-text">5.数据类型</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#5-%E5%8F%98%E9%87%8F%E7%9A%84%E7%94%9F%E5%91%BD%E5%91%A8%E6%9C%9F%E5%92%8C%E5%AE%9A%E4%B9%89%E5%9F%9F"><span class="nav-text">5.变量的生命周期和定义域</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#6-%E5%88%A4%E6%96%AD%E8%AF%AD%E5%8F%A5"><span class="nav-text">6.判断语句</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#7-%E4%B8%8D%E7%AD%89%E4%BA%8E-switch-case-%E6%9D%A1%E4%BB%B6%E5%88%A4%E6%96%AD"><span class="nav-text">7.不等于&lt;&gt; ,  switch case 条件判断</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#8-%E5%BE%AA%E7%8E%AF"><span class="nav-text">8.循环</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#do-while"><span class="nav-text">do while</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%80%E5%87%BA%E5%BE%AA%E7%8E%AF%E7%9A%84%E8%AF%AD%E5%8F%A5-exit-for"><span class="nav-text">退出循环的语句  exit for</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%80%80%E5%87%BA%E5%BE%AA%E7%8E%AF%E7%9A%84%E8%AF%AD%E5%8F%A5-exit-do"><span class="nav-text">退出循环的语句  exit do</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#9-%E6%95%B0%E7%BB%84"><span class="nav-text">9.数组</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#10-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84"><span class="nav-text">10.二维数组</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#11-%E6%93%8D%E4%BD%9C%E5%8D%95%E5%85%83%E6%A0%BC"><span class="nav-text">11.操作单元格</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%AE%9E%E6%88%98"><span class="nav-text">实战</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89vba%E8%84%9A%E6%9C%AC%E7%94%9F%E6%88%90sql"><span class="nav-text">自定义vba脚本生成sql</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%A7%81%E8%AF%81%E5%A5%87%E8%BF%B9%E7%9A%84%E6%97%B6%E5%88%BB%EF%BC%88%E5%A6%82%E4%BD%95%E4%BD%BF%E7%94%A8%E8%84%9A%E6%9C%AC%EF%BC%89"><span class="nav-text">见证奇迹的时刻（如何使用脚本）</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/05/22/excel%20VBA%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89excel%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90sql%E8%AF%AD%E5%8F%A5/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="excel VBA编程入门，自定义excel数据库模板生成sql语句 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          excel VBA编程入门，自定义excel数据库模板生成sql语句
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-05-22 22:07:42" itemprop="dateCreated datePublished" datetime="2020-05-22T22:07:42+08:00">2020-05-22</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/java%E5%9F%BA%E7%A1%80/" itemprop="url" rel="index"><span itemprop="name">java基础</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>6k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>5 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[toc]</p>
+<blockquote>
+<p>最近公司有个需求，提前让数据库表结构在excel模板中设计，然后再建对应的数据库DB。字段少好说，无脑录入即可，但是，我遇到个100多个字段的，实在忍不了，最终入门了VBA编程，自己写脚本生成了sql语句。减少了需要无用重复劳动。</p>
+</blockquote>
+<h1 id="VBA基础"><a href="#VBA基础" class="headerlink" title="VBA基础"></a>VBA基础</h1><p>首先学习下vba的基础。</p>
+<h1 id="一-了解VBA"><a href="#一-了解VBA" class="headerlink" title="一.了解VBA"></a>一.了解VBA</h1><h2 id="1-进入vba"><a href="#1-进入vba" class="headerlink" title="1.进入vba"></a>1.进入vba</h2><blockquote>
+<p>alt + f11</p>
+<p>文件 - 选项 - 自定义功能区 - 勾选开发工具</p>
+</blockquote>
+<h2 id="2-认识宏"><a href="#2-认识宏" class="headerlink" title="2.认识宏"></a>2.认识宏</h2><ul>
+<li><p>录制宏</p>
+</li>
+<li><p>使用相对应用录制宏</p>
+</li>
+</ul>
+<h1 id="二-VBA编程"><a href="#二-VBA编程" class="headerlink" title="二. VBA编程"></a>二. VBA编程</h1><h2 id="1-hello-world"><a href="#1-hello-world" class="headerlink" title="1.hello world"></a>1.hello world</h2><p>双击某个sheet页, 把鼠标放在 窗口里面，点击工具栏的插入，选择过程，随便起个过程名，比如 class就生成了代码:</p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Public</span> <span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+
+<p>写个hello world程序:</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line">Sub <span class="title function_">class</span><span class="params">()</span></span><br><span class="line">    Dim <span class="type">name</span></span><br><span class="line">    <span class="variable">name</span> <span class="operator">=</span> <span class="string">&quot;Hello World&quot;</span></span><br><span class="line">    name = <span class="string">&quot;胡老师好&quot;</span></span><br><span class="line">    MsgBox name    </span><br><span class="line">End Sub</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c67fc50242c1ffb521958ed3ff2b8e6f_1737630834259.png" alt="在这里插入图片描述"></p>
+<h2 id="2-调出立即窗口和本地窗口"><a href="#2-调出立即窗口和本地窗口" class="headerlink" title="2.调出立即窗口和本地窗口"></a>2.调出立即窗口和本地窗口</h2><p>在工具栏中选择 选择立即窗口，和本地窗口。<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b4705d2119ff65c9dc43474417922736_1737630834259.png" alt="在这里插入图片描述"></p>
+<h2 id="3-debug显示"><a href="#3-debug显示" class="headerlink" title="3.debug显示"></a>3.debug显示</h2><figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line">    <span class="keyword">Dim</span> name</span><br><span class="line">    name = <span class="string">&quot;Hello World&quot;</span></span><br><span class="line">    Debug.Print name</span><br><span class="line">    name = <span class="string">&quot;胡老师好&quot;</span></span><br><span class="line">    MsgBox name</span><br><span class="line">    Debug.Print name</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c8550000803f5ab716525c25d19a5318_1737630834259.png" alt="在这里插入图片描述"></p>
+<h2 id="4-注释"><a href="#4-注释" class="headerlink" title="4.注释"></a>4.注释</h2><p>注释有2种形式，一种是rem。一种是  ‘ (单引号)</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0f7e98671ff843384d38b72a47acbf06_1737630834259.png" alt="在这里插入图片描述"></p>
+<h2 id="5-数据类型"><a href="#5-数据类型" class="headerlink" title="5.数据类型"></a>5.数据类型</h2><p>variant 代表任意类型</p>
+<p>single double decimal 代表 小数、</p>
+<p>rem 代表注释关键字</p>
+<p>Const 常量关键字</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f007969d1515c1435ebc5d78a06084af_1737630834259.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e3be707d769a927196cee7f6cfad3918_1737630845995.png" alt="在这里插入图片描述"></p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line">   <span class="comment"> Rem variant是任意类型</span></span><br><span class="line">    <span class="keyword">Dim</span> name <span class="keyword">As</span> Variant</span><br><span class="line">    name = <span class="string">&quot;Hello World&quot;</span></span><br><span class="line">   <span class="comment"> Rem debug</span></span><br><span class="line">    Debug.Print name</span><br><span class="line">    name = <span class="string">&quot;胡老师好&quot;</span></span><br><span class="line">    Debug.Print name</span><br><span class="line">   <span class="comment"> Rem 定义常量</span></span><br><span class="line">    <span class="keyword">Const</span> num <span class="keyword">As</span> <span class="type">Integer</span> = <span class="number">123</span></span><br><span class="line">    Debug.Print num</span><br><span class="line">    </span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="5-变量的生命周期和定义域"><a href="#5-变量的生命周期和定义域" class="headerlink" title="5.变量的生命周期和定义域"></a>5.变量的生命周期和定义域</h2><ul>
+<li>定义域: public 和 private<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d30cbcfc321f2b2a59e686adbf383114_1737630845995.png" alt="在这里插入图片描述"></li>
+<li>static 是静态变量</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class1()</span><br><span class="line"><span class="keyword">Dim</span> x <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line"><span class="comment">Rem static 是静态变量</span></span><br><span class="line"><span class="keyword">Static</span> y <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">x = x + <span class="number">1</span></span><br><span class="line">y = y + <span class="number">1</span></span><br><span class="line">Debug.Print <span class="string">&quot;x=&quot;</span> &amp; x</span><br><span class="line">Debug.Print <span class="string">&quot;y=&quot;</span> &amp; y</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="6-判断语句"><a href="#6-判断语句" class="headerlink" title="6.判断语句"></a>6.判断语句</h2><figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class3()</span><br><span class="line"><span class="keyword">Dim</span> number <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">number = <span class="number">1</span></span><br><span class="line"><span class="keyword">If</span> number &gt; <span class="number">100</span> <span class="keyword">Then</span></span><br><span class="line">   Debug.Print <span class="string">&quot;优秀&quot;</span></span><br><span class="line"><span class="keyword">ElseIf</span> number &gt; <span class="number">95</span> <span class="keyword">Then</span></span><br><span class="line">   Debug.Print <span class="string">&quot;良好&quot;</span></span><br><span class="line"><span class="keyword">Else</span></span><br><span class="line">  Debug.Print <span class="string">&quot;一般&quot;</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="7-不等于-switch-case-条件判断"><a href="#7-不等于-switch-case-条件判断" class="headerlink" title="7.不等于&lt;&gt; ,  switch case 条件判断"></a>7.不等于&lt;&gt; ,  switch case 条件判断</h2><ul>
+<li>&lt;&gt; 不等于</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class3()</span><br><span class="line"><span class="keyword">Dim</span> number <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">number = <span class="string">&quot;匹配&quot;</span></span><br><span class="line"><span class="keyword">If</span> number &gt; <span class="string">&quot;匹配&quot;</span> <span class="keyword">Then</span></span><br><span class="line">   Debug.Print <span class="string">&quot;优秀&quot;</span></span><br><span class="line"><span class="keyword">ElseIf</span> number &lt;&gt; <span class="string">&quot;匹配&quot;</span> <span class="keyword">Then</span></span><br><span class="line">   Debug.Print <span class="string">&quot;良好&quot;</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<ul>
+<li>switch case</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">Sub</span> class4()</span><br><span class="line">    <span class="keyword">Dim</span> number <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    number = <span class="string">&quot;匹配&quot;</span></span><br><span class="line">    <span class="keyword">Select</span> <span class="keyword">Case</span> number</span><br><span class="line">      <span class="keyword">Case</span> <span class="string">&quot;匹配&quot;</span></span><br><span class="line">        Debug.Print <span class="string">&quot;匹配&quot;</span></span><br><span class="line">      <span class="keyword">Case</span> <span class="string">&quot;不匹配&quot;</span></span><br><span class="line">        Debug.Print <span class="string">&quot;不匹配&quot;</span></span><br><span class="line">    <span class="keyword">End</span> <span class="keyword">Select</span></span><br><span class="line">        </span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<ul>
+<li>boolean类型的使用</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class5()</span><br><span class="line">    <span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    <span class="keyword">Dim</span> if_f <span class="keyword">As</span> <span class="type">Boolean</span></span><br><span class="line">    count = <span class="number">11</span></span><br><span class="line">    if_f = (count = <span class="number">10</span>)</span><br><span class="line">    MsgBox if_f</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="8-循环"><a href="#8-循环" class="headerlink" title="8.循环"></a>8.循环</h2><ul>
+<li>最简单的循环</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"><span class="comment">Rem 演示循环</span></span><br><span class="line"><span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    <span class="keyword">For</span> count = <span class="number">1</span> <span class="keyword">To</span> <span class="number">10</span></span><br><span class="line">        Debug.Print count</span><br><span class="line">    <span class="keyword">Next</span></span><br><span class="line">        Debug.Print <span class="string">&quot;count 循环结束之后的值是 &quot;</span> &amp; count</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/514391df9260d8e1a3372bfd049bf736_1737630845995.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>循环控制单元格属性</p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"><span class="comment">Rem 演示循环</span></span><br><span class="line"><span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    <span class="keyword">For</span> count = <span class="number">2</span> <span class="keyword">To</span> <span class="number">10</span></span><br><span class="line">        <span class="keyword">If</span> count <span class="built_in">Mod</span> <span class="number">2</span> = <span class="number">0</span> <span class="keyword">Then</span></span><br><span class="line">           <span class="comment"> Rem rang函数代表选中的某列单元格</span></span><br><span class="line">           <span class="comment"> Rem Interior代表单元格内部的对象</span></span><br><span class="line">            Range(<span class="string">&quot;T&quot;</span> &amp; count).Interior.ColorIndex = <span class="number">1</span></span><br><span class="line">        <span class="keyword">Else</span></span><br><span class="line">            Range(<span class="string">&quot;T&quot;</span> &amp; count).Interior.ColorIndex = <span class="number">3</span></span><br><span class="line">        <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">     <span class="keyword">Next</span></span><br><span class="line">     Debug.Print <span class="string">&quot;count 循环结束之后的值是 &quot;</span> &amp; count</span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/14d4d8cc4925292679f87c16b29bc017_1737630845995.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>循环控制单元格求和</p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"><span class="comment">Rem 演示循环</span></span><br><span class="line"><span class="keyword">Dim</span> COUNT <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line"><span class="keyword">Dim</span> score <span class="keyword">As</span> <span class="type">Double</span></span><br><span class="line"><span class="keyword">For</span> COUNT = <span class="number">2</span> <span class="keyword">To</span> <span class="number">20</span></span><br><span class="line">   <span class="comment"> Rem cells的参数 第一个参数代表横行，第2个参数代表竖行</span></span><br><span class="line">    Cells(COUNT, <span class="number">8</span>) = <span class="string">&quot;=sum(rc[-1]:rc[-6])&quot;</span></span><br><span class="line"><span class="keyword">Next</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7543edb2f6d8a42ba8909bf7ce2e02cb_1737630845995.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>循环单元格操作+if</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"><span class="comment">Rem 演示循环</span></span><br><span class="line"><span class="keyword">Dim</span> COUNT <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line"><span class="keyword">Dim</span> score <span class="keyword">As</span> <span class="type">Double</span></span><br><span class="line"><span class="keyword">For</span> COUNT = <span class="number">2</span> <span class="keyword">To</span> <span class="number">20</span></span><br><span class="line">   <span class="comment"> Rem cells的参数 第一个参数代表横行，第2个参数代表竖行</span></span><br><span class="line">    Cells(COUNT, <span class="number">8</span>) = <span class="string">&quot;=sum(rc[-1]:rc[-6])&quot;</span></span><br><span class="line">    score = Cells(COUNT, <span class="number">8</span>)</span><br><span class="line">    <span class="keyword">If</span> score &gt; <span class="number">700</span> <span class="keyword">Then</span></span><br><span class="line">        Cells(COUNT, <span class="number">9</span>) = <span class="string">&quot;秀儿&quot;</span></span><br><span class="line">    <span class="keyword">ElseIf</span> score &gt; <span class="number">650</span> <span class="keyword">Then</span></span><br><span class="line">        Cells(COUNT, <span class="number">9</span>) = <span class="string">&quot;良好&quot;</span></span><br><span class="line">    <span class="keyword">Else</span></span><br><span class="line">       Cells(COUNT, <span class="number">9</span>) = <span class="string">&quot;小垃圾&quot;</span></span><br><span class="line">    <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line"><span class="keyword">Next</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/5923be3813997c804e2dcfa6c42f1cd1_1737630860895.png" alt="在这里插入图片描述"></p>
+<h3 id="do-while"><a href="#do-while" class="headerlink" title="do while"></a>do while</h3><figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line">   <span class="comment"> Rem do while 演示</span></span><br><span class="line">    <span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    count = <span class="number">20</span></span><br><span class="line">    <span class="keyword">Do</span> <span class="keyword">While</span> count &gt; <span class="number">10</span></span><br><span class="line">        Debug.Print count</span><br><span class="line">        count = count - <span class="number">1</span></span><br><span class="line">        Debug.Print count</span><br><span class="line">    <span class="keyword">Loop</span></span><br><span class="line">    </span><br><span class="line">   <span class="comment"> Rem do .. loop 条件 不演示了</span></span><br><span class="line">     <span class="keyword">Do</span>        </span><br><span class="line">    <span class="keyword">Loop</span> <span class="keyword">While</span> count &gt; <span class="number">10</span></span><br><span class="line">    </span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9d41bde57384bdcef6f3275f75f0f5b0_1737630860895.png" alt="在这里插入图片描述"></p>
+<h3 id="退出循环的语句-exit-for"><a href="#退出循环的语句-exit-for" class="headerlink" title="退出循环的语句  exit for"></a>退出循环的语句  exit for</h3><blockquote>
+<p>使用for循环的时候退出用   exit for</p>
+</blockquote>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class1()</span><br><span class="line">    <span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    <span class="keyword">For</span> count = <span class="number">1</span> <span class="keyword">To</span> <span class="number">10</span></span><br><span class="line">        <span class="keyword">If</span> count = <span class="number">5</span> <span class="keyword">Then</span></span><br><span class="line">            Debug.Print <span class="string">&quot;count 退出循环的值是: &quot;</span> &amp; count</span><br><span class="line">            <span class="keyword">Exit</span> <span class="keyword">For</span></span><br><span class="line">        <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">        Debug.Print count</span><br><span class="line">    <span class="keyword">Next</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/192d1ae99ae31b589ec37546fbbcbbb9_1737630860895.png" alt="在这里插入图片描述"></p>
+<h3 id="退出循环的语句-exit-do"><a href="#退出循环的语句-exit-do" class="headerlink" title="退出循环的语句  exit do"></a>退出循环的语句  exit do</h3><blockquote>
+<p>使用fo while循环的时候退出用    exit do</p>
+</blockquote>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> class1()</span><br><span class="line">    <span class="keyword">Dim</span> count <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">    <span class="keyword">Do</span> <span class="keyword">While</span> <span class="literal">True</span></span><br><span class="line">        count = count + <span class="number">1</span></span><br><span class="line">        <span class="keyword">If</span> count &gt; <span class="number">5</span> <span class="keyword">Then</span></span><br><span class="line">            Debug.Print <span class="string">&quot;此时退出循环的值是: &quot;</span> &amp; count</span><br><span class="line">            <span class="keyword">Exit</span> <span class="keyword">Do</span></span><br><span class="line">        <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">    <span class="keyword">Loop</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ed16dc948956d389a03bc14a03242884_1737630860895.png" alt="在这里插入图片描述"></p>
+<h2 id="9-数组"><a href="#9-数组" class="headerlink" title="9.数组"></a>9.数组</h2><figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line">  <span class="keyword">Dim</span> arr(<span class="number">2</span>) <span class="keyword">As</span> Variant</span><br><span class="line">  <span class="keyword">Dim</span> i <span class="keyword">As</span> <span class="type">Integer</span></span><br><span class="line">  arr(<span class="number">0</span>) = <span class="string">&quot;小明&quot;</span></span><br><span class="line">  arr(<span class="number">1</span>) = <span class="number">2</span></span><br><span class="line">  arr(<span class="number">2</span>) = <span class="literal">True</span></span><br><span class="line">  <span class="keyword">For</span> i = <span class="number">0</span> <span class="keyword">To</span> <span class="number">2</span></span><br><span class="line">    Debug.Print arr(i)</span><br><span class="line">  <span class="keyword">Next</span></span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0fe91f8b2dc0a9bee65cca5c0d0f8f93_1737630860895.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>下标越界</p>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line"> <span class="comment">&#x27; Const i As Integer = 10</span></span><br><span class="line"> <span class="comment">&#x27; Dim arr(i) As Variant</span></span><br><span class="line"> <span class="comment"> Rem  可以指明数组的范围奥 起始开始限制了也是下标越界</span></span><br><span class="line">  <span class="keyword">Dim</span> arr(<span class="number">2</span> <span class="keyword">To</span> <span class="number">5</span>) <span class="keyword">As</span> Variant</span><br><span class="line">  arr(<span class="number">1</span>) = <span class="number">1</span></span><br><span class="line">  Debug.Print arr(<span class="number">1</span>)</span><br><span class="line">  </span><br><span class="line"><span class="keyword">End</span> <span class="keyword">Sub</span> </span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/da2f47251ee3cc7b9308e6ec8265ab4c_1737630870901.png" alt="在这里插入图片描述"></p>
+<h1 id="10-二维数组"><a href="#10-二维数组" class="headerlink" title="10.二维数组"></a>10.二维数组</h1><figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">Sub <span class="title function_">class</span><span class="params">()</span></span><br><span class="line">    Dim <span class="title function_">arr</span><span class="params">(<span class="number">2</span> To <span class="number">5</span>, <span class="number">3</span> To <span class="number">6</span>)</span> As Variant</span><br><span class="line">      <span class="title function_">arr</span><span class="params">(<span class="number">2</span>, <span class="number">3</span>)</span> = <span class="number">1</span></span><br><span class="line">      Debug.Print <span class="title function_">arr</span><span class="params">(<span class="number">2</span>, <span class="number">3</span>)</span></span><br><span class="line">End Sub </span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0568446e22e66b0d9d8f11259f1b586c_1737630870901.png" alt="在这里插入图片描述"></p>
+<ul>
+<li><p>遍历循环</p>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br></pre></td><td class="code"><pre><span class="line">Sub <span class="title function_">class</span><span class="params">()</span></span><br><span class="line">    Dim <span class="title function_">arr</span><span class="params">(<span class="number">2</span> To <span class="number">5</span>, <span class="number">3</span> To <span class="number">6</span>)</span> As Variant</span><br><span class="line">      <span class="title function_">arr</span><span class="params">(<span class="number">2</span>, <span class="number">3</span>)</span> = <span class="number">1</span></span><br><span class="line">      <span class="string">&#x27;Debug.Print arr(2, 3)</span></span><br><span class="line"><span class="string">      For x = 2 To 5</span></span><br><span class="line"><span class="string">        For y = 3 To 6</span></span><br><span class="line"><span class="string">            Debug.Print arr(2, 3)</span></span><br><span class="line"><span class="string">        Next</span></span><br><span class="line"><span class="string">      Next</span></span><br><span class="line"><span class="string">      </span></span><br><span class="line"><span class="string">End Sub </span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c55631077ea95e2c48c1441f83d484d4_1737630870901.png" alt="在这里插入图片描述"></p>
+<h2 id="11-操作单元格"><a href="#11-操作单元格" class="headerlink" title="11.操作单元格"></a>11.操作单元格</h2><p>2中方式，一种是range，一种是cells</p>
+<p>range<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/34a20a49c7a9d44236d888752d12d49e_1737630870901.png" alt="在这里插入图片描述"></p>
+<p>cells<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/46a39c35472656dc9038dc4fcf98a0a0_1737630870901.png" alt="在这里插入图片描述"></p>
+<h1 id="实战"><a href="#实战" class="headerlink" title="实战"></a>实战</h1><blockquote>
+<p>现在掌握了上面的基础知识，基本上可以满足我们最开始的需求<br>解决思路:  <code>循环方式获取单元格中的内容，拼接成 sql 的创建脚本语句即可</code>。</p>
+</blockquote>
+<h1 id="自定义vba脚本生成sql"><a href="#自定义vba脚本生成sql" class="headerlink" title="自定义vba脚本生成sql"></a>自定义vba脚本生成sql</h1><ul>
+<li>原来的excel模板内容:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9063fcc100fbbeab3120cfa816d84d5f_1737630881461.png" alt="在这里插入图片描述"></li>
+<li>目标:输出sql创建表的语句:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4be01e845cb1e152dad084c7f9a69c63_1737630881461.png" alt="在这里插入图片描述"><br>具体实现的脚本:</li>
+</ul>
+<figure class="highlight vb"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">Public</span> <span class="keyword">Sub</span> <span class="keyword">class</span>()</span><br><span class="line">   <span class="comment"> Rem 声明字段row的开始行号</span></span><br><span class="line">    <span class="keyword">Const</span> startRow <span class="keyword">As</span> <span class="type">Integer</span> = <span class="number">13</span></span><br><span class="line">   <span class="comment"> Rem 声明字段row的结束行号</span></span><br><span class="line">    <span class="keyword">Const</span> endRow <span class="keyword">As</span> <span class="type">Integer</span> = <span class="number">28</span></span><br><span class="line">   <span class="comment"> Rem 声明表名</span></span><br><span class="line">    <span class="keyword">Dim</span> tableName  <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    tableName = Range(<span class="string">&quot;E&quot;</span> &amp; <span class="number">6</span>)</span><br><span class="line">   <span class="comment"> Rem 声明主键</span></span><br><span class="line">    <span class="keyword">Dim</span> primaryKey  <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    primaryKey = Range(<span class="string">&quot;F&quot;</span> &amp; <span class="number">13</span>)</span><br><span class="line">   <span class="comment"> Rem 声明表名注释</span></span><br><span class="line">    <span class="keyword">Dim</span> tableComment <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    tableComment = Range(<span class="string">&quot;E&quot;</span> &amp; <span class="number">7</span>)</span><br><span class="line">   <span class="comment"> Rem 声明字段名对应列 英文序号</span></span><br><span class="line">    <span class="keyword">Dim</span> filedMetaNo <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    filedMetaNo = <span class="string">&quot;F&quot;</span></span><br><span class="line">   <span class="comment"> Rem 声明字段注释对应对应列 英文序号</span></span><br><span class="line">    <span class="keyword">Dim</span> commentMetaNo <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    commentMetaNo = <span class="string">&quot;C&quot;</span></span><br><span class="line">   <span class="comment"> Rem 声明字段备注 对应列的 英文序号</span></span><br><span class="line">    <span class="keyword">Dim</span> comment2MetaNo <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    comment2MetaNo = <span class="string">&quot;U&quot;</span></span><br><span class="line">   <span class="comment"> Rem 声明类型 对应列的 英文序号</span></span><br><span class="line">    <span class="keyword">Dim</span> typeMetaNo <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    typeMetaNo = <span class="string">&quot;G&quot;</span></span><br><span class="line">   <span class="comment"> Rem 声明字长 对应的列的英文序号</span></span><br><span class="line">    <span class="keyword">Dim</span> lengthMetaNo <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    lengthMetaNo = <span class="string">&quot;H&quot;</span></span><br><span class="line">    </span><br><span class="line">   <span class="comment"> Rem 最终要拼接的sql</span></span><br><span class="line">    <span class="keyword">Dim</span> sqlStr <span class="keyword">As</span> <span class="type">String</span></span><br><span class="line">    sqlStr = <span class="string">&quot;CREATE TABLE &quot;</span> &amp; Range(<span class="string">&quot;E&quot;</span> &amp; <span class="number">6</span>) &amp; Chr(<span class="number">13</span>)</span><br><span class="line">    sqlStr = sqlStr &amp; <span class="string">&quot;(&quot;</span> &amp; Chr(<span class="number">13</span>)</span><br><span class="line">    <span class="keyword">For</span> count = startRow <span class="keyword">To</span> endRow</span><br><span class="line">      <span class="comment"> Rem 拼接 字段名</span></span><br><span class="line">       sqlStr = sqlStr &amp; Replace(Range(filedMetaNo &amp; count).<span class="keyword">Text</span>, <span class="string">&quot; &quot;</span>, <span class="string">&quot;&quot;</span>)</span><br><span class="line">      <span class="comment"> Rem 拼接  字段类型(字段长度)</span></span><br><span class="line">       sqlStr = sqlStr &amp; <span class="string">&quot;   &quot;</span> &amp; Range(typeMetaNo &amp; count)</span><br><span class="line">       <span class="keyword">If</span> IsEmpty(Range(lengthMetaNo &amp; count)) = <span class="literal">False</span> <span class="keyword">Then</span></span><br><span class="line">         sqlStr = sqlStr &amp; <span class="string">&quot;(&quot;</span> &amp; Range(lengthMetaNo &amp; count) &amp; <span class="string">&quot;)  &quot;</span></span><br><span class="line">       <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">      <span class="comment"> Rem 如果是主键，设置NOT NULL COMMENT</span></span><br><span class="line">       <span class="keyword">If</span> primaryKey = Range(filedMetaNo &amp; count) <span class="keyword">Then</span></span><br><span class="line">         sqlStr = sqlStr &amp; <span class="string">&quot; NOT NULL COMMENT &quot;</span></span><br><span class="line">       <span class="keyword">Else</span></span><br><span class="line">       <span class="comment"> Rem 拼接  DEFAULT NULL COMMENT  &#x27;字段名称注释(字段备注)&#x27;</span></span><br><span class="line">       sqlStr = sqlStr &amp; <span class="string">&quot; DEFAULT NULL COMMENT &quot;</span></span><br><span class="line">       <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">       sqlStr = sqlStr &amp; <span class="string">&quot;&#x27;&quot;</span> &amp; Range(commentMetaNo &amp; count)</span><br><span class="line">       <span class="keyword">If</span> IsEmpty(Range(comment2MetaNo &amp; count)) = <span class="literal">False</span> <span class="keyword">Then</span></span><br><span class="line">        sqlStr = sqlStr &amp; <span class="string">&quot;(&quot;</span> &amp; Range(comment2MetaNo &amp; count) &amp; <span class="string">&quot;)&quot;</span></span><br><span class="line">       <span class="keyword">End</span> <span class="keyword">If</span></span><br><span class="line">       sqlStr = sqlStr &amp; <span class="string">&quot;&#x27;&quot;</span></span><br><span class="line">       sqlStr = sqlStr &amp; <span class="string">&quot;,&quot;</span> &amp; Chr(<span class="number">13</span>)</span><br><span class="line">    <span class="keyword">Next</span></span><br><span class="line">    sqlStr = sqlStr &amp; <span class="string">&quot;PRIMARY KEY (&quot;</span> &amp; primaryKey &amp; <span class="string">&quot;)&quot;</span> &amp; Chr(<span class="number">13</span>)</span><br><span class="line">    sqlStr = sqlStr &amp; <span class="string">&quot;)ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT=&#x27;&quot;</span> &amp; tableComment &amp; <span class="string">&quot;&#x27;&quot;</span> &amp; Chr(<span class="number">13</span>)</span><br><span class="line">    Debug.Print sqlStr</span><br><span class="line"> <span class="keyword">End</span> <span class="keyword">Sub</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>显示结果：<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8c4a0502ddf5ddae02c0acd71ce9f981_1737630881461.png" alt="在这里插入图片描述"></p>
+<p>在navicat中运行<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d7197504f9c263e6a154a4733554cd27_1737630881461.png" alt="在这里插入图片描述"></p>
+<p>显示已经把mysql数据库的表结构导入数据库了。</p>
+<h2 id="见证奇迹的时刻（如何使用脚本）"><a href="#见证奇迹的时刻（如何使用脚本）" class="headerlink" title="见证奇迹的时刻（如何使用脚本）"></a>见证奇迹的时刻（如何使用脚本）</h2><p>脚本只需要改一个地方:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3e88e190f4d8ee63890d61aa7d1a12ff_1737630881461.png" alt="在这里插入图片描述"><br>对应这里的行号:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/abd8ffade0d26009f24a3f2f50b52dd2_1737630896527.png" alt="在这里插入图片描述"><br>即可。</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/30d7ce340b49e92fe35eb42a7744c1c2_1737630896527.png" alt="在这里插入图片描述"></p>
+<p>以上即是用脚本生成的4张表效果图。</p>
+<hr>
+<p>个人微信公众号：<br>搜索： 怒放de每一天<br>不定时推送相关文章，期待和大家一起成长！！<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/undefined/img/2025-1-13/42409b1dbd9a6b7ff63471ea0769592d_1737631173950.png" alt="在这里插入图片描述"></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/05/22/excel%20VBA%E7%BC%96%E7%A8%8B%E5%85%A5%E9%97%A8%EF%BC%8C%E8%87%AA%E5%AE%9A%E4%B9%89excel%E6%95%B0%E6%8D%AE%E5%BA%93%E6%A8%A1%E6%9D%BF%E7%94%9F%E6%88%90sql%E8%AF%AD%E5%8F%A5/" title="excel VBA编程入门，自定义excel数据库模板生成sql语句">https://hufanglei.github.io/2020/05/22/excel VBA编程入门，自定义excel数据库模板生成sql语句/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/vba-excel%E7%BC%96%E7%A8%8B/" rel="tag"># vba excel编程</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/05/20/%E5%B0%86%E6%9C%AC%E5%9C%B0%E7%AC%AC%E4%B8%89%E6%96%B9jar%E5%8C%85%E6%89%93%E5%85%A5maven%E7%A7%81%E6%9C%8D/" rel="prev" title="将本地第三方jar包打入maven私服">
+                  <i class="fa fa-angle-left"></i> 将本地第三方jar包打入maven私服
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/05/23/%E6%A8%A1%E6%9D%BF%E6%96%B9%E6%B3%95%E6%A8%A1%E5%BC%8F%E5%AE%9E%E7%8E%B0%E5%B0%81%E8%A3%85jdbc/" rel="next" title="模板方法模式实现封装jdbc">
+                  模板方法模式实现封装jdbc <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

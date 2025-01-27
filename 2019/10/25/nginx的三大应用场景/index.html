@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[toc]三大应用场景分别为：虚拟多个主机 、反向代理、负载均衡 虚拟多个主机（其实就是虚拟多个工作目录）本质	: 主要操作server这个部分，几个虚拟空间就建立几个server 端口实现虚拟多个主机  操作：  新建虚拟工作目录空间        配置nginx.conf,  123456789101112131415161718server &#123;       listen">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="nginx的三大应用场景">
+<meta property="og:url" content="https://hufanglei.github.io/2019/10/25/nginx%E7%9A%84%E4%B8%89%E5%A4%A7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[toc]三大应用场景分别为：虚拟多个主机 、反向代理、负载均衡 虚拟多个主机（其实就是虚拟多个工作目录）本质	: 主要操作server这个部分，几个虚拟空间就建立几个server 端口实现虚拟多个主机  操作：  新建虚拟工作目录空间        配置nginx.conf,  123456789101112131415161718server &#123;       listen">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b1fb9ba5e7b34107c2e6f83385555ba5_1737631735606.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/07939283122cea43bb3ae0bb95619f56_1737631746708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b7949560e6f6ddbe8342eb089f2782d2_1737631746708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8fd6df92ad244ba29180ca431e7c94a2_1737631746708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9b7adbc659f9e0769d67178a9dfb8d20_1737631746708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e970af104aa0b27b3b1498426956088c_1737631746708.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d8ff49882f8e2839efbd6a0963c31e5d_1737631757671.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1f7910d3c6889ed6918dbe04cb86a8d4_1737631757671.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c4986d1dc7f079f1d479e23ac12daa39_1737631757671.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0361a8da1114742dd76a03b056bf220d_1737631757671.png">
+<meta property="og:image" content="https://i-blog.csdnimg.cn/blog_migrate/72dd43c4f6136f61e3394353a0e69163.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ceaf5ee7b295708a4c060d6b64053c73_1737631757671.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d94fe14d7579b190deeea7d45f6586f0_1737631767881.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/628c577441337eb86e11b622bbe5c4a0_1737631767881.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0616e21c5755cc7ca8c0778761179da3_1737631767881.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ced6ad1a9de2326c224eb3423e2beb62_1737631767881.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e62556846a0990465bd4045744b6c72d_1737631767881.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2875383b07c36cbba37d6e7e901fbc65_1737631782043.png">
+<meta property="article:published_time" content="2019-10-25T05:35:14.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="nignx">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b1fb9ba5e7b34107c2e6f83385555ba5_1737631735606.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2019/10/25/nginx%E7%9A%84%E4%B8%89%E5%A4%A7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2019/10/25/nginx%E7%9A%84%E4%B8%89%E5%A4%A7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/","path":"2019/10/25/nginx的三大应用场景/","title":"nginx的三大应用场景"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>nginx的三大应用场景 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%99%9A%E6%8B%9F%E5%A4%9A%E4%B8%AA%E4%B8%BB%E6%9C%BA%EF%BC%88%E5%85%B6%E5%AE%9E%E5%B0%B1%E6%98%AF%E8%99%9A%E6%8B%9F%E5%A4%9A%E4%B8%AA%E5%B7%A5%E4%BD%9C%E7%9B%AE%E5%BD%95%EF%BC%89"><span class="nav-text">虚拟多个主机（其实就是虚拟多个工作目录）</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AB%AF%E5%8F%A3%E5%AE%9E%E7%8E%B0%E8%99%9A%E6%8B%9F%E5%A4%9A%E4%B8%AA%E4%B8%BB%E6%9C%BA"><span class="nav-text">端口实现虚拟多个主机</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%9F%9F%E5%90%8D%E5%AE%9E%E7%8E%B0%E8%99%9A%E6%8B%9F%E5%A4%9A%E4%B8%AA%E4%B8%BB%E6%9C%BA"><span class="nav-text">域名实现虚拟多个主机</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%B5%8F%E8%A7%88%E5%99%A8%E8%BE%93%E5%85%A5%E5%9F%9F%E5%90%8D%E8%AE%BF%E9%97%AE%E4%BF%A1%E6%81%AF%E7%9A%84%E5%8E%9F%E7%90%86%E5%9B%BE"><span class="nav-text">浏览器输入域名访问信息的原理图</span></a></li></ol></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86"><span class="nav-text">反向代理</span></a></li><li class="nav-item nav-level-1"><a class="nav-link" href="#%E8%B4%9F%E8%BD%BD%E5%9D%87%E8%A1%A1"><span class="nav-text">负载均衡</span></a></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2019/10/25/nginx%E7%9A%84%E4%B8%89%E5%A4%A7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="nginx的三大应用场景 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          nginx的三大应用场景
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2019-10-25 13:35:14" itemprop="dateCreated datePublished" datetime="2019-10-25T13:35:14+08:00">2019-10-25</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/nginx/" itemprop="url" rel="index"><span itemprop="name">nginx</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>1.3k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>1 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[toc]<br>三大应用场景分别为：虚拟多个主机 、反向代理、负载均衡</p>
+<h1 id="虚拟多个主机（其实就是虚拟多个工作目录）"><a href="#虚拟多个主机（其实就是虚拟多个工作目录）" class="headerlink" title="虚拟多个主机（其实就是虚拟多个工作目录）"></a>虚拟多个主机（其实就是虚拟多个工作目录）</h1><p>本质	: <code>主要操作server这个部分，几个虚拟空间就建立几个server</code></p>
+<h2 id="端口实现虚拟多个主机"><a href="#端口实现虚拟多个主机" class="headerlink" title="端口实现虚拟多个主机"></a>端口实现虚拟多个主机</h2><p>  操作：</p>
+<ul>
+<li>新建虚拟工作目录空间<br>  <img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b1fb9ba5e7b34107c2e6f83385555ba5_1737631735606.png" alt="在这里插入图片描述"><br>  <img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/07939283122cea43bb3ae0bb95619f56_1737631746708.png" alt="在这里插入图片描述"></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/b7949560e6f6ddbe8342eb089f2782d2_1737631746708.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>配置nginx.conf,</li>
+</ul>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">server &#123;</span><br><span class="line">       listen       8001;</span><br><span class="line">       server_name  localhost;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">         root   html8001;</span><br><span class="line">         index  index.html index.htm;</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br><span class="line">	server &#123;</span><br><span class="line">       listen       8002;</span><br><span class="line">       server_name  localhost;</span><br><span class="line"></span><br><span class="line">        location / &#123;</span><br><span class="line">         root   html8002;</span><br><span class="line">         index  index.html index.htm;</span><br><span class="line">       &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>window下启动nginx</li>
+</ul>
+<p><code>start nginx.exe</code>或者<code>nginx.exe -s reload</code><br>效果:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/8fd6df92ad244ba29180ca431e7c94a2_1737631746708.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/9b7adbc659f9e0769d67178a9dfb8d20_1737631746708.png" alt="在这里插入图片描述"></p>
+<h2 id="域名实现虚拟多个主机"><a href="#域名实现虚拟多个主机" class="headerlink" title="域名实现虚拟多个主机"></a>域名实现虚拟多个主机</h2><h3 id="浏览器输入域名访问信息的原理图"><a href="#浏览器输入域名访问信息的原理图" class="headerlink" title="浏览器输入域名访问信息的原理图"></a>浏览器输入域名访问信息的原理图</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e970af104aa0b27b3b1498426956088c_1737631746708.png" alt="在这里插入图片描述"><br>由此可见，本地模拟的话上面红色的部分需要我们来操作;</p>
+<ul>
+<li>使用switchhost修改本地host<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d8ff49882f8e2839efbd6a0963c31e5d_1737631757671.png" alt="在这里插入图片描述"></li>
+<li>配置nginx.conf<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1f7910d3c6889ed6918dbe04cb86a8d4_1737631757671.png" alt="在这里插入图片描述"></li>
+<li>准备工作目录<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/c4986d1dc7f079f1d479e23ac12daa39_1737631757671.png" alt="在这里插入图片描述"></li>
+<li>运行<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0361a8da1114742dd76a03b056bf220d_1737631757671.png" alt="在这里插入图片描述"></li>
+<li>效果<br><img src="https://i-blog.csdnimg.cn/blog_migrate/72dd43c4f6136f61e3394353a0e69163.png" alt="在这里插入图片描述"><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ceaf5ee7b295708a4c060d6b64053c73_1737631757671.png" alt="在这里插入图片描述"></li>
+</ul>
+<h1 id="反向代理"><a href="#反向代理" class="headerlink" title="反向代理"></a>反向代理</h1><p>反向代理的可以这样理解: 用户在浏览器输入很多个域名，但是这些域名通过本地host或者dns 同时指向了一个 nginx服务器。<br>这个服务器根据配置文件，让域名转发到不同的服务器上。<br>看起来好像都是nginx提供的服务，其实，nginx内部是让别的服务器提供服务。<br>使用很简单，<code>基本就是修改 upstream 和 server 两个部分，server中原来的root替换成 proxy_pass</code>。</p>
+<p>演示：</p>
+<ul>
+<li>在192.168.157.113虚拟机上部署2个tomcat</li>
+</ul>
+<p>| tomcat名称 | 端口 | 页面显示 |<br>|–|–|–|–|<br>| tomcat1 | 8080 |sohu|<br>|tomcat2  | 8081 |sina  |<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/d94fe14d7579b190deeea7d45f6586f0_1737631767881.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/628c577441337eb86e11b622bbe5c4a0_1737631767881.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>在window上配置本地host目录<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0616e21c5755cc7ca8c0778761179da3_1737631767881.png" alt="在这里插入图片描述"></li>
+<li>修改nginx.conf配置文件，在http下添加2个 upstrem和server块<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ced6ad1a9de2326c224eb3423e2beb62_1737631767881.png" alt="在这里插入图片描述"></li>
+<li>启动nignx</li>
+</ul>
+<p><code>start nginx.exe </code><br>或<code>nginx.exe -s reload </code></p>
+<ul>
+<li>浏览器输入域名看是否反向代理转发了，效果测试如下:<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e62556846a0990465bd4045744b6c72d_1737631767881.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2875383b07c36cbba37d6e7e901fbc65_1737631782043.png" alt="在这里插入图片描述"><br>说明：反向代理成功了!</li>
+</ul>
+<h1 id="负载均衡"><a href="#负载均衡" class="headerlink" title="负载均衡"></a>负载均衡</h1><p>如果一个服务由多台服务器提供，需要把负载分配到不同的服务器处理，需要负载均衡。</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">upstream tomcat2 &#123;</span><br><span class="line">	server <span class="number">192.168</span>.<span class="number">25.148</span>:<span class="number">8081</span>;</span><br><span class="line">	server <span class="number">192.168</span>.<span class="number">25.148</span>:<span class="number">8082</span>;</span><br><span class="line"> &#125;</span><br></pre></td></tr></table></figure>
+<p>默认的负载均衡的策略就是轮询的方式。</p>
+<p>可以根据服务器的实际情况调整服务器权重。权重越高分配的请求越多，权重越低，请求越少。默认是都是1</p>
+<figure class="highlight c"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">upstream tomcat2 &#123;</span><br><span class="line">server <span class="number">192.168</span>.<span class="number">25.148</span>:<span class="number">8081</span>;</span><br><span class="line">server <span class="number">192.168</span>.<span class="number">25.148</span>:<span class="number">8082</span> weight=<span class="number">2</span>;</span><br><span class="line">   &#125;</span><br></pre></td></tr></table></figure>
+
+<p>其他的负载均衡的策略：1.通过IP地址的hash值 做映射。2.通过URL的方式计算出Hash值 。3.随机策略。4.最少并发量</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2019/10/25/nginx%E7%9A%84%E4%B8%89%E5%A4%A7%E5%BA%94%E7%94%A8%E5%9C%BA%E6%99%AF/" title="nginx的三大应用场景">https://hufanglei.github.io/2019/10/25/nginx的三大应用场景/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/nignx/" rel="tag"># nignx</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2019/10/25/docker%E4%B8%ADnginx%E7%9A%84%E9%BB%98%E8%AE%A4%E8%B7%AF%E5%BE%84%E4%BD%8D%E7%BD%AE%E5%92%8C%E6%98%A0%E5%B0%84%E7%9B%AE%E5%BD%95%E5%90%AF%E5%8A%A8/" rel="prev" title="docker中nginx的默认路径位置和映射目录启动">
+                  <i class="fa fa-angle-left"></i> docker中nginx的默认路径位置和映射目录启动
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2019/10/25/%E6%B7%98%E6%B7%98%E5%95%86%E5%9F%8E%E5%AE%9E%E7%8E%B0%E5%8F%8D%E5%90%91%E4%BB%A3%E7%90%86%E5%8E%BB%E6%8E%89%E7%AB%AF%E5%8F%A3%E5%8F%B7/" rel="next" title="淘淘商城实现反向代理去掉端口号">
+                  淘淘商城实现反向代理去掉端口号 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>

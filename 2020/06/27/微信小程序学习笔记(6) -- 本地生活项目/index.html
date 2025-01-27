@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width">
+<meta name="theme-color" content="#222"><meta name="generator" content="Hexo 7.3.0">
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" integrity="sha256-dABdfBfUoC8vJUBOwGVdm8L9qlMWaHTIfXt+7GnZCIo=" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.1.1/animate.min.css" integrity="sha256-PR7ttpcvz8qrF57fur/yAx1qXMFJeJFiA6pSzWi0OIE=" crossorigin="anonymous">
+
+<script class="next-config" data-name="main" type="application/json">{"hostname":"hufanglei.github.io","root":"/","images":"/images","scheme":"Gemini","darkmode":false,"version":"8.22.0","exturl":false,"sidebar":{"position":"left","width_expanded":320,"width_dual_column":240,"display":"post","padding":18,"offset":12,"scrollpercent":true,"onmobile":false},"hljswrap":true,"copycode":{"enable":true,"style":null},"fold":{"enable":false,"height":500},"bookmark":{"enable":false,"color":"#222","save":"auto"},"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"stickytabs":false,"motion":{"enable":true,"async":false,"duration":200,"transition":{"menu_item":"fadeInDown","post_block":"fadeIn","post_header":"fadeInDown","post_body":"fadeInDown","coll_header":"fadeInLeft","sidebar":"fadeInUp"}},"i18n":{"placeholder":"搜索...","empty":"没有找到任何搜索结果：${query}","hits_time":"找到 ${hits} 个搜索结果（用时 ${time} 毫秒）","hits":"找到 ${hits} 个搜索结果"},"path":"/search.xml","localsearch":{"enable":true,"top_n_per_article":1,"unescape":false,"preload":false}}</script><script src="/js/config.js"></script>
+
+    <meta name="description" content="@[TOC] 本地生活项目项目效果图    外观和标签栏的配置window用于设置小程序的状态栏、导航条、标题、窗口背景色。    属性 类型 默认值 描述 最低版本    navigationBarBackgroundColor HexColor #000000 导航栏背景颜色，如 #000000    navigationBarTextStyle string white 导航栏标题颜色，">
+<meta property="og:type" content="blog">
+<meta property="og:title" content="微信小程序学习笔记(6) -- 本地生活项目">
+<meta property="og:url" content="https://hufanglei.github.io/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(6)%20--%20%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE/index.html">
+<meta property="og:site_name" content="个人博客">
+<meta property="og:description" content="@[TOC] 本地生活项目项目效果图    外观和标签栏的配置window用于设置小程序的状态栏、导航条、标题、窗口背景色。    属性 类型 默认值 描述 最低版本    navigationBarBackgroundColor HexColor #000000 导航栏背景颜色，如 #000000    navigationBarTextStyle string white 导航栏标题颜色，">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ed5854bc00498dcfe60a00443b942e7_1737630174347.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/94e98fa6bf7e89a13fd195fb82eb414d_1737630174347.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2088a527268d0d5c1ad8f2b9da23bdc3_1737630174347.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3fba6f5c75bd4a2f1f131c9f4eafbf10_1737630174347.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4c0ab48dd9970cf08e68d437dee96f72_1737630189978.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/64969a040038b6b0a6f69bf7ddf8f275_1737630189978.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/754f8806d682d00e37a2f74a7d05df64_1737630189978.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0eb6fe4b82a514948581dce545977338_1737630189978.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/18f869efdbd50154c6c917399fb23569_1737630189978.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/fcd2bdbee6a376614dd735e1abaee4e1_1737630203563.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7f1210406250d1f1ed873c21e5a3485e_1737630203563.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0e7a5f9bccc5a40cd009c9c022aaa806_1737630203563.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/689b21a6ffca7bdd1790b0c6f02ce4bf_1737630203563.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1471bda8641aa3c297f46e058882a32c_1737630203563.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ca2f364646aba7184e0b73892984fdca_1737630214134.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4b87f88d804eaa63265d4a23d360598d_1737630214134.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/65ab057a879a67cba4ef74fe8e4be3bb_1737630214134.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e55a4a80dd410e5fbf4355414b8a53a5_1737630214134.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/11aaabb2b8f7c8737cf4e94c67eb5c5f_1737630214134.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7b650194b46468b94f8ed2a54a5d268e_1737630226641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4329de65beed159141f65f3485d7e2ba_1737630226641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1f103531c81860a38c368c9b63ab8668_1737630226641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6b5a88c9d2c04a2a47b5e5a839d2354b_1737630226641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/92916fd65142adc7eb9cce13bb6c6609_1737630226641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f712e5cb3ef954ddb19ad28d45fbda95_1737630240125.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/865c1ce205439f7a4ecbaaddc21de78f_1737630240125.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/34ea94d6800ca31dd89d6be17e652e8d_1737630240125.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/50399de62a6cf065acc4581cb9c5d5df_1737630240125.png">
+<meta property="article:published_time" content="2020-06-27T15:51:34.000Z">
+<meta property="article:modified_time" content="2025-01-24T03:37:59.000Z">
+<meta property="article:author" content="胡方雷">
+<meta property="article:tag" content="小程序">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ed5854bc00498dcfe60a00443b942e7_1737630174347.png">
+
+
+<link rel="canonical" href="https://hufanglei.github.io/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(6)%20--%20%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE/">
+
+
+<script class="next-config" data-name="page" type="application/json">{"sidebar":"","isHome":false,"isPost":true,"lang":"zh-CN","comments":true,"permalink":"https://hufanglei.github.io/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(6)%20--%20%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE/","path":"2020/06/27/微信小程序学习笔记(6) -- 本地生活项目/","title":"微信小程序学习笔记(6) -- 本地生活项目"}</script>
+
+<script class="next-config" data-name="calendar" type="application/json">""</script>
+<title>微信小程序学习笔记(6) -- 本地生活项目 | 个人博客</title>
+  
+
+
+
+
+
+
+
+
+  <noscript>
+    <link rel="stylesheet" href="/css/noscript.css">
+  </noscript>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" class="use-motion">
+  <div class="headband"></div>
+
+  <main class="main">
+    <div class="column">
+      <header class="header" itemscope itemtype="http://schema.org/WPHeader"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏" role="button">
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+        <span class="toggle-line"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <i class="logo-line"></i>
+      <p class="site-title">个人博客</p>
+      <i class="logo-line"></i>
+    </a>
+      <p class="site-subtitle" itemprop="description">记录生活中的点点滴滴</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger" aria-label="搜索" role="button">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+<nav class="site-nav">
+  <ul class="main-menu menu"><li class="menu-item menu-item-home"><a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a></li><li class="menu-item menu-item-about"><a href="/about/" rel="section"><i class="fa fa-user fa-fw"></i>关于</a></li><li class="menu-item menu-item-tags"><a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签<span class="badge">398</span></a></li><li class="menu-item menu-item-categories"><a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类<span class="badge">105</span></a></li><li class="menu-item menu-item-archives"><a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档<span class="badge">594</span></a></li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+      <div class="search-header">
+        <span class="search-icon">
+          <i class="fa fa-search"></i>
+        </span>
+        <div class="search-input-container">
+          <input autocomplete="off" autocapitalize="off" maxlength="80"
+                placeholder="搜索..." spellcheck="false"
+                type="search" class="search-input">
+        </div>
+        <span class="popup-btn-close" role="button">
+          <i class="fa fa-times-circle"></i>
+        </span>
+      </div>
+      <div class="search-result-container">
+        <div class="search-result-icon">
+          <i class="fa fa-spinner fa-pulse fa-5x"></i>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</header>
+        
+  
+  <aside class="sidebar">
+
+    <div class="sidebar-inner sidebar-nav-active sidebar-toc-active">
+      <ul class="sidebar-nav">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <div class="sidebar-panel-container">
+        <!--noindex-->
+        <div class="post-toc-wrap sidebar-panel">
+            <div class="post-toc animated"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE"><span class="nav-text">本地生活项目</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B9%E7%9B%AE%E6%95%88%E6%9E%9C%E5%9B%BE"><span class="nav-text">项目效果图</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%96%E8%A7%82%E5%92%8C%E6%A0%87%E7%AD%BE%E6%A0%8F%E7%9A%84%E9%85%8D%E7%BD%AE"><span class="nav-text">外观和标签栏的配置</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#window"><span class="nav-text">window</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#tabBar"><span class="nav-text">tabBar</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87"><span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%85%B7%E4%BD%93%E4%BB%A3%E7%A0%81"><span class="nav-text">具体代码:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%85%AC%E5%85%B1%E6%A0%B7%E5%BC%8F"><span class="nav-text">公共样式</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%AE%BE%E7%BD%AEtabBar%E7%9A%84%E6%A0%B7%E5%BC%8F"><span class="nav-text">设置tabBar的样式:</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E9%A1%B5%E5%B8%83%E5%B1%80"><span class="nav-text">首页布局</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9F%A5%E8%AF%86%E7%82%B9"><span class="nav-text">知识点</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#image"><span class="nav-text">image</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%9B%AE%E6%A0%87-1"><span class="nav-text">目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-text">代码</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B0%8F%E7%A8%8B%E5%BA%8F%E4%B8%AD%E5%8F%91%E9%80%81HTTP%E8%AF%B7%E6%B1%82"><span class="nav-text">小程序中发送HTTP请求</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A6%96%E9%A1%B5%E6%95%B0%E6%8D%AE%E5%8A%A0%E8%BD%BD%E5%8F%8A%E6%95%B0%E6%8D%AE%E7%BB%91%E5%AE%9A"><span class="nav-text">首页数据加载及数据绑定</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%A1%B5%E9%9D%A2%E9%97%B4%E8%B7%B3%E8%BD%AC"><span class="nav-text">页面间跳转</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%88%97%E8%A1%A8%E9%A1%B5%E5%88%86%E7%B1%BB%E4%BF%A1%E6%81%AF%E5%8A%A0%E8%BD%BD"><span class="nav-text">列表页分类信息加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E9%A1%B5%E7%9A%84%E5%95%86%E9%93%BA%E4%BF%A1%E6%81%AF%E7%9A%84%E5%8A%A0%E8%BD%BD"><span class="nav-text">第一页的商铺信息的加载</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8A%E6%8B%89%E5%8A%A0%E8%BD%BD%E6%9B%B4%E5%A4%9AonReachBottom"><span class="nav-text">上拉加载更多onReachBottom</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%B8%8B%E6%8B%89%E5%88%B7%E6%96%B0"><span class="nav-text">下拉刷新</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E8%AF%A6%E7%BB%86%E9%A1%B5"><span class="nav-text">详细页:</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%BA%90%E7%A0%81%E5%9C%B0%E5%9D%80"><span class="nav-text">源码地址:</span></a></li></ol></li></ol></div>
+        </div>
+        <!--/noindex-->
+
+        <div class="site-overview-wrap sidebar-panel">
+          <div class="site-author animated" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="胡方雷"
+      src="/images/avatar.gif">
+  <p class="site-author-name" itemprop="name">胡方雷</p>
+  <div class="site-description" itemprop="description">直到这一刻微笑着说话为止，我至少留下了一公升眼泪</div>
+</div>
+<div class="site-state-wrap animated">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+        <a href="/archives/">
+          <span class="site-state-item-count">594</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+          <a href="/categories/">
+        <span class="site-state-item-count">105</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+          <a href="/tags/">
+        <span class="site-state-item-count">398</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author animated">
+      <span class="links-of-author-item">
+        <a href="https://github.com/hufanglei" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;hufanglei" rel="noopener me" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="https://hufanglei.blog.csdn.net/" title="CSDN → https:&#x2F;&#x2F;hufanglei.blog.csdn.net" rel="noopener me" target="_blank"><i class="crosshairs fa-fw"></i>CSDN</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:690328661@qq.com" title="E-Mail → mailto:690328661@qq.com" rel="noopener me" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license animated" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="https://cdnjs.cloudflare.com/ajax/libs/creativecommons-vocabulary/2020.11.3/assets/license_badges/small/by_nc_sa.svg" alt="Creative Commons"></a>
+  </div>
+
+        </div>
+      </div>
+    </div>
+
+    <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=86 src="//music.163.com/outchain/player?type=2&id=1518938&auto=1&height=66"></iframe>
+
+    
+    <div class="sidebar-inner sidebar-blogroll">
+      <div class="links-of-blogroll animated">
+        <div class="links-of-blogroll-title">
+          链接
+        </div>
+        <ul class="links-of-blogroll-list">
+            <li class="links-of-blogroll-item">
+              <a href="http://www.alloyteam.com/nav/" title="http:&#x2F;&#x2F;www.alloyteam.com&#x2F;nav&#x2F;" rel="noopener" target="_blank">Web前端导航</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.uisdc.com/" title="http:&#x2F;&#x2F;www.uisdc.com&#x2F;" rel="noopener" target="_blank">优设</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://www.zhangxinxu.com/" title="http:&#x2F;&#x2F;www.zhangxinxu.com&#x2F;" rel="noopener" target="_blank">牛人文档</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://ife.baidu.com/" title="http:&#x2F;&#x2F;ife.baidu.com&#x2F;" rel="noopener" target="_blank">百度前端技术学院</a>
+            </li>
+            <li class="links-of-blogroll-item">
+              <a href="http://wf.uisdc.com/cn/" title="http:&#x2F;&#x2F;wf.uisdc.com&#x2F;cn&#x2F;" rel="noopener" target="_blank">google前端开发基础</a>
+            </li>
+        </ul>
+      </div>
+    </div>
+  </aside>
+
+
+    </div>
+
+    <div class="main-inner post posts-expand">
+
+
+  
+
+
+<div class="post-block">
+  
+  
+
+  <article itemscope itemtype="http://schema.org/Article" class="post-content" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://hufanglei.github.io/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(6)%20--%20%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.gif">
+      <meta itemprop="name" content="胡方雷">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="个人博客">
+      <meta itemprop="description" content="直到这一刻微笑着说话为止，我至少留下了一公升眼泪">
+    </span>
+
+    <span hidden itemprop="post" itemscope itemtype="http://schema.org/CreativeWork">
+      <meta itemprop="name" content="微信小程序学习笔记(6) -- 本地生活项目 | 个人博客">
+      <meta itemprop="description" content="">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          微信小程序学习笔记(6) -- 本地生活项目
+        </h1>
+
+        <div class="post-meta-container">
+          <div class="post-meta">
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar"></i>
+      </span>
+      <span class="post-meta-item-text">发表于</span>
+
+      <time title="创建时间：2020-06-27 23:51:34" itemprop="dateCreated datePublished" datetime="2020-06-27T23:51:34+08:00">2020-06-27</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-calendar-check"></i>
+      </span>
+      <span class="post-meta-item-text">更新于</span>
+      <time title="修改时间：2025-01-24 11:37:59" itemprop="dateModified" datetime="2025-01-24T11:37:59+08:00">2025-01-24</time>
+    </span>
+    <span class="post-meta-item">
+      <span class="post-meta-item-icon">
+        <i class="far fa-folder"></i>
+      </span>
+      <span class="post-meta-item-text">分类于</span>
+        <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+          <a href="/categories/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F/" itemprop="url" rel="index"><span itemprop="name">微信小程序</span></a>
+        </span>
+    </span>
+
+  
+    <span class="post-meta-item" title="阅读次数" id="busuanzi_container_page_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="post-meta-item-text">阅读次数：</span>
+      <span id="busuanzi_value_page_pv"></span>
+    </span>
+    <span class="post-meta-break"></span>
+    <span class="post-meta-item" title="本文字数">
+      <span class="post-meta-item-icon">
+        <i class="far fa-file-word"></i>
+      </span>
+      <span class="post-meta-item-text">本文字数：</span>
+      <span>17k</span>
+    </span>
+    <span class="post-meta-item" title="阅读时长">
+      <span class="post-meta-item-icon">
+        <i class="far fa-clock"></i>
+      </span>
+      <span class="post-meta-item-text">阅读时长 &asymp;</span>
+      <span>15 分钟</span>
+    </span>
+</div>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody"><span id="more"></span>
+
+<p>@[TOC]</p>
+<h1 id="本地生活项目"><a href="#本地生活项目" class="headerlink" title="本地生活项目"></a>本地生活项目</h1><h2 id="项目效果图"><a href="#项目效果图" class="headerlink" title="项目效果图"></a>项目效果图</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0ed5854bc00498dcfe60a00443b942e7_1737630174347.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/94e98fa6bf7e89a13fd195fb82eb414d_1737630174347.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/2088a527268d0d5c1ad8f2b9da23bdc3_1737630174347.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/3fba6f5c75bd4a2f1f131c9f4eafbf10_1737630174347.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4c0ab48dd9970cf08e68d437dee96f72_1737630189978.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/64969a040038b6b0a6f69bf7ddf8f275_1737630189978.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/754f8806d682d00e37a2f74a7d05df64_1737630189978.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0eb6fe4b82a514948581dce545977338_1737630189978.png" alt="在这里插入图片描述"></p>
+<h2 id="外观和标签栏的配置"><a href="#外观和标签栏的配置" class="headerlink" title="外观和标签栏的配置"></a>外观和标签栏的配置</h2><h3 id="window"><a href="#window" class="headerlink" title="window"></a>window</h3><p>用于设置小程序的状态栏、导航条、标题、窗口背景色。</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>默认值</th>
+<th>描述</th>
+<th>最低版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>navigationBarBackgroundColor</td>
+<td>HexColor</td>
+<td>#000000</td>
+<td>导航栏背景颜色，如 <code>#000000</code></td>
+<td></td>
+</tr>
+<tr>
+<td>navigationBarTextStyle</td>
+<td>string</td>
+<td>white</td>
+<td>导航栏标题颜色，仅支持 <code>black</code> &#x2F; <code>white</code></td>
+<td></td>
+</tr>
+<tr>
+<td>navigationBarTitleText</td>
+<td>string</td>
+<td></td>
+<td>导航栏标题文字内容</td>
+<td></td>
+</tr>
+<tr>
+<td>navigationStyle</td>
+<td>string</td>
+<td>default</td>
+<td>导航栏样式，仅支持以下值： <code>default</code> 默认样式 <code>custom</code> 自定义导航栏，只保留右上角胶囊按钮。参见注 2。</td>
+<td>微信客户端 6.6.0</td>
+</tr>
+<tr>
+<td>backgroundColor</td>
+<td>HexColor</td>
+<td>#ffffff</td>
+<td>窗口的背景色</td>
+<td></td>
+</tr>
+<tr>
+<td>backgroundTextStyle</td>
+<td>string</td>
+<td>dark</td>
+<td>下拉 loading 的样式，仅支持 <code>dark</code> &#x2F; <code>light</code></td>
+<td></td>
+</tr>
+<tr>
+<td>backgroundColorTop</td>
+<td>string</td>
+<td>#ffffff</td>
+<td>顶部窗口的背景色，仅 iOS 支持</td>
+<td>微信客户端 6.5.16</td>
+</tr>
+<tr>
+<td>backgroundColorBottom</td>
+<td>string</td>
+<td>#ffffff</td>
+<td>底部窗口的背景色，仅 iOS 支持</td>
+<td>微信客户端 6.5.16</td>
+</tr>
+<tr>
+<td>enablePullDownRefresh</td>
+<td>boolean</td>
+<td>false</td>
+<td>是否开启全局的下拉刷新。 详见 <a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#onpulldownrefresh">Page.onPullDownRefresh</a></td>
+<td></td>
+</tr>
+<tr>
+<td>onReachBottomDistance</td>
+<td>number</td>
+<td>50</td>
+<td>页面上拉触底事件触发时距页面底部距离，单位为 px。 详见 <a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/reference/api/Page.html#onreachbottom">Page.onReachBottom</a></td>
+<td></td>
+</tr>
+<tr>
+<td>pageOrientation</td>
+<td>string</td>
+<td>portrait</td>
+<td>屏幕旋转设置，支持 <code>auto</code> &#x2F; <code>portrait</code> &#x2F; <code>landscape</code> 详见 <a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/view/resizable.html">响应显示区域变化</a></td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.4.0</a> (auto) &#x2F; <a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.5.0</a> (landsca</td>
+</tr>
+</tbody></table>
+<h3 id="tabBar"><a href="#tabBar" class="headerlink" title="tabBar"></a>tabBar</h3><p>如果小程序是一个多 tab 应用（客户端窗口的底部或顶部有 tab 栏可以切换页面），可以通过 tabBar 配置项指定 tab 栏的表现，以及 tab 切换时显示的对应页面。</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>必填</th>
+<th>默认值</th>
+<th>描述</th>
+<th>最低版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>color</td>
+<td>HexColor</td>
+<td>是</td>
+<td></td>
+<td>tab 上的文字默认颜色，仅支持十六进制颜色</td>
+<td></td>
+</tr>
+<tr>
+<td>selectedColor</td>
+<td>HexColor</td>
+<td>是</td>
+<td></td>
+<td>tab 上的文字选中时的颜色，仅支持十六进制颜色</td>
+<td></td>
+</tr>
+<tr>
+<td>backgroundColor</td>
+<td>HexColor</td>
+<td>是</td>
+<td></td>
+<td>tab 的背景色，仅支持十六进制颜色</td>
+<td></td>
+</tr>
+<tr>
+<td>borderStyle</td>
+<td>string</td>
+<td>否</td>
+<td>black</td>
+<td>tabbar 上边框的颜色， 仅支持 <code>black</code> &#x2F; <code>white</code></td>
+<td></td>
+</tr>
+<tr>
+<td>list</td>
+<td>Array</td>
+<td>是</td>
+<td></td>
+<td>tab 的列表，详见 <code>list</code> 属性说明，最少 2 个、最多 5 个 tab</td>
+<td></td>
+</tr>
+<tr>
+<td>position</td>
+<td>string</td>
+<td>否</td>
+<td>bottom</td>
+<td>tabBar 的位置，仅支持 <code>bottom</code> &#x2F; <code>top</code></td>
+<td></td>
+</tr>
+<tr>
+<td>custom</td>
+<td>boolean</td>
+<td>否</td>
+<td>false</td>
+<td>自定义 tabBar，见<a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/ability/custom-tabbar.html">详情</a></td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.5.0</a></td>
+</tr>
+</tbody></table>
+<p>其中 list 接受一个数组，<strong>只能配置最少 2 个、最多 5 个 tab</strong>。tab 按数组的顺序排序，每个项都是一个对象，其属性值如下：</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>必填</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>pagePath</td>
+<td>string</td>
+<td>是</td>
+<td>页面路径，必须在 pages 中先定义</td>
+</tr>
+<tr>
+<td>text</td>
+<td>string</td>
+<td>是</td>
+<td>tab 上按钮文字</td>
+</tr>
+<tr>
+<td>iconPath</td>
+<td>string</td>
+<td>否</td>
+<td>图片路径，icon 大小限制为 40kb，建议尺寸为 81px * 81px，不支持网络图片。 <strong>当 position 为 top 时，不显示 icon。</strong></td>
+</tr>
+<tr>
+<td>selectedIconPath</td>
+<td>string</td>
+<td>否</td>
+<td>选中时的图片路径，icon 大小限制为 40kb，建议尺寸为 81px * 81px，不支持网络图片。 <strong>当 position 为 top 时，不显示 icon。</strong></td>
+</tr>
+</tbody></table>
+<h3 id="目标"><a href="#目标" class="headerlink" title="目标"></a>目标</h3><p>建3个tab的tabBar<br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/18f869efdbd50154c6c917399fb23569_1737630189978.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/fcd2bdbee6a376614dd735e1abaee4e1_1737630203563.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7f1210406250d1f1ed873c21e5a3485e_1737630203563.png" alt="在这里插入图片描述"></p>
+<h3 id="具体代码"><a href="#具体代码" class="headerlink" title="具体代码:"></a>具体代码:</h3><p>核心代码:</p>
+<p>app.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;pages&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;pages/index/index&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;pages/message/message&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;pages/profile/profile&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;window&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;navigationBarBackgroundColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#3a4891&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;navigationBarTextStyle&quot;</span><span class="punctuation">:</span><span class="string">&quot;white&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;navigationBarTitleText&quot;</span><span class="punctuation">:</span> <span class="string">&quot;本地生活&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;backgroundColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#bcc0c9&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;backgroundTextStyle&quot;</span><span class="punctuation">:</span><span class="string">&quot;light&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;enablePullDownRefresh&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tabBar&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/index/index&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;首页&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/home.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/home-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/message/message&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;消息&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/message.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/message-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/profile/profile&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;我的&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/profile.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/profile-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;v2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;sitemapLocation&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sitemap.json&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--index.wxml--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;container&quot;</span>&gt;</span></span><br><span class="line">  首页</span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--pages/message/message.wxml--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">text</span>&gt;</span>pages/message/message.wxml<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--pages/profile/profile.wxml--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">text</span>&gt;</span>pages/profile/profile.wxml<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="公共样式"><a href="#公共样式" class="headerlink" title="公共样式"></a>公共样式</h2><h3 id="设置tabBar的样式"><a href="#设置tabBar的样式" class="headerlink" title="设置tabBar的样式:"></a>设置tabBar的样式:</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/0e7a5f9bccc5a40cd009c9c022aaa806_1737630203563.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/689b21a6ffca7bdd1790b0c6f02ce4bf_1737630203563.png" alt="在这里插入图片描述"></p>
+<p>app.json全部代码</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;pages&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">    <span class="string">&quot;pages/index/index&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;pages/message/message&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="string">&quot;pages/profile/profile&quot;</span></span><br><span class="line">  <span class="punctuation">]</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;window&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;navigationBarBackgroundColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#3a4891&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;navigationBarTextStyle&quot;</span><span class="punctuation">:</span><span class="string">&quot;white&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;navigationBarTitleText&quot;</span><span class="punctuation">:</span> <span class="string">&quot;本地生活&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;backgroundColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#bcc0c9&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;backgroundTextStyle&quot;</span><span class="punctuation">:</span><span class="string">&quot;light&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;enablePullDownRefresh&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">false</span></span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;tabBar&quot;</span><span class="punctuation">:</span><span class="punctuation">&#123;</span></span><br><span class="line">     <span class="attr">&quot;color&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#999&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;selectedColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#444&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;backgroundColor&quot;</span><span class="punctuation">:</span> <span class="string">&quot;#fff&quot;</span><span class="punctuation">,</span></span><br><span class="line">     <span class="attr">&quot;borderStyle&quot;</span><span class="punctuation">:</span> <span class="string">&quot;black&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;list&quot;</span><span class="punctuation">:</span><span class="punctuation">[</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/index/index&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;首页&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/home.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/home-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/message/message&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;消息&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/message.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/message-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">      <span class="punctuation">&#123;</span></span><br><span class="line">        <span class="attr">&quot;pagePath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;pages/profile/profile&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;text&quot;</span><span class="punctuation">:</span> <span class="string">&quot;我的&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;iconPath&quot;</span><span class="punctuation">:</span> <span class="string">&quot;assets/profile.png&quot;</span><span class="punctuation">,</span></span><br><span class="line">        <span class="attr">&quot;selectedIconPath&quot;</span><span class="punctuation">:</span><span class="string">&quot;assets/profile-active.png&quot;</span></span><br><span class="line">      <span class="punctuation">&#125;</span></span><br><span class="line">    <span class="punctuation">]</span></span><br><span class="line">  <span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;style&quot;</span><span class="punctuation">:</span> <span class="string">&quot;v2&quot;</span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;sitemapLocation&quot;</span><span class="punctuation">:</span> <span class="string">&quot;sitemap.json&quot;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<h2 id="首页布局"><a href="#首页布局" class="headerlink" title="首页布局"></a>首页布局</h2><h3 id="知识点"><a href="#知识点" class="headerlink" title="知识点"></a>知识点</h3><h4 id="image"><a href="#image" class="headerlink" title="image"></a>image</h4><blockquote>
+<p>基础库 1.0.0 开始支持，低版本需做<a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">兼容处理</a>。</p>
+</blockquote>
+<p>图片。支持 JPG、PNG、SVG、WEBP、GIF 等格式，<a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.3.0</a> 起支持云文件ID。</p>
+<table>
+<thead>
+<tr>
+<th>属性</th>
+<th>类型</th>
+<th>默认值</th>
+<th>必填</th>
+<th>说明</th>
+<th>最低版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>src</td>
+<td>string</td>
+<td></td>
+<td>否</td>
+<td>图片资源地址</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">1.0.0</a></td>
+</tr>
+<tr>
+<td>mode</td>
+<td>string</td>
+<td>scaleToFill</td>
+<td>否</td>
+<td>图片裁剪、缩放的模式</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">1.0.0</a></td>
+</tr>
+<tr>
+<td>webp</td>
+<td>boolean</td>
+<td>false</td>
+<td>否</td>
+<td>默认不解析 webP 格式，只支持网络资源</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.9.0</a></td>
+</tr>
+<tr>
+<td>lazy-load</td>
+<td>boolean</td>
+<td>false</td>
+<td>否</td>
+<td>图片懒加载，在即将进入一定范围（上下三屏）时才开始加载</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">1.5.0</a></td>
+</tr>
+<tr>
+<td>show-menu-by-longpress</td>
+<td>boolean</td>
+<td>false</td>
+<td>否</td>
+<td>开启长按图片显示识别小程序码菜单</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.7.0</a></td>
+</tr>
+<tr>
+<td>binderror</td>
+<td>eventhandle</td>
+<td></td>
+<td>否</td>
+<td>当错误发生时触发，event.detail &#x3D; {errMsg}</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">1.0.0</a></td>
+</tr>
+<tr>
+<td>bindload</td>
+<td>eventhandle</td>
+<td></td>
+<td>否</td>
+<td>当图片载入完毕时触发，event.detail &#x3D; {height, width}</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">1.0.0</a></td>
+</tr>
+</tbody></table>
+<p><strong>mode 的合法值</strong></p>
+<table>
+<thead>
+<tr>
+<th>值</th>
+<th>说明</th>
+<th>最低版本</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>scaleToFill</td>
+<td>缩放模式，不保持纵横比缩放图片，使图片的宽高完全拉伸至填满 image 元素</td>
+<td></td>
+</tr>
+<tr>
+<td>aspectFit</td>
+<td>缩放模式，保持纵横比缩放图片，使图片的长边能完全显示出来。也就是说，可以完整地将图片显示出来。</td>
+<td></td>
+</tr>
+<tr>
+<td>aspectFill</td>
+<td>缩放模式，保持纵横比缩放图片，只保证图片的短边能完全显示出来。也就是说，图片通常只在水平或垂直方向是完整的，另一个方向将会发生截取。</td>
+<td></td>
+</tr>
+<tr>
+<td>widthFix</td>
+<td>缩放模式，宽度不变，高度自动变化，保持原图宽高比不变</td>
+<td></td>
+</tr>
+<tr>
+<td>heightFix</td>
+<td>缩放模式，高度不变，宽度自动变化，保持原图宽高比不变</td>
+<td><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/framework/compatibility.html">2.10.3</a></td>
+</tr>
+<tr>
+<td>top</td>
+<td>裁剪模式，不缩放图片，只显示图片的顶部区域</td>
+<td></td>
+</tr>
+<tr>
+<td>bottom</td>
+<td>裁剪模式，不缩放图片，只显示图片的底部区域</td>
+<td></td>
+</tr>
+<tr>
+<td>center</td>
+<td>裁剪模式，不缩放图片，只显示图片的中间区域</td>
+<td></td>
+</tr>
+<tr>
+<td>left</td>
+<td>裁剪模式，不缩放图片，只显示图片的左边区域</td>
+<td></td>
+</tr>
+<tr>
+<td>right</td>
+<td>裁剪模式，不缩放图片，只显示图片的右边区域</td>
+<td></td>
+</tr>
+<tr>
+<td>top left</td>
+<td>裁剪模式，不缩放图片，只显示图片的左上边区域</td>
+<td></td>
+</tr>
+<tr>
+<td>top right</td>
+<td>裁剪模式，不缩放图片，只显示图片的右上边区域</td>
+<td></td>
+</tr>
+<tr>
+<td>bottom left</td>
+<td>裁剪模式，不缩放图片，只显示图片的左下边区域</td>
+<td></td>
+</tr>
+<tr>
+<td>bottom right</td>
+<td>裁剪模式，不缩放图片，只显示图片的右下边区域</td>
+<td></td>
+</tr>
+</tbody></table>
+<h3 id="目标-1"><a href="#目标-1" class="headerlink" title="目标"></a>目标</h3><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1471bda8641aa3c297f46e058882a32c_1737630203563.png" alt="在这里插入图片描述"></p>
+<h3 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h3><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">&lt;!--index.wxml--&gt;</span></span><br><span class="line"><span class="tag">&lt;<span class="name">swiper</span> <span class="attr">class</span>=<span class="string">&quot;slides&quot;</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="name">swiper-item</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/banner/banner-01.png&quot;</span> <span class="attr">mode</span>=<span class="string">&quot;aspectFill&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">swiper-item</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="name">swiper-item</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/banner/banner-02.png&quot;</span> <span class="attr">mode</span>=<span class="string">&quot;aspectFill&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="name">swiper-item</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">swiper</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;grids&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-01.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-02.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-03.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-04.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-05.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-06.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-07.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-08.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-09.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;links&quot;</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/link-01.png&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/link-02.png&quot;</span>&gt;</span><span class="tag">&lt;/<span class="name">image</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<figure class="highlight css"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**index.wxss**/</span></span><br><span class="line"><span class="selector-class">.slides</span> &#123;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">380</span>rpx;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.slides</span> <span class="selector-tag">image</span>&#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">100%</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">100%</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.grids</span>&#123;</span><br><span class="line">   <span class="attribute">display</span>: flex;</span><br><span class="line">   <span class="attribute">flex-wrap</span>: wrap;   </span><br><span class="line">   <span class="attribute">background-color</span>: <span class="number">#fff</span>;</span><br><span class="line">   <span class="attribute">border-left</span>: <span class="number">1</span>rpx solid <span class="number">#eee</span>;</span><br><span class="line">   <span class="attribute">border-bottom</span>: <span class="number">1</span>rpx solid <span class="number">#eee</span>;</span><br><span class="line">   <span class="attribute">color</span>: <span class="number">#888</span>;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.grids</span> <span class="selector-class">.item</span>&#123;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">  <span class="attribute">flex-direction</span>: column;</span><br><span class="line">  <span class="attribute">justify-content</span>: center;</span><br><span class="line">  <span class="attribute">align-items</span>: center;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">33.333333%</span>;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">250</span>rpx;</span><br><span class="line">  <span class="attribute">border-right</span>: <span class="number">1</span>rpx solid <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">border-top</span>: <span class="number">1</span>rpx solid <span class="number">#eee</span>;</span><br><span class="line">  <span class="attribute">box-sizing</span>: border-box;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.grids</span> <span class="selector-class">.item</span> <span class="selector-tag">image</span>&#123;</span><br><span class="line">  <span class="attribute">width</span>: <span class="number">70</span>rpx;</span><br><span class="line">  <span class="attribute">height</span>: <span class="number">70</span>rpx;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.grids</span> <span class="selector-class">.item</span> <span class="selector-tag">text</span>&#123;</span><br><span class="line">  <span class="attribute">margin-top</span>: <span class="number">20</span>rpx;</span><br><span class="line">  <span class="attribute">color</span>: <span class="number">#888</span>;</span><br><span class="line">  <span class="attribute">font-size</span>: <span class="number">28</span>rpx;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.links</span>&#123;</span><br><span class="line">  <span class="attribute">display</span>: flex;</span><br><span class="line">&#125;</span><br><span class="line"><span class="selector-class">.links</span> <span class="selector-tag">image</span>&#123;</span><br><span class="line">    <span class="attribute">height</span>: <span class="number">200</span>rpx;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>效果:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/ca2f364646aba7184e0b73892984fdca_1737630214134.png" alt="在这里插入图片描述"></p>
+<h2 id="小程序中发送HTTP请求"><a href="#小程序中发送HTTP请求" class="headerlink" title="小程序中发送HTTP请求"></a>小程序中发送HTTP请求</h2><p>如果是测试环境:</p>
+<p>在详情中设置</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4b87f88d804eaa63265d4a23d360598d_1737630214134.png" alt="在这里插入图片描述"></p>
+<p>如果是正式环境</p>
+<p>1.请求的地址必须在管理后台添加白名单</p>
+<p>2.域名必须备案，服务端必须采用HTTPS</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//index.js</span></span><br><span class="line"><span class="comment">//获取应用实例</span></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">getApp</span>()</span><br><span class="line"></span><br><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面的初始数据</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onLoad</span>: <span class="keyword">function</span> (<span class="params">options</span>) &#123;</span><br><span class="line">      wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">        <span class="comment">//这里的地址没有跨域的概念</span></span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;https://api.douban.com/v2/movie/coming_soon&#x27;</span>,</span><br><span class="line">        <span class="attr">header</span>: &#123;</span><br><span class="line">          <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;json&#x27;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">res</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(res)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//发送异步请求 不再是 WEB 那套 ajax</span></span><br><span class="line">        <span class="comment">//2.没有跨域</span></span><br><span class="line">        <span class="comment">//3.请求的地址必须在管理后台添加白名单</span></span><br><span class="line">        <span class="comment">//4.域名必须备案，服务端必须采用HTTPS</span></span><br><span class="line">      &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面初次渲染完成</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReady</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面显示</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShow</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面隐藏</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onHide</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面卸载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onUnload</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面相关事件处理函数--监听用户下拉动作</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onPullDownRefresh</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面上拉触底事件的处理函数</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReachBottom</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 用户点击右上角分享</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShareAppMessage</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="首页数据加载及数据绑定"><a href="#首页数据加载及数据绑定" class="headerlink" title="首页数据加载及数据绑定"></a>首页数据加载及数据绑定</h2><p>封装http请求:</p>
+<p>在utils的文件夹下:新建fetch.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="function">(<span class="params">url, data</span>) =&gt;</span> &#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">      <span class="attr">url</span>: <span class="string">`https://locally.uieee.com/<span class="subst">$&#123;url&#125;</span>`</span>,</span><br><span class="line">      <span class="attr">success</span>: resolve,</span><br><span class="line">      <span class="attr">fail</span>: reject</span><br><span class="line">    &#125;)</span><br><span class="line">   &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>index.js导入fetch，并使用</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//index.js</span></span><br><span class="line"><span class="comment">//获取应用实例</span></span><br><span class="line"><span class="keyword">const</span> app = <span class="title function_">getApp</span>()</span><br><span class="line"><span class="keyword">const</span> fetch = <span class="built_in">require</span>(<span class="string">&#x27;../../utils/fetch&#x27;</span>)</span><br><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line"> </span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面的初始数据</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">     <span class="attr">slides</span>: [],</span><br><span class="line">     <span class="attr">categories</span>: []</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onLoad</span>: <span class="keyword">function</span> (<span class="params">options</span>) &#123;</span><br><span class="line">    </span><br><span class="line">      wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">        <span class="comment">//这里的地址没有跨域的概念</span></span><br><span class="line">        <span class="attr">url</span>: <span class="string">&#x27;https://api.douban.com/v2/movie/coming_soon&#x27;</span>,</span><br><span class="line">        <span class="attr">header</span>: &#123;</span><br><span class="line">          <span class="string">&#x27;Content-Type&#x27;</span>: <span class="string">&#x27;json&#x27;</span></span><br><span class="line">        &#125;,</span><br><span class="line">        <span class="attr">success</span>: <span class="keyword">function</span>(<span class="params">res</span>)&#123;</span><br><span class="line">            <span class="variable language_">console</span>.<span class="title function_">log</span>(res)</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//发送异步请求 不再是 WEB 那套 ajax</span></span><br><span class="line">        <span class="comment">//2.没有跨域</span></span><br><span class="line">        <span class="comment">//3.请求的地址必须在管理后台添加白名单</span></span><br><span class="line">        <span class="comment">//4.域名必须备案，服务端必须采用HTTPS</span></span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="comment">// wx.request(&#123;</span></span><br><span class="line">      <span class="comment">//   url: &#x27;https://locally.uieee.com/slides&#x27;,</span></span><br><span class="line">      <span class="comment">//   success: res =&gt; &#123;</span></span><br><span class="line">      <span class="comment">//     this.setData(&#123;slides: res.data&#125;);</span></span><br><span class="line">      <span class="comment">//   &#125;</span></span><br><span class="line">      <span class="comment">// &#125;)</span></span><br><span class="line"></span><br><span class="line">      <span class="title function_">fetch</span>(<span class="string">&#x27;slides&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; <span class="attr">slides</span>: res.<span class="property">data</span>&#125;)</span><br><span class="line">      &#125;)</span><br><span class="line"></span><br><span class="line">      <span class="comment">// wx.request(&#123;</span></span><br><span class="line">      <span class="comment">//   url: &#x27;https://locally.uieee.com/categories&#x27;,</span></span><br><span class="line">      <span class="comment">//   success: res =&gt; &#123;</span></span><br><span class="line">      <span class="comment">//      this.setData(&#123; categories : res.data &#125;)</span></span><br><span class="line">      <span class="comment">//   &#125;</span></span><br><span class="line">      <span class="comment">// &#125;)</span></span><br><span class="line"></span><br><span class="line">      </span><br><span class="line">      <span class="title function_">fetch</span>(<span class="string">&#x27;slides&#x27;</span>).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; <span class="attr">categories</span>: res.<span class="property">data</span>&#125;)</span><br><span class="line">      &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面初次渲染完成</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReady</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面显示</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShow</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面隐藏</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onHide</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面卸载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onUnload</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面相关事件处理函数--监听用户下拉动作</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onPullDownRefresh</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面上拉触底事件的处理函数</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReachBottom</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 用户点击右上角分享</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShareAppMessage</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+
+
+<h2 id="页面间跳转"><a href="#页面间跳转" class="headerlink" title="页面间跳转"></a>页面间跳转</h2><p>注意点:</p>
+<ul>
+<li><p>tab页跳转到另一个tab页，需要使用navigator的open-type&#x3D;”switchTab”</p>
+<p>例如:</p>
+<figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="name">view</span> <span class="attr">class</span>=<span class="string">&quot;grids&quot;</span>&gt;</span>  </span><br><span class="line">   <span class="tag">&lt;<span class="name">navigator</span> <span class="attr">class</span>=<span class="string">&quot;item&quot;</span> <span class="attr">url</span>=<span class="string">&quot;/pages/message/message&quot;</span> <span class="attr">open-type</span>=<span class="string">&quot;switchTab&quot;</span>&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">image</span> <span class="attr">src</span>=<span class="string">&quot;/assets/grid/grid-02.png&quot;</span> /&gt;</span></span><br><span class="line">      <span class="tag">&lt;<span class="name">text</span>&gt;</span>美食<span class="tag">&lt;/<span class="name">text</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="name">navigator</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="name">view</span>&gt;</span></span><br></pre></td></tr></table></figure></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/65ab057a879a67cba4ef74fe8e4be3bb_1737630214134.png" alt="在这里插入图片描述"></p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/e55a4a80dd410e5fbf4355414b8a53a5_1737630214134.png" alt="在这里插入图片描述"></p>
+<ul>
+<li>普通跳转 ，注意修改navigator的高宽百分比，不然会空白</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/11aaabb2b8f7c8737cf4e94c67eb5c5f_1737630214134.png" alt="在这里插入图片描述"></p>
+<p>  添加了navigator</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/7b650194b46468b94f8ed2a54a5d268e_1737630226641.png" alt="在这里插入图片描述"></p>
+<h2 id="列表页分类信息加载"><a href="#列表页分类信息加载" class="headerlink" title="列表页分类信息加载"></a>列表页分类信息加载</h2><p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/4329de65beed159141f65f3485d7e2ba_1737630226641.png" alt="在这里插入图片描述"></p>
+<p>注意点， 设置分类导航栏的名字的顺序，一定在onReady函数执行完之后。</p>
+<p>list.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"> <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onLoad</span>: <span class="keyword">function</span> (<span class="params">options</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(options)</span><br><span class="line">    <span class="comment">//这里不能确定一定是在 onReady过后执行</span></span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">`categories/<span class="subst">$&#123;options.cat&#125;</span>`</span>).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">       <span class="variable language_">console</span>.<span class="title function_">log</span>(res.<span class="property">data</span>)</span><br><span class="line">       <span class="comment">//设置导航条</span></span><br><span class="line">      <span class="comment">//  wx.setNavigationBarTitle(&#123;</span></span><br><span class="line">      <span class="comment">//    title: res.data.name</span></span><br><span class="line">      <span class="comment">//  &#125;)</span></span><br><span class="line">       <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; <span class="attr">category</span>: res.<span class="property">data</span>&#125;)</span><br><span class="line">    &#125;)</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line"><span class="attr">onReady</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>)</span><br><span class="line">      <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">category</span>.<span class="property">name</span>）&#123;</span><br><span class="line">        wx.<span class="title function_">setNavigationBarTitle</span>(&#123;</span><br><span class="line">          <span class="attr">title</span>: res.<span class="property">data</span>.<span class="property">name</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;     </span><br><span class="line">  &#125;,</span><br></pre></td></tr></table></figure>
+
+<h2 id="第一页的商铺信息的加载"><a href="#第一页的商铺信息的加载" class="headerlink" title="第一页的商铺信息的加载"></a>第一页的商铺信息的加载</h2><p>关键代码:</p>
+<p>优化封装的fetch.js,让其可以携带参数</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="variable language_">module</span>.<span class="property">exports</span> = <span class="function">(<span class="params">url, data</span>) =&gt;</span> &#123;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">new</span> <span class="title class_">Promise</span>(<span class="function">(<span class="params">resolve, reject</span>) =&gt;</span> &#123;</span><br><span class="line">    wx.<span class="title function_">request</span>(&#123;</span><br><span class="line">      <span class="attr">url</span>: <span class="string">`https://locally.uieee.com/<span class="subst">$&#123;url&#125;</span>`</span>,</span><br><span class="line">      <span class="attr">data</span>: data,</span><br><span class="line">      <span class="attr">success</span>: resolve,</span><br><span class="line">      <span class="attr">fail</span>: reject</span><br><span class="line">    &#125;)</span><br><span class="line">   &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>正确使用promise.2个请求，有前后顺序的正确写法:</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line">onLoad<span class="punctuation">:</span> function (options) <span class="punctuation">&#123;</span></span><br><span class="line">  console.log(<span class="number">2</span>)</span><br><span class="line">  console.log(options)</span><br><span class="line">  <span class="comment">//这里不能确定一定是在 onReady过后执行</span></span><br><span class="line">  fetch(`categories/$<span class="punctuation">&#123;</span>options.cat<span class="punctuation">&#125;</span>`).then(res =&gt; <span class="punctuation">&#123;</span></span><br><span class="line">     console.log(res.data)</span><br><span class="line">     <span class="comment">//设置导航条</span></span><br><span class="line">    <span class="comment">//  wx.setNavigationBarTitle(&#123;</span></span><br><span class="line">    <span class="comment">//    title: res.data.name</span></span><br><span class="line">    <span class="comment">//  &#125;)</span></span><br><span class="line">     this.setData(<span class="punctuation">&#123;</span> category<span class="punctuation">:</span> res.data<span class="punctuation">&#125;</span>)</span><br><span class="line">    </span><br><span class="line">       <span class="comment">//加载完分类信息过后再去加载商铺信息</span></span><br><span class="line">      return  fetch(`categories/$<span class="punctuation">&#123;</span>this.data.category.id<span class="punctuation">&#125;</span>shops`<span class="punctuation">,</span><span class="punctuation">&#123;</span>_page；<span class="number">1</span>，_limit<span class="punctuation">:</span> <span class="number">10</span><span class="punctuation">&#125;</span>) </span><br><span class="line">  <span class="punctuation">&#125;</span>)</span><br><span class="line">  .then(res =&gt; <span class="punctuation">&#123;</span></span><br><span class="line">     this.setData(<span class="punctuation">&#123;</span> shops<span class="punctuation">:</span> res.data <span class="punctuation">&#125;</span>)</span><br><span class="line">  <span class="punctuation">&#125;</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="punctuation">&#125;</span><span class="punctuation">,</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<h2 id="上拉加载更多onReachBottom"><a href="#上拉加载更多onReachBottom" class="headerlink" title="上拉加载更多onReachBottom"></a>上拉加载更多onReachBottom</h2><p><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html">https://developers.weixin.qq.com/miniprogram/dev/reference/configuration/page.html</a><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/1f103531c81860a38c368c9b63ab8668_1737630226641.png" alt="在这里插入图片描述"></p>
+<p>list.json</p>
+<p>值越小，越迟钝，看具体需求</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;onReachBottomDistance&quot;</span><span class="punctuation">:</span> <span class="number">20</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/6b5a88c9d2c04a2a47b5e5a839d2354b_1737630226641.png" alt="在这里插入图片描述"><br>list.js</p>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pages/list/list.js</span></span><br><span class="line"><span class="keyword">const</span> fetch = <span class="built_in">require</span>(<span class="string">&#x27;../../utils/fetch&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面的初始数据</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="comment">//当前加载的分类</span></span><br><span class="line">    <span class="attr">category</span>:&#123;&#125;,</span><br><span class="line">    <span class="comment">//子分类下的全部店铺</span></span><br><span class="line">    <span class="attr">shops</span>: [],</span><br><span class="line">    <span class="attr">pageIndex</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">pageSize</span>:<span class="number">20</span>,</span><br><span class="line">    <span class="attr">hasMore</span>: <span class="literal">true</span></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="title function_">loadMore</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">hasMore</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="comment">//从data中取出 pageIndex 和 pageSize</span></span><br><span class="line">    <span class="keyword">let</span> &#123; pageIndex, pageSize &#125; = <span class="variable language_">this</span>.<span class="property">data</span></span><br><span class="line">    <span class="keyword">const</span> params = &#123;<span class="attr">_page</span>: ++pageIndex, <span class="attr">_limit</span>: pageSize&#125;</span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">`categories/<span class="subst">$&#123;<span class="variable language_">this</span>.data.category.id&#125;</span>/shops`</span>, params) </span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> totalCount = <span class="built_in">parseInt</span>(res.<span class="property">header</span>[<span class="string">&#x27;X-Total-Count&#x27;</span>])</span><br><span class="line">      <span class="keyword">const</span> hasMore = pageIndex * pageSize &lt; totalCount</span><br><span class="line">        <span class="keyword">const</span> shops = <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">shops</span>.<span class="title function_">concat</span>(res.<span class="property">data</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; shops, pageIndex, hasMore&#125;)</span><br><span class="line">     &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onLoad</span>: <span class="keyword">function</span> (<span class="params">options</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(options)</span><br><span class="line">    <span class="comment">//这里不能确定一定是在 onReady过后执行</span></span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">`categories/<span class="subst">$&#123;options.cat&#125;</span>`</span>).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">       <span class="variable language_">console</span>.<span class="title function_">log</span>(res.<span class="property">data</span>)</span><br><span class="line">       <span class="comment">//设置导航条</span></span><br><span class="line">      <span class="comment">//  wx.setNavigationBarTitle(&#123;</span></span><br><span class="line">      <span class="comment">//    title: res.data.name</span></span><br><span class="line">      <span class="comment">//  &#125;)</span></span><br><span class="line">       <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; <span class="attr">category</span>: res.<span class="property">data</span>&#125;)</span><br><span class="line">      </span><br><span class="line">         <span class="comment">//加载完分类信息过后再去加载商铺信息</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">loadMore</span>();</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面初次渲染完成</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReady</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>)</span><br><span class="line">      <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">category</span>.<span class="property">name</span>）&#123;</span><br><span class="line">        wx.<span class="title function_">setNavigationBarTitle</span>(&#123;</span><br><span class="line">          <span class="attr">title</span>: res.<span class="property">data</span>.<span class="property">name</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;     </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面显示</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShow</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面隐藏</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onHide</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面卸载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onUnload</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面相关事件处理函数--监听用户下拉动作</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onPullDownRefresh</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面上拉触底事件的处理函数</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReachBottom</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">       <span class="comment">//需要判断是否正在加载，否则会有多次触发问题</span></span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;到底了，别啦了&#x27;</span>);</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">loadMore</span>();</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 用户点击右上角分享</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShareAppMessage</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="下拉刷新"><a href="#下拉刷新" class="headerlink" title="下拉刷新"></a>下拉刷新</h2><p>启动下拉刷新</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/92916fd65142adc7eb9cce13bb6c6609_1737630226641.png" alt="在这里插入图片描述"></p>
+<p>list.json</p>
+<figure class="highlight json"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;enablePullDownRefresh&quot;</span><span class="punctuation">:</span> <span class="literal"><span class="keyword">true</span></span><span class="punctuation">,</span></span><br><span class="line">  <span class="attr">&quot;onReachBottomDistance&quot;</span><span class="punctuation">:</span> <span class="number">20</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>停止下拉刷新</p>
+<p><a target="_blank" rel="noopener" href="https://developers.weixin.qq.com/miniprogram/dev/api/ui/pull-down-refresh/wx.stopPullDownRefresh.html">https://developers.weixin.qq.com/miniprogram/dev/api/ui/pull-down-refresh/wx.stopPullDownRefresh.html</a></p>
+<blockquote>
+<p>wx.stopPullDownRefresh(Object object)</p>
+</blockquote>
+<figure class="highlight js"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br><span class="line">97</span><br><span class="line">98</span><br><span class="line">99</span><br><span class="line">100</span><br><span class="line">101</span><br><span class="line">102</span><br><span class="line">103</span><br><span class="line">104</span><br><span class="line">105</span><br><span class="line">106</span><br><span class="line">107</span><br><span class="line">108</span><br><span class="line">109</span><br><span class="line">110</span><br><span class="line">111</span><br><span class="line">112</span><br><span class="line">113</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// pages/list/list.js</span></span><br><span class="line"><span class="keyword">const</span> fetch = <span class="built_in">require</span>(<span class="string">&#x27;../../utils/fetch&#x27;</span>)</span><br><span class="line"></span><br><span class="line"><span class="title class_">Page</span>(&#123;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面的初始数据</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">data</span>: &#123;</span><br><span class="line">    <span class="comment">//当前加载的分类</span></span><br><span class="line">    <span class="attr">category</span>:&#123;&#125;,</span><br><span class="line">    <span class="comment">//子分类下的全部店铺</span></span><br><span class="line">    <span class="attr">shops</span>: [],</span><br><span class="line">    <span class="attr">pageIndex</span>:<span class="number">0</span>,</span><br><span class="line">    <span class="attr">pageSize</span>:<span class="number">20</span>,</span><br><span class="line">    <span class="attr">hasMore</span>: <span class="literal">true</span></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="title function_">loadMore</span>(<span class="params"></span>)&#123;</span><br><span class="line">    <span class="keyword">if</span>(!<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">hasMore</span>) <span class="keyword">return</span>;</span><br><span class="line">    <span class="comment">//从data中取出 pageIndex 和 pageSize</span></span><br><span class="line">    <span class="keyword">let</span> &#123; pageIndex, pageSize &#125; = <span class="variable language_">this</span>.<span class="property">data</span></span><br><span class="line">    <span class="keyword">const</span> params = &#123;<span class="attr">_page</span>: ++pageIndex, <span class="attr">_limit</span>: pageSize&#125;</span><br><span class="line">    <span class="keyword">return</span> <span class="title function_">fetch</span>(<span class="string">`categories/<span class="subst">$&#123;<span class="variable language_">this</span>.data.category.id&#125;</span>/shops`</span>, params) </span><br><span class="line">    .<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">      <span class="keyword">const</span> totalCount = <span class="built_in">parseInt</span>(res.<span class="property">header</span>[<span class="string">&#x27;X-Total-Count&#x27;</span>])</span><br><span class="line">      <span class="keyword">const</span> hasMore = pageIndex * pageSize &lt; totalCount</span><br><span class="line">        <span class="keyword">const</span> shops = <span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">shops</span>.<span class="title function_">concat</span>(res.<span class="property">data</span>)</span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; shops, pageIndex, hasMore&#125;)</span><br><span class="line">     &#125;)</span><br><span class="line">  &#125;</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面加载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onLoad</span>: <span class="keyword">function</span> (<span class="params">options</span>) &#123;</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">2</span>)</span><br><span class="line">    <span class="variable language_">console</span>.<span class="title function_">log</span>(options)</span><br><span class="line">    <span class="comment">//这里不能确定一定是在 onReady过后执行</span></span><br><span class="line">    <span class="title function_">fetch</span>(<span class="string">`categories/<span class="subst">$&#123;options.cat&#125;</span>`</span>).<span class="title function_">then</span>(<span class="function"><span class="params">res</span> =&gt;</span> &#123;</span><br><span class="line">       <span class="variable language_">console</span>.<span class="title function_">log</span>(res.<span class="property">data</span>)</span><br><span class="line">       <span class="comment">//设置导航条</span></span><br><span class="line">      <span class="comment">//  wx.setNavigationBarTitle(&#123;</span></span><br><span class="line">      <span class="comment">//    title: res.data.name</span></span><br><span class="line">      <span class="comment">//  &#125;)</span></span><br><span class="line">       <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123; <span class="attr">category</span>: res.<span class="property">data</span>&#125;)</span><br><span class="line">      </span><br><span class="line">         <span class="comment">//加载完分类信息过后再去加载商铺信息</span></span><br><span class="line">        <span class="variable language_">this</span>.<span class="title function_">loadMore</span>();</span><br><span class="line">    &#125;)</span><br><span class="line">    </span><br><span class="line"></span><br><span class="line">  </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面初次渲染完成</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReady</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="number">1</span>)</span><br><span class="line">      <span class="keyword">if</span>(<span class="variable language_">this</span>.<span class="property">data</span>.<span class="property">category</span>.<span class="property">name</span>）&#123;</span><br><span class="line">        wx.<span class="title function_">setNavigationBarTitle</span>(&#123;</span><br><span class="line">          <span class="attr">title</span>: res.<span class="property">data</span>.<span class="property">name</span></span><br><span class="line">        &#125;)</span><br><span class="line">      &#125;     </span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面显示</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShow</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面隐藏</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onHide</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 生命周期函数--监听页面卸载</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onUnload</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面相关事件处理函数--监听用户下拉动作</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onPullDownRefresh</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">      <span class="comment">//重新加载</span></span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">setData</span>(&#123;<span class="attr">shops</span>:[],<span class="attr">pageIndex</span>:<span class="number">0</span>, <span class="attr">hasMore</span>:<span class="literal">false</span>&#125;);</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">loadMore</span>()</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 页面上拉触底事件的处理函数</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onReachBottom</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line">       <span class="comment">//需要判断是否正在加载，否则会有多次触发问题</span></span><br><span class="line">      <span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="string">&#x27;到底了，别啦了&#x27;</span>);</span><br><span class="line">      <span class="variable language_">this</span>.<span class="title function_">loadMore</span>().<span class="title function_">then</span>(<span class="function">() =&gt;</span> wx.<span class="title function_">stopPullDownRefresh</span>());</span><br><span class="line">  &#125;,</span><br><span class="line"></span><br><span class="line">  <span class="comment">/**</span></span><br><span class="line"><span class="comment">   * 用户点击右上角分享</span></span><br><span class="line"><span class="comment">   */</span></span><br><span class="line">  <span class="attr">onShareAppMessage</span>: <span class="keyword">function</span> (<span class="params"></span>) &#123;</span><br><span class="line"></span><br><span class="line">  &#125;</span><br><span class="line">&#125;)</span><br></pre></td></tr></table></figure>
+
+<h2 id="详细页"><a href="#详细页" class="headerlink" title="详细页:"></a>详细页:</h2><p>注意点:</p>
+<p>使用wxs行内脚本设置过滤器。但是不支持es6</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/f712e5cb3ef954ddb19ad28d45fbda95_1737630240125.png" alt="在这里插入图片描述"><br>预览图片</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/865c1ce205439f7a4ecbaaddc21de78f_1737630240125.png" alt="在这里插入图片描述"><br><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/34ea94d6800ca31dd89d6be17e652e8d_1737630240125.png" alt="在这里插入图片描述"><br>效果:</p>
+<p><img src="https://raw.githubusercontent.com/hufanglei/img-csdn/main/img/2025-1-13/50399de62a6cf065acc4581cb9c5d5df_1737630240125.png" alt="[外链图片转存失败,源站可能有防盗链机制,建议将图片保存下来直接上传(img-G96kqQ69-1593272623869)(本地生活项目.assets&#x2F;1593266711073.png)]"></p>
+<h2 id="源码地址"><a href="#源码地址" class="headerlink" title="源码地址:"></a>源码地址:</h2><p>感谢大神:  <a target="_blank" rel="noopener" href="https://github.com/zce/weapp-locally">https://github.com/zce/weapp-locally</a></p>
+<hr>
+<p>完</p>
+
+    </div>
+
+    
+    
+    
+
+    <footer class="post-footer">
+          
+
+<div class="post-copyright">
+<ul>
+  <li class="post-copyright-author">
+      <strong>本文作者： </strong>胡方雷
+  </li>
+  <li class="post-copyright-link">
+      <strong>本文链接：</strong>
+      <a href="https://hufanglei.github.io/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(6)%20--%20%E6%9C%AC%E5%9C%B0%E7%94%9F%E6%B4%BB%E9%A1%B9%E7%9B%AE/" title="微信小程序学习笔记(6) -- 本地生活项目">https://hufanglei.github.io/2020/06/27/微信小程序学习笔记(6) -- 本地生活项目/</a>
+  </li>
+  <li class="post-copyright-license">
+      <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+          <div class="post-tags">
+              <a href="/tags/%E5%B0%8F%E7%A8%8B%E5%BA%8F/" rel="tag"># 小程序</a>
+          </div>
+
+        
+
+          <div class="post-nav">
+            <div class="post-nav-item">
+                <a href="/2020/06/27/%E5%BE%AE%E4%BF%A1%E5%B0%8F%E7%A8%8B%E5%BA%8F%E5%AD%A6%E4%B9%A0%E7%AC%94%E8%AE%B0(5)%20--%20todos%E6%A1%88%E4%BE%8B/" rel="prev" title="微信小程序学习笔记(5) -- todos案例">
+                  <i class="fa fa-angle-left"></i> 微信小程序学习笔记(5) -- todos案例
+                </a>
+            </div>
+            <div class="post-nav-item">
+                <a href="/2020/06/28/springboot%E4%BD%BF%E7%94%A8Cassandra%E7%BB%84%E5%90%88%E6%9F%A5%E8%AF%A2%E6%95%B0%E6%8D%AE/" rel="next" title="springboot使用Cassandra组合查询数据">
+                  springboot使用Cassandra组合查询数据 <i class="fa fa-angle-right"></i>
+                </a>
+            </div>
+          </div>
+    </footer>
+  </article>
+</div>
+
+
+
+
+
+
+</div>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-inner">
+
+  <div class="copyright">
+    &copy; 
+    <span itemprop="copyrightYear">2025</span>
+    <span class="with-love">
+      <i class="fa fa-heart"></i>
+    </span>
+    <span class="author" itemprop="copyrightHolder">胡方雷</span>
+  </div>
+<div class="wordcount">
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-line"></i>
+    </span>
+      <span>站点总字数：</span>
+    <span title="站点总字数">1.8m</span>
+  </span>
+  <span class="post-meta-item">
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+      <span>站点阅读时长 &asymp;</span>
+    <span title="站点阅读时长">26:40</span>
+  </span>
+</div>
+<div class="busuanzi-count">
+    <span class="post-meta-item" id="busuanzi_container_site_uv">
+      <span class="post-meta-item-icon">
+        <i class="user"></i>
+      </span>
+      <span class="site-uv" title="总访客量">
+        <span id="busuanzi_value_site_uv"></span>
+      </span>
+    </span>
+    <span class="post-meta-item" id="busuanzi_container_site_pv">
+      <span class="post-meta-item-icon">
+        <i class="eye"></i>
+      </span>
+      <span class="site-pv" title="总访问量">
+        <span id="busuanzi_value_site_pv"></span>
+      </span>
+    </span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.js.org/" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+    </div>
+  </footer>
+
+  
+  <div class="toggle sidebar-toggle" role="button">
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+    <span class="toggle-line"></span>
+  </div>
+  <div class="sidebar-dimmer"></div>
+  <div class="back-to-top" role="button" aria-label="返回顶部">
+    <i class="fa fa-arrow-up fa-lg"></i>
+    <span>0%</span>
+  </div>
+
+  <a href="https://github.com/hufanglei" class="github-corner" title="在 GitHub 上关注我" aria-label="在 GitHub 上关注我" rel="noopener" target="_blank"><svg width="80" height="80" viewBox="0 0 250 250" aria-hidden="true"><path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path><path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path><path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" class="octo-body"></path></svg></a>
+
+<noscript>
+  <div class="noscript-warning">Theme NexT works best with JavaScript enabled</div>
+</noscript>
+
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha256-XL2inqUJaslATFnHdJOi9GfQ60on8Wx1C2H8DYiN1xY=" crossorigin="anonymous"></script>
+<script src="/js/comments.js"></script><script src="/js/utils.js"></script><script src="/js/motion.js"></script><script src="/js/sidebar.js"></script><script src="/js/next-boot.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/hexo-generator-searchdb/1.4.1/search.js" integrity="sha256-1kfA5uHPf65M5cphT2dvymhkuyHPQp5A53EGZOnOLmc=" crossorigin="anonymous"></script>
+<script src="/js/third-party/search/local-search.js"></script>
+
+
+
+
+
+
+
+  
+  <script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+
+
+
+
+
+</body>
+</html>
